@@ -102,7 +102,9 @@ export default function ConfigEditor() {
               onChange={(e) => setTextContent(e.target.value)}
               className="w-full h-full resize-none text-sm bg-white p-4 text-gray-700 placeholder-gray-400 focus:outline-none"
             /> */}
-            <Editor defaultLanguage="" defaultValue="" />
+            <Editor defaultLanguage="" defaultValue="" options={{
+              fontSize: 14 // 设置字号为14px
+            }} />
           </div>
         </> : <></>}
       </div>
