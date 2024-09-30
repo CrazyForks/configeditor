@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
-import { Check, Copy, RefreshCw, Save } from "lucide-react"
+import { Check, Copy, RefreshCw, Save, Settings } from "lucide-react"
 import { useEffect, useState } from 'react'
 import { FileSidebar } from './file-sidebar'
 import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
@@ -82,6 +82,13 @@ export default function ConfigEditor() {
             <Button onClick={handleRefreshConfig} size="sm" className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md">
               <RefreshCw className="mr-1 h-4 w-4" />
               刷新
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-700 ml-2"
+            >
+              <Settings className="h-4 w-4" />
             </Button>
           </div>
         </div>
