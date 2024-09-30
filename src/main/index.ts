@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -35,6 +35,20 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
     mainWindow.webContents.openDevTools();
   }
+
+  ipcMain.handle("open-select-dialog", async (_, arg) => {
+    const openDialogReturnValue = await dialog.showOpenDialog(mainWindow, {
+      title: "选择配置文件",
+      properties: ["openFile", "multiSelections"],
+    });
+    const filePaths = openDialogReturnValue.filePaths;
+    if (filePaths && filePaths.length > 0) {
+      return { filePaths };
+    } else {
+      return { filePaths: [] };
+    }
+  });
+
 }
 
 // This method will be called when Electron has finished

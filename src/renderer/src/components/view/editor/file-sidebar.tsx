@@ -19,11 +19,26 @@ import {
 import { Label } from "@/components/ui/label"
 import { useAtom } from "jotai";
 import { filePathsAtom, nowFilePathAtom } from "@/lib/store";
+import { ipcRenderer } from "electron";
 
 export function AddFileButton() {
     const onOk = () => {
         console.log('ok')
     }
+
+    // 打开选择配置文件窗口
+    // async function openSelectDialog(): Promise<string[]> {
+    //     return new Promise((resolve, reject) => {
+    //         ipcRenderer.invoke('open-select-dialog', {}).then(arg => {
+    //             if (arg && arg.filePaths) {
+    //                 resolve(arg.filePaths);
+    //             } else {
+    //                 resolve([]);
+    //             }
+    //         });
+    //     });
+    // }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
