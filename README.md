@@ -1,9 +1,12 @@
+#
+
+- 确定文本文件类型
+
 # electron-shadcn-typescript
 
 An Electron application boilerplate with React and TypeScript ( & Shadcn )
 
 ![Screenshot (9)](https://github.com/p32929/electron-shadcn-typescript/assets/6418354/c07ff9dd-6434-45aa-9620-c9536c8db168)
-
 
 ## Recommended IDE Setup
 

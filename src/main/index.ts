@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    title: '配置文件编辑器',
     width: 800,
     height: 600,
     show: false,
@@ -13,7 +14,12 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      // 设置为 true，则你可以在网页中使用 Node.js 的 API，例如 require 方法来引入 Node.js 的模块
+      nodeIntegration: true,
+      // 设置为 true，那么 Electron 主进程和渲染进程的 JavaScript 上下文将被隔离，
+      // 这意味着在主进程中定义的全局变量、函数等将无法在渲染进程中访问，反之亦然。
+      contextIsolation: false,
+      webSecurity: true
     }
   })
 
@@ -30,25 +36,24 @@ function createWindow(): void {
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools()
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools()
   }
 
-  ipcMain.handle("open-select-dialog", async (_, arg) => {
+  ipcMain.handle('open-select-dialog', async (_, arg) => {
     const openDialogReturnValue = await dialog.showOpenDialog(mainWindow, {
-      title: "选择配置文件",
-      properties: ["openFile", "multiSelections"],
-    });
-    const filePaths = openDialogReturnValue.filePaths;
+      title: '选择配置文件',
+      properties: ['openFile', 'multiSelections']
+    })
+    const filePaths = openDialogReturnValue.filePaths
     if (filePaths && filePaths.length > 0) {
-      return { filePaths };
+      return { filePaths }
     } else {
-      return { filePaths: [] };
+      return { filePaths: [] }
     }
-  });
-
+  })
 }
 
 // This method will be called when Electron has finished
@@ -56,7 +61,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.xopenbeta.configeditor')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
