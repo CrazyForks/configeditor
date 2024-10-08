@@ -12,9 +12,13 @@ export function useFilePathSearch(filePaths: string[], searchName: string) {
   }, [filePaths])
 
   const searchResults = useMemo(() => {
-    const res = minisearch.search(searchName)
-    return res.map((item) => item.content)
-  }, [minisearch, searchName])
+    if (!searchName.trim().length) {
+      return filePaths
+    } else {
+      const res = minisearch.search(searchName)
+      return res.map((item) => item.content)
+    }
+  }, [minisearch, searchName, filePaths])
 
   return searchResults
 }

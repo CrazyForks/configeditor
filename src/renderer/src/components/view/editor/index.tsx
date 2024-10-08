@@ -15,14 +15,14 @@ export default function ConfigEditor() {
   const [isCopied, setIsCopied] = useState(false)
 
   useEffect(() => {
-    const mockFiles = [
-      '/etc/myapp/config.json',
-      '/etc/myapp/database.yml',
-      '/etc/myapp/environment.env',
-      '/etc/nginx/nginx.conf',
-      '/etc/redis/redis.conf'
-    ]
-    localStorage.setItem('filePaths', JSON.stringify(mockFiles))
+    // const mockFiles = [
+    //   '/etc/myapp/config.json',
+    //   '/etc/myapp/database.yml',
+    //   '/etc/myapp/environment.env',
+    //   '/etc/nginx/nginx.conf',
+    //   '/etc/redis/redis.conf'
+    // ]
+    // localStorage.setItem('filePaths', JSON.stringify(mockFiles))
     const localStorageFiles = localStorage.getItem('filePaths')
     if (localStorageFiles) {
       setFilePaths(JSON.parse(localStorageFiles))
