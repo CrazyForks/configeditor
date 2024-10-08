@@ -18,14 +18,6 @@ export default function ConfigEditor() {
   const [isCopied, setIsCopied] = useState(false)
 
   useEffect(() => {
-    // const mockFiles = [
-    //   '/etc/myapp/config.json',
-    //   '/etc/myapp/database.yml',
-    //   '/etc/myapp/environment.env',
-    //   '/etc/nginx/nginx.conf',
-    //   '/etc/redis/redis.conf'
-    // ]
-    // localStorage.setItem('filePaths', JSON.stringify(mockFiles))
     const localStorageFiles = localStorage.getItem('filePaths')
     if (localStorageFiles) {
       setFilePaths(JSON.parse(localStorageFiles))
@@ -33,19 +25,16 @@ export default function ConfigEditor() {
   }, [])
 
   useEffect(() => {
-    (async() => {
-      if (nowFilePath) {
-        ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
-          console.log(arg)
-          if (arg && arg.content && typeof arg.content === 'string') {
-            console.log(arg.content)
-            setTextContent(arg.content)
-          } else {
-            // console.log('读取文件内容失败')
-          }
-        })
-      }
-    })()
+    if (nowFilePath) {
+      ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
+        if (arg && arg.content && typeof arg.content === 'string') {
+          console.log(arg.content)
+          setTextContent(arg.content)
+        } else {
+          console.log('读取文件内容失败')
+        }
+      })
+    }
   }, [nowFilePath])
 
   const handleSaveConfig = () => {
