@@ -17,7 +17,7 @@ An Electron application boilerplate with React and TypeScript ( & Shadcn )
 ### Install
 
 ```bash
-$ yarn
+$ cnpm
 ```
 
 ### Development

@@ -7,6 +7,9 @@ import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FileSidebar } from './file-sidebar'
 import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
+const { ipcRenderer } = window.require('electron')
+import * as monaco from "monaco-editor"
+loader.config({ monaco });
 
 export default function ConfigEditor() {
   const [, setFilePaths] = useAtom(filePathsAtom)
@@ -28,6 +31,22 @@ export default function ConfigEditor() {
       setFilePaths(JSON.parse(localStorageFiles))
     }
   }, [])
+
+  useEffect(() => {
+    (async() => {
+      if (nowFilePath) {
+        ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
+          console.log(arg)
+          if (arg && arg.content && typeof arg.content === 'string') {
+            console.log(arg.content)
+            setTextContent(arg.content)
+          } else {
+            // console.log('读取文件内容失败')
+          }
+        })
+      }
+    })()
+  }, [nowFilePath])
 
   const handleSaveConfig = () => {
     console.log('Saving config:', nowFilePath, textContent)
@@ -51,7 +70,7 @@ export default function ConfigEditor() {
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800 text-sm font-sans">
-      <FileSidebar setTextContent={setTextContent} />
+      <FileSidebar />
 
       {/* Right Content Area */}
       <div className="flex-1 flex flex-col bg-white">
@@ -108,6 +127,8 @@ export default function ConfigEditor() {
               <Editor
                 defaultLanguage=""
                 defaultValue=""
+                value={textContent}
+                language='bash'
                 options={{
                   fontSize: 14 // 设置字号为14px
                 }}

@@ -1,5 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
+import fs from 'fs'
+import os from 'os'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -53,6 +55,39 @@ function createWindow(): void {
     } else {
       return { filePaths: [] }
     }
+  })
+  // 获取txt文件的内容
+  ipcMain.handle('read-file-content', (_, arg) => {
+    let code = 0;
+    let msg: any;
+    let res: string | undefined = undefined
+    let {  filePath } = arg ?? {};
+    const homeDirectory = os.homedir();
+    console.log('文件路径kk:', filePath);
+    if (filePath) {
+      if (String(filePath).startsWith('~')) {
+        // 将 ~ 替换为 homeDirectory
+        filePath = String(filePath).replace(/^~/, homeDirectory)
+      }
+      console.log('文件路径:', filePath);
+      try {
+        fs.accessSync(filePath, fs.constants.F_OK);
+        fs.accessSync(filePath, fs.constants.R_OK);
+        const data = fs.readFileSync(filePath, 'utf8');
+        res = data;
+        code = 3;
+        msg = '读取文件成功'
+        console.log('文件内容:', data);
+      } catch (err) {
+        code = 2;
+        msg = '读取文件出错'
+        console.error('读取文件出错:', err);
+      }
+    } else {
+      code = 1;
+      msg = '文件路径不存在'
+    }
+    return { content: res, code, msg }
   })
 }
 
