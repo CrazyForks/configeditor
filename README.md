@@ -1,7 +1,14 @@
-#
-
-- 确定文本文件类型
-
+# 需求
+* 打开文件夹后干啥？选中，放到input里
+* 没有editor时的默认引导信息，参考vscode，有自己的信息
+* 右侧面板可拖动大小
+* editor支持拖拽文件
+* editor支持大小可拖动
+* 确定文本文件类型
+* setting按钮padding均匀
+* setting按钮面板内容，可以用v0，文件的配置，通用的配置，比如黑暗模式，联系方式，明暗模式，编辑器配置，多语言配置
+* title长一点
+* 权限索取
 # electron-shadcn-typescript
 
 An Electron application boilerplate with React and TypeScript ( & Shadcn )

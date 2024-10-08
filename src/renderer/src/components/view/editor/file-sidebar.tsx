@@ -137,7 +137,7 @@ function AddFileButton() {
     const onSearchBtnClick = async () => {
         const filePaths = await openSelectDialog()
         if (filePaths && filePaths.length > 0) {
-            // setFilePaths([...filePaths, ...filePathsAtom]);
+            setFilePath(filePaths[0])
         }
     }
 

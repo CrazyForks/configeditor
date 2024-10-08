@@ -47,7 +47,7 @@ function createWindow(): void {
   ipcMain.handle('open-select-dialog', async (_, arg) => {
     const openDialogReturnValue = await dialog.showOpenDialog(mainWindow, {
       title: '选择配置文件',
-      properties: ['openFile', 'multiSelections']
+      properties: ['openFile']
     })
     const filePaths = openDialogReturnValue.filePaths
     if (filePaths && filePaths.length > 0) {
