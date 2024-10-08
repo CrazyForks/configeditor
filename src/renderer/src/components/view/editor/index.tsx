@@ -15,7 +15,7 @@ export default function ConfigEditor() {
   const [, setFilePaths] = useAtom(filePathsAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [textContent, setTextContent] = useState<string>('')
-  const [isCopied, setIsCopied] = useState(false)
+  const [isPathCopied, setIsPathCopied] = useState(false)
 
   useEffect(() => {
     const localStorageFiles = localStorage.getItem('filePaths')
@@ -27,21 +27,20 @@ export default function ConfigEditor() {
   useEffect(() => {
     if (nowFilePath) {
       ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
-        if (arg && arg.content && typeof arg.content === 'string') {
-          console.log(arg.content)
+        if (typeof arg?.content === 'string') {
           setTextContent(arg.content)
         } else {
-          console.log('读取文件内容失败')
+          setTextContent('')
         }
       })
     }
   }, [nowFilePath])
 
-  const handleSaveConfig = () => {
+  const onSaveBtnClick = () => {
     console.log('Saving config:', nowFilePath, textContent)
   }
 
-  const handleRefreshConfig = () => {
+  const onRefreshBtnClick = () => {
     console.log('Refreshing config:', nowFilePath)
   }
 
@@ -49,8 +48,8 @@ export default function ConfigEditor() {
     if (filePath) {
       try {
         await navigator.clipboard.writeText(filePath)
-        setIsCopied(true)
-        setTimeout(() => setIsCopied(false), 2000)
+        setIsPathCopied(true)
+        setTimeout(() => setIsPathCopied(false), 2000)
       } catch (err) {
         alert('Failed to copy: Please try again')
       }
@@ -60,7 +59,6 @@ export default function ConfigEditor() {
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800 text-sm font-sans">
       <FileSidebar />
-
       {/* Right Content Area */}
       <div className="flex-1 flex flex-col bg-white">
         {/* Top Management Bar */}
@@ -76,13 +74,13 @@ export default function ConfigEditor() {
                 variant="ghost"
                 className="text-gray-500 hover:text-gray-700"
               >
-                {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {isPathCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             )}
           </div>
           <div>
             <Button
-              onClick={handleSaveConfig}
+              onClick={onSaveBtnClick}
               size="sm"
               className="mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
             >
@@ -90,7 +88,7 @@ export default function ConfigEditor() {
               保存
             </Button>
             <Button
-              onClick={handleRefreshConfig}
+              onClick={onRefreshBtnClick}
               size="sm"
               className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md"
             >
@@ -107,12 +105,6 @@ export default function ConfigEditor() {
         {nowFilePath ? (
           <>
             <div className="flex-1 bg-gray-50 flex">
-              {/* <textarea
-              placeholder="在这里编辑配置文件内容..."
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-              className="w-full h-full resize-none text-sm bg-white p-4 text-gray-700 placeholder-gray-400 focus:outline-none"
-            /> */}
               <Editor
                 defaultLanguage=""
                 defaultValue=""
@@ -125,7 +117,9 @@ export default function ConfigEditor() {
             </div>
           </>
         ) : (
-          <></>
+          <>
+            {/* 一些帮助信息 */}
+          </>
         )}
       </div>
     </div>
