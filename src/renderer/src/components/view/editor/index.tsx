@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { fileInfosAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/lib/store'
 import Editor, { loader, useMonaco } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import { Github } from 'lucide-react'
@@ -15,7 +15,10 @@ loader.config({ monaco });
 export default function ConfigEditor() {
   const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
-  const [textContent, setTextContent] = useState<string>('')
+  const [textContent, setTextContent] = useAtom(textContentAtom);
+  const [newTextContent, setNewTextContent] = useAtom(newTextContentAtom);
+  const [nowFileInfo] = useAtom(nowFileInfoAtom);
+  const [isEditing, setIsEditing] = useAtom(isEditingAtom);
   const monacoEditor = useMonaco()
 
   useEffect(() => {
@@ -27,6 +30,7 @@ export default function ConfigEditor() {
 
   const onEditorChange = (value: string|undefined) => {
     console.log(value)
+    setNewTextContent(value ?? '')
   }
 
   useEffect(() => {
@@ -34,8 +38,10 @@ export default function ConfigEditor() {
       ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
         if (typeof arg?.content === 'string') {
           setTextContent(arg.content)
+          setNewTextContent(arg.content)
         } else {
           setTextContent('')
+          setNewTextContent('')
         }
       })
     }

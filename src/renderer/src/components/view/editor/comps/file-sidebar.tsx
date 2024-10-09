@@ -15,10 +15,9 @@ const { ipcRenderer } = window.require('electron')
 
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
-    const [filePaths] = useAtom(filePathsAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [searchName, setSearchName] = useState<string>('')
-    const showFilePaths = useFilePathSearch(filePaths, searchName)
+    const showFilePaths = useFilePathSearch(searchName)
 
     const onSelect = (name: string) => {
         setNowFilePath(name)
@@ -58,27 +57,27 @@ export function FileSidebar() {
                     </>
                 ) : (
                     <>
-                        {showFilePaths.map((file) => (
+                        {showFilePaths.map((filePath) => (
                             <div
-                                key={file}
+                                key={filePath}
                                 className={`group relative flex items-center w-full py-2 px-4 text-sm hover:bg-gray-100 focus:bg-gray-100 
-                            transition-colors ${nowFilePath === file ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}
+                            transition-colors ${nowFilePath === filePath ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}
                         `}
                             >
                                 <Button
                                     variant="ghost"
                                     className="w-full justify-start p-0 hover:bg-transparent"
-                                    onClick={() => onSelect(file)}
+                                    onClick={() => onSelect(filePath)}
                                 >
                                     <FileText className="mr-2 h-4 w-4" />
-                                    {file.split('/')?.pop() ?? ''}
+                                    {filePath.split('/')?.pop() ?? ''}
                                     {/* {nowFilePath === file && <ChevronRight className="ml-auto h-4 w-4" />} */}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
-                                    onClick={(e) => onDelete(file, e)}
+                                    onClick={(e) => onDelete(filePath, e)}
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

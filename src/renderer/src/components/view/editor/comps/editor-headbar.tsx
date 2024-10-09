@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
+import { isEditingAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'
@@ -10,11 +10,15 @@ import SettingsDialog from './settings-dialog'
 export function EditorHeadBar() {
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
+  const [isEditing] = useAtom(isEditingAtom);
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
 
   const onSaveBtnClick = () => {
     console.log('Saving config:', nowFilePath)
+    if (isEditing) {
+      // TODO
+    }
   }
 
   const onRefreshBtnClick = () => {
@@ -41,7 +45,7 @@ export function EditorHeadBar() {
     <div className="bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center flex-1">
         <h1 className="text-lg font-semibold truncate max-w-[100%] text-gray-700">
-          <span style={{ color: 'red' }}>*</span>{nowFilePath || '选择一个配置文件'}
+          {isEditing && <span style={{ color: 'red' }}>*</span>}{nowFilePath || '选择一个配置文件'}
         </h1>
         {nowFilePath && (
           <Button

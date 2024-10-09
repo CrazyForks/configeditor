@@ -1,24 +1,46 @@
-import MiniSearch from 'minisearch'
+import { filePathsAtom } from '@/lib/store';
+import { useAtom } from 'jotai';
 import { useMemo } from 'react'
 
-export function useFilePathSearch(filePaths: string[], searchName: string) {
-  const minisearch = useMemo(() => {
-    const searchInstance = new MiniSearch({
-      fields: ['content'],
-      storeFields: ['content']
-    })
-    searchInstance.addAll(filePaths.map((path, i) => ({ id: i, content: path })))
-    return searchInstance
-  }, [filePaths])
+export function isSubstr(str: string, sub: string) {
+  let res = false;
+  let i = 0;
+  let j = 0;
+  if (str.length === 0 || sub.length === 0) {
+    res = false;
+  }
+  while (i < str.length && j < sub.length) {
+    if (str[i] === sub[j]) {
+      i += 1;
+      j += 1;
+    } else {
+      i += 1;
+    }
+  }
+  if (j === sub.length) { 
+    res = true;
+  }
+  return res;
+}
+
+export function useFilePathSearch(searchName: string) {
+  const [filePaths] = useAtom(filePathsAtom)
 
   const searchResults = useMemo(() => {
-    if (!searchName.trim().length) {
-      return filePaths
+    let res: string[] = []
+    if (searchName.trim().length === 0) {
+      res = filePaths
     } else {
-      const res = minisearch.search(searchName)
-      return res.map((item) => item.content)
+      for (const filePath of filePaths) {
+        if (isSubstr(filePath.trim(), searchName.trim())) {
+          res.push(filePath)
+        }
+      }
     }
-  }, [minisearch, searchName, filePaths])
+    return res;
+  }, [searchName, filePaths])
 
   return searchResults
 }
+
+
