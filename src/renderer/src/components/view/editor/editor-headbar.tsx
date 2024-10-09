@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
+import { filePathsAtom, nowFileInfoAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -10,7 +10,7 @@ import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
 import SettingsDialog from './settings-dialog'
 
 export function EditorHeadBar() {
-  const [, setFilePaths] = useAtom(filePathsAtom)
+  const [nowFileInfo] = useAtom(nowFileInfoAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
@@ -21,6 +21,9 @@ export function EditorHeadBar() {
 
   const onRefreshBtnClick = () => {
     console.log('Refreshing config:', nowFilePath)
+    if (nowFileInfo?.refreshCmd) {
+      // TODO
+    }
   }
 
   const onCopyBtnClick = async (filePath: string) => {

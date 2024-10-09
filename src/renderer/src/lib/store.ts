@@ -1,11 +1,17 @@
 'use client'
 
 import { atom } from 'jotai'
-export const filePathsAtom = atom<string[]>([])
+export type FileInfo = { filePath: string; refreshCmd: string }
+export const fileInfosAtom = atom<FileInfo[]>([])
+export const filePathsAtom = atom<string[]>((get) => {
+  return get(fileInfosAtom).map(({ filePath }) => filePath)
+})
+
 export const nowFilePathAtom = atom('')
-// nowFilePath的计算属性，获取文件名，不包括后缀
 export const nowFileNameAtom = atom((get) =>
   (get(nowFilePathAtom).split('/')?.pop() ?? '').replace(/\.[^/.]+$/, '')
 )
-// nowFilePath的计算属性，获取文件后缀
 export const nowFileExtAtom = atom((get) => get(nowFilePathAtom).split('.')?.pop() ?? '')
+export const nowFileInfoAtom = atom<FileInfo | null>((get) => {
+  return get(fileInfosAtom).find(({ filePath }) => filePath === get(nowFilePathAtom)) ?? null
+})

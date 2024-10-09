@@ -10,7 +10,7 @@ import {
     DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { filePathsAtom, nowFilePathAtom } from '@/lib/store'
+import { FileInfo, fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
@@ -27,19 +27,20 @@ const { ipcRenderer } = window.require('electron')
 export function AddFileButton() {
     const [filePath, setFilePath] = useState('')
     const [, setNowFilePath] = useAtom(nowFilePathAtom)
-    const [filePaths, setFilePaths] = useAtom(filePathsAtom)
+    const [fileInfos, setFileInfos] = useAtom(fileInfosAtom);
+    const [filePaths] = useAtom(filePathsAtom)
     const [open, setOpen] = useState(false);
 
     const onOk = () => {
         ipcRenderer.invoke('read-file-content', { filePath }).then((arg) => {
             if (arg && arg.content && typeof arg.content === 'string') {
-                const newFilePaths: string[] = [...filePaths];
-                if (!newFilePaths.includes(filePath)) {
-                    newFilePaths.unshift(filePath);
+                const newFileInfos: FileInfo[] = [...fileInfos];
+                if (!filePaths.includes(filePath)) {
+                    newFileInfos.unshift({filePath, refreshCmd: 'cat ' + filePath});
                 }
-                setFilePaths(newFilePaths)
+                setFileInfos(newFileInfos)
                 setNowFilePath(filePath)
-                localStorage.setItem('filePaths', JSON.stringify(newFilePaths))
+                localStorage.setItem('filePaths', JSON.stringify(newFileInfos))
                 setFilePath('')
                 setOpen(false)
             } else {

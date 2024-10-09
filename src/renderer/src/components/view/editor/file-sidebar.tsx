@@ -9,7 +9,7 @@ import {
     DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { filePathsAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
@@ -25,7 +25,8 @@ import { AddFileButton } from './add-file-button'
 const { ipcRenderer } = window.require('electron')
 
 export function FileSidebar() {
-    const [filePaths, setFilePaths] = useAtom(filePathsAtom)
+    const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
+    const [filePaths] = useAtom(filePathsAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useFilePathSearch(filePaths, searchName)
@@ -34,12 +35,12 @@ export function FileSidebar() {
         setNowFilePath(name)
     }
 
-    const onDelete = (name: string, e: any) => {
+    const onDelete = (filePath: string, e: any) => {
         e.stopPropagation()
-        const newFilePaths = filePaths.filter((file) => file !== name)
-        setFilePaths(newFilePaths)
-        localStorage.setItem('filePaths', JSON.stringify(newFilePaths))
-        if (nowFilePath === name) {
+        const newFileInfos = fileInfos.filter((file) => file.filePath !== filePath)
+        setFileInfos(newFileInfos)
+        localStorage.setItem('filePaths', JSON.stringify(newFileInfos))
+        if (nowFilePath === filePath) {
             setNowFilePath('')
         }
     }

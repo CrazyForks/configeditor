@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, Github, RefreshCw, Save, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -13,14 +13,14 @@ import { EditorHeadBar } from './editor-headbar'
 loader.config({ monaco });
 
 export default function ConfigEditor() {
-  const [, setFilePaths] = useAtom(filePathsAtom)
+  const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [textContent, setTextContent] = useState<string>('')
 
   useEffect(() => {
     const localStorageFiles = localStorage.getItem('filePaths')
     if (localStorageFiles) {
-      setFilePaths(JSON.parse(localStorageFiles))
+      setFileInfos(JSON.parse(localStorageFiles))
     }
   }, [])
 
