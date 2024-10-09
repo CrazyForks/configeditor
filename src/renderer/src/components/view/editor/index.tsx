@@ -62,10 +62,10 @@ export default function ConfigEditor() {
       {/* Right Content Area */}
       <div className="flex-1 flex flex-col bg-white">
         {/* Top Management Bar */}
-        <div className="bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200">
+        <div className="bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
           <div className="flex items-center flex-1">
-            <h1 className="text-lg font-semibold truncate max-w-[50%] text-gray-700">
-              {nowFilePath || '选择一个配置文件'}
+            <h1 className="text-lg font-semibold truncate max-w-[100%] text-gray-700">
+              <span style={{color: 'red'}}>*</span>{nowFilePath || '选择一个配置文件'}
             </h1>
             {nowFilePath && (
               <Button
