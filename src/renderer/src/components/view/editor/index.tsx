@@ -5,11 +5,11 @@ import { fileInfosAtom, filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '
 import { useAtom } from 'jotai'
 import { Check, Copy, Github, RefreshCw, Save, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { FileSidebar } from './file-sidebar'
+import { FileSidebar } from './comps/file-sidebar'
 import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
 const { ipcRenderer } = window.require('electron')
 import * as monaco from "monaco-editor"
-import { EditorHeadBar } from './editor-headbar'
+import { EditorHeadBar } from './comps/editor-headbar'
 loader.config({ monaco });
 
 export default function ConfigEditor() {
