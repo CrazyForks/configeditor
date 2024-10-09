@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { Moon, Sun, Globe, FileText, RefreshCw, HardDrive, Settings, Info, MessageSquare, Mail } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAtom } from 'jotai'
+import { nowFilePathAtom } from '@/lib/store'
 
 export default function SettingsDialog(props: {
   isSettingDialogOpen: boolean
   setIsSettingDialogOpen: (isSettingDialogOpen: boolean) => void
 }) {
   const { isSettingDialogOpen, setIsSettingDialogOpen } = props;
+  const [nowFilePath] = useAtom(nowFilePathAtom)
   const [darkMode, setDarkMode] = useState(false)
   const [language, setLanguage] = useState('en')
   const [fontSize, setFontSize] = useState('14')
@@ -21,21 +24,30 @@ export default function SettingsDialog(props: {
     <Dialog open={isSettingDialogOpen} onOpenChange={setIsSettingDialogOpen}>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle>设置</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="file" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="file">File</TabsTrigger>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="editor">Editor</TabsTrigger>
+        <Tabs defaultValue={nowFilePath ? "file" : "general"} className="w-full">
+          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            {!!nowFilePath && <TabsTrigger value="file">文件</TabsTrigger>}
+            <TabsTrigger value="general">通用</TabsTrigger>
+            <TabsTrigger value="editor">编辑</TabsTrigger>
           </TabsList>
           <TabsContent value="file">
             <div className="space-y-4 py-2 pb-4">
               <div className="space-y-2">
-                <Label htmlFor="permissions">File Permissions</Label>
+                <Label htmlFor="current-file-path">当前文件路径</Label>
+                <Input
+                  id="current-file-path"
+                  value={nowFilePath}
+                  readOnly
+                  className="bg-muted"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="permissions">文件权限</Label>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select permissions" />
+                    <SelectValue placeholder="选择文件权限" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="read">Read</SelectItem>
@@ -44,27 +56,27 @@ export default function SettingsDialog(props: {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button><RefreshCw className="mr-2 h-4 w-4" /> Refresh Files</Button>
-                <Button><HardDrive className="mr-2 h-4 w-4" /> Storage Settings</Button>
-              </div>
               <div className="space-y-2">
-                <Label htmlFor="command">Command Editor</Label>
-                <Input id="command" placeholder="Enter command..." />
+                <Label htmlFor="command">刷新按钮命令</Label>
+                <Input id="command" placeholder="Enter command..." value={'source /user/path/.zshrc'} />
               </div>
             </div>
           </TabsContent>
           <TabsContent value="general">
             <div className="space-y-4 py-2 pb-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="dark-mode"
-                  checked={darkMode}
-                  onCheckedChange={setDarkMode}
-                />
-                <Label htmlFor="dark-mode">Dark Mode</Label>
-                {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+
+              <div className="space-y-2">
+                <Label htmlFor="command">明暗模式</Label>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="dark-mode"
+                    checked={darkMode}
+                    onCheckedChange={setDarkMode}
+                  />
+                  {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </div>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="language">Language</Label>
                 <Select value={language} onValueChange={setLanguage}>
@@ -134,6 +146,12 @@ export default function SettingsDialog(props: {
             </div>
           </TabsContent>
         </Tabs>
+        <DialogFooter>
+          <div className="flex items-center space-x-2 justify-end">
+            <Button><RefreshCw className="mr-2 h-4 w-4" />还原设置</Button>
+            <Button><HardDrive className="mr-2 h-4 w-4" />存储设置</Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

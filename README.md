@@ -6,6 +6,7 @@
 * editor支持大小可拖动
 * 确定文本文件类型，从而能高亮和自动完成
 * 权限索取
+* 一个欢迎页，包括简要的教程，github链接等
 # electron-shadcn-typescript
 
 An Electron application boilerplate with React and TypeScript ( & Shadcn )

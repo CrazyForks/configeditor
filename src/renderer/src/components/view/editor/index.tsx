@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
-import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
+import { Check, Copy, Github, RefreshCw, Save, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FileSidebar } from './file-sidebar'
 import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
@@ -59,7 +59,41 @@ export default function ConfigEditor() {
           </>
         ) : (
           <>
-            {/* 一些帮助信息 */}
+            {/* Welcome Page */}
+            <div className="flex-1 p-8 bg-gray-50 overflow-auto">
+              <div className="max-w-2xl mx-auto">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">欢迎使用配置管理器</h2>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-700">快速入门</h3>
+                  <ol className="list-decimal list-inside space-y-2 text-gray-600">
+                    <li>在左侧面板中，点击 <span className="font-medium">+</span> 按钮引用新的配置文件</li>
+                    <li>点击文件名以选择并编辑配置文件</li>
+                    <li>使用顶部工具栏中的 <span className="font-medium">保存</span> 按钮保存更改（可能需要权限）</li>
+                    <li>使用 <span className="font-medium">刷新</span> 按钮重新加载配置文件（可自定义刷新命令）</li>
+                    <li>悬停在文件上可以看到删除按钮，点击即可删除文件</li>
+                  </ol>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-700">功能亮点</h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>简洁直观的用户界面</li>
+                    <li>快速管理和刷新多个配置文件</li>
+                    <li>文件路径一键复制</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-700">了解更多</h3>
+                  <p className="mb-4 text-gray-600">访问我们的 GitHub 仓库，获取详细文档、报告问题或贡献代码：</p>
+                  <Button variant="outline" className="flex items-center" onClick={() => window.open('https://github.com/yourusername/config-manager', '_blank')}>
+                    <Github className="mr-2 h-4 w-4" />
+                    访问 GitHub 仓库
+                  </Button>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </div>
