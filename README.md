@@ -1,12 +1,10 @@
 # 需求
-* 没有editor时的默认引导信息，参考vscode，有自己的信息
 * 右侧面板可拖动大小
 * editor支持拖拽文件
 * title又有点太长了，需要自适应一下
 * editor支持大小可拖动
 * 确定文本文件类型，从而能高亮和自动完成
 * 权限索取
-* 一个欢迎页，包括简要的教程，github链接等
 # electron-shadcn-typescript
 
 An Electron application boilerplate with React and TypeScript ( & Shadcn )
