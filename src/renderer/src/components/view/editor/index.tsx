@@ -16,7 +16,6 @@ export default function ConfigEditor() {
   const [, setFilePaths] = useAtom(filePathsAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [textContent, setTextContent] = useState<string>('')
-  const [isPathCopied, setIsPathCopied] = useState(false)
 
   useEffect(() => {
     const localStorageFiles = localStorage.getItem('filePaths')

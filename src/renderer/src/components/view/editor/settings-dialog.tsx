@@ -8,16 +8,17 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export default function SettingsDialog() {
+export default function SettingsDialog(props: {
+  isSettingDialogOpen: boolean
+  setIsSettingDialogOpen: (isSettingDialogOpen: boolean) => void
+}) {
+  const { isSettingDialogOpen, setIsSettingDialogOpen } = props;
   const [darkMode, setDarkMode] = useState(false)
   const [language, setLanguage] = useState('en')
   const [fontSize, setFontSize] = useState('14')
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline"><Settings className="mr-2 h-4 w-4" /> Settings</Button>
-      </DialogTrigger>
+    <Dialog open={isSettingDialogOpen} onOpenChange={setIsSettingDialogOpen}>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
