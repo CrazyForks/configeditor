@@ -11,17 +11,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { FileInfo, fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
-    Atom,
-    FileText,
     FolderSearch,
-    Plus,
-    Trash2
+    Plus
 } from 'lucide-react'
 import { useState } from 'react'
-import { useFilePathSearch } from '../utils'
 const { ipcRenderer } = window.require('electron')
 
 export function AddFileButton() {

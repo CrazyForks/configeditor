@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { Moon, Sun, Globe, FileText, RefreshCw, HardDrive, Settings, Info, MessageSquare, Mail } from 'lucide-react'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAtom } from 'jotai'
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { nowFilePathAtom } from '@/lib/store'
+import { useAtom } from 'jotai'
+import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
+import { useState } from 'react'
 
 export default function SettingsDialog(props: {
   isSettingDialogOpen: boolean

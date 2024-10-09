@@ -1,13 +1,4 @@
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
@@ -15,8 +6,6 @@ import { useAtom } from 'jotai'
 import {
     Atom,
     FileText,
-    FolderSearch,
-    Plus,
     Trash2
 } from 'lucide-react'
 import { useState } from 'react'

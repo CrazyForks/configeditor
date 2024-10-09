@@ -1,12 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { filePathsAtom, nowFileInfoAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
+import { nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { FileSidebar } from './file-sidebar'
-import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
+import { useState } from 'react'
 import SettingsDialog from './settings-dialog'
 
 export function EditorHeadBar() {

@@ -1,15 +1,15 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { fileInfosAtom, filePathsAtom, nowFileNameAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, nowFilePathAtom } from '@/lib/store'
+import Editor, { loader, useMonaco } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
-import { Check, Copy, Github, RefreshCw, Save, Settings } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { FileSidebar } from './comps/file-sidebar'
-import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react'
-const { ipcRenderer } = window.require('electron')
+import { Github } from 'lucide-react'
 import * as monaco from "monaco-editor"
+import { useEffect, useState } from 'react'
 import { EditorHeadBar } from './comps/editor-headbar'
+import { FileSidebar } from './comps/file-sidebar'
+const { ipcRenderer } = window.require('electron')
 loader.config({ monaco });
 
 export default function ConfigEditor() {
