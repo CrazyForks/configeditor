@@ -16,6 +16,7 @@ export default function ConfigEditor() {
   const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [textContent, setTextContent] = useState<string>('')
+  const monacoEditor = useMonaco()
 
   useEffect(() => {
     const localStorageFiles = localStorage.getItem('filePaths')
@@ -23,6 +24,10 @@ export default function ConfigEditor() {
       setFileInfos(JSON.parse(localStorageFiles))
     }
   }, [])
+
+  const onEditorChange = (value: string|undefined) => {
+    console.log(value)
+  }
 
   useEffect(() => {
     if (nowFilePath) {
@@ -50,6 +55,7 @@ export default function ConfigEditor() {
                 defaultLanguage=""
                 defaultValue=""
                 value={textContent}
+                onChange={onEditorChange}
                 language='bash'
                 options={{
                   fontSize: 14 // 设置字号为14px

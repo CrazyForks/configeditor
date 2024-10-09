@@ -98,18 +98,6 @@ export default function SettingsDialog(props: {
                   <Info className="mr-2 h-4 w-4" /> About Us
                 </Button>
               </div>
-              <div className="space-y-2">
-                <Label>Contact</Label>
-                <Button variant="outline" className="w-full justify-start">
-                  <Mail className="mr-2 h-4 w-4" /> Contact Us
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <Label>Feedback</Label>
-                <Button variant="outline" className="w-full justify-start">
-                  <MessageSquare className="mr-2 h-4 w-4" /> Send Feedback
-                </Button>
-              </div>
             </div>
           </TabsContent>
           <TabsContent value="editor">
