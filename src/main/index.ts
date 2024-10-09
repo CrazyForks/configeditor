@@ -100,6 +100,27 @@ function createWindow(): void {
     } catch (err) {
       code = 2;
       msg = '读取文件出错或文件不可写'
+      console.log(filePath, err)
+    }
+    return { code, msg }
+  })
+
+  // 写入txt文件
+  ipcMain.handle('write-file', (_, arg) => {
+    let code = 0;
+    let msg: any;
+    let { filePath } = arg ?? {};
+    const { content } = arg ?? {};
+    filePath = getAbsoluteFilePath(filePath);
+    try {
+      if (typeof content === 'string') {
+        fs.writeFileSync(filePath, content);
+      }
+      code = 3;
+    } catch (err) {
+      code = 2;
+      msg = '读取文件出错或文件不可写'
+      console.log(filePath, err)
     }
     return { code, msg }
   })

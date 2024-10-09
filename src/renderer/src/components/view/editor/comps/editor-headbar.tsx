@@ -1,11 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { isEditingAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
+import { isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'
 import SettingsDialog from './settings-dialog'
+const { ipcRenderer } = window.require('electron')
 
 export function EditorHeadBar() {
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
@@ -13,11 +14,23 @@ export function EditorHeadBar() {
   const [isEditing] = useAtom(isEditingAtom);
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
+  const [newTextContent] = useAtom(newTextContentAtom)
 
   const onSaveBtnClick = () => {
     console.log('Saving config:', nowFilePath)
     if (isEditing) {
-      // TODO
+      ipcRenderer.invoke('is-file-write', { filePath: nowFilePath }).then((arg) => {
+        const { code, msg } = arg ?? {}
+        if (code === 3) {
+          console.log('Save success: ' + msg)
+          ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then((res) => {
+            console.log('Save success2: ' + msg)
+          })
+        } else {
+          alert('Save failed: ' + msg)
+          console.log('Save failed: ' + msg)
+        }
+      })
     }
   }
 
