@@ -17,18 +17,19 @@ export function EditorHeadBar() {
   const [newTextContent] = useAtom(newTextContentAtom)
 
   const onSaveBtnClick = () => {
-    console.log('Saving config:', nowFilePath)
     if (isEditing) {
+      // 文件已编辑过
       ipcRenderer.invoke('is-file-write', { filePath: nowFilePath }).then((arg) => {
+        // 判断文件是否可写
         const { code, msg } = arg ?? {}
         if (code === 3) {
-          console.log('Save success: ' + msg)
+          // 可写
           ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then((res) => {
-            console.log('Save success2: ' + msg)
+            // 写入文件成功，处理当前数据
           })
-        } else {
+        } else if (code === 2) {
+          // 不可写(读取文件出错或文件不可写)
           alert('Save failed: ' + msg)
-          console.log('Save failed: ' + msg)
         }
       })
     }

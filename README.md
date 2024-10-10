@@ -1,5 +1,8 @@
 # 需求
-* 左侧文件列表，可拖动顺序
+sonner充当taost
+Input OTP 用作输入框
+* alert要求权限，导入dialog就行
+* 左侧文件列表，可拖动顺序 Resizable
 * 放大缩小后，monaco ditor不行了
 * onshow时，自动重载文件，防止文件不及时更新？
 * 红点处理
