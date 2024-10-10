@@ -1,6 +1,8 @@
 # 需求
+## ai能搞定的需求
 sonner充当taost
 Input OTP 用作输入框
+* 行码去除
 * alert要求权限，导入dialog就行
 * 左侧文件列表，可拖动顺序 Resizable
 * 放大缩小后，monaco ditor不行了

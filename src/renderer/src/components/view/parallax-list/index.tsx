@@ -1,6 +1,10 @@
 'use client'
 
 import React, { useRef, useEffect, useState } from 'react'
+import { aPrivate } from './internal'
+import { aPublic } from './internal/public/index'
+console.log(aPrivate)
+console.log(aPublic)
 
 const items = Array.from({ length: 20 }, (_, i) => i + 1)
 

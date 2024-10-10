@@ -9,8 +9,8 @@ import {
     Trash2
 } from 'lucide-react'
 import { useState } from 'react'
-import { useFilePathSearch } from '../utils'
 import { AddFileButton } from './add-file-button'
+import { useFilePathSearch } from '../hooks'
 const { ipcRenderer } = window.require('electron')
 
 export function FileSidebar() {
