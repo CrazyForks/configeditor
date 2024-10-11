@@ -39,7 +39,7 @@ export function AddFileButton() {
                 setFilePath('')
                 setOpen(false)
             } else {
-                alert('读取文件内容失败')
+                alert('读取文件内容失败或文件不存在')
                 // TODO: 权限问题
             }
         })

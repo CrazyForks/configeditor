@@ -1,11 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
+import { isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'
 import SettingsDialog from './settings-dialog'
+import { toast } from "sonner"
 const { ipcRenderer } = window.require('electron')
 
 export function EditorHeadBar() {
@@ -14,6 +15,7 @@ export function EditorHeadBar() {
   const [isEditing] = useAtom(isEditingAtom);
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
+  const [textContent, setTextContent] = useAtom(textContentAtom)
   const [newTextContent] = useAtom(newTextContentAtom)
 
   const onSaveBtnClick = () => {
@@ -26,6 +28,8 @@ export function EditorHeadBar() {
           // 可写
           ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then((res) => {
             // 写入文件成功，处理当前数据
+            setTextContent(newTextContent)
+            toast("文件存储成功")
           })
         } else if (code === 2) {
           // 不可写(读取文件出错或文件不可写)
@@ -58,8 +62,9 @@ export function EditorHeadBar() {
     {/* Top Management Bar */}
     <div className="bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center flex-1">
-        <h1 className="text-lg font-semibold truncate max-w-[100%] text-gray-700">
-          {isEditing && <span style={{ color: 'red' }}>*</span>}{nowFilePath || '选择一个配置文件'}
+        <h1 className={`text-lg font-semibold truncate max-w-[100%] ${isEditing ? 'text-red-700' : 'text-gray-700'}`}>
+          {/* {isEditing && <span style={{ color: 'red' }}>*</span>} */}
+          {nowFilePath || '选择一个配置文件'}
         </h1>
         {nowFilePath && (
           <Button

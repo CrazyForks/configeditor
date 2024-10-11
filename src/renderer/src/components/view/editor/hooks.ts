@@ -3,7 +3,7 @@ import { useAtom } from "jotai"
 import { useEffect, useMemo } from "react"
 import { isSubstr } from "./utils"
 
-export function useInit() {
+export function useInitConfigEditor() {
     const [, setFileInfos] = useAtom(fileInfosAtom)
 
     useEffect(() => {

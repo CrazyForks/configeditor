@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, nowFilePathAtom } from '@/lib/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
@@ -9,9 +9,8 @@ import {
     Trash2
 } from 'lucide-react'
 import { useState } from 'react'
-import { AddFileButton } from './add-file-button'
 import { useFilePathSearch } from '../hooks'
-const { ipcRenderer } = window.require('electron')
+import { AddFileButton } from './add-file-button'
 
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
@@ -19,8 +18,8 @@ export function FileSidebar() {
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useFilePathSearch(searchName)
 
-    const onSelect = (name: string) => {
-        setNowFilePath(name)
+    const onSelect = (filePath: string) => {
+        setNowFilePath(filePath)
     }
 
     const onDelete = (filePath: string, e: any) => {
@@ -60,9 +59,22 @@ export function FileSidebar() {
                         {showFilePaths.map((filePath) => (
                             <div
                                 key={filePath}
-                                className={`group relative flex items-center w-full py-2 px-4 text-sm hover:bg-gray-100 focus:bg-gray-100 
-                            transition-colors ${nowFilePath === filePath ? 'bg-blue-100 text-blue-600' : 'text-gray-700'}
-                        `}
+                                className={`
+                                    group 
+                                    relative 
+                                    flex 
+                                    items-center 
+                                    w-full 
+                                    py-2 
+                                    px-4 
+                                    text-sm 
+                                    text-gray-700
+                                    transition-colors 
+                                    ${nowFilePath === filePath ?
+                                        'bg-blue-100 hover:bg-blue-100' :
+                                        'hover:bg-gray-100'
+                                    }
+                                `}
                             >
                                 <Button
                                     variant="ghost"
@@ -71,7 +83,6 @@ export function FileSidebar() {
                                 >
                                     <FileText className="mr-2 h-4 w-4" />
                                     {filePath.split('/')?.pop() ?? ''}
-                                    {/* {nowFilePath === file && <ChevronRight className="ml-auto h-4 w-4" />} */}
                                 </Button>
                                 <Button
                                     variant="ghost"

@@ -1,4 +1,5 @@
 import ConfigEditor from '@/components/view/editor'
+import { Toaster } from "@/components/ui/sonner"
 import ParallaxList from './components/view/parallax-list'
 
 function App(): JSX.Element {
@@ -6,6 +7,7 @@ function App(): JSX.Element {
     <div className="fixed w-screen h-screen overflow-hidden">
       <ConfigEditor />
       {/* <ParallaxList /> */}
+      <Toaster />
     </div>
   )
 }

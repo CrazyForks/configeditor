@@ -1,8 +1,3 @@
-import { filePathsAtom } from '@/lib/store';
-import { useAtom } from 'jotai';
-import { useMemo } from 'react'
-const { ipcRenderer } = window.require('electron')
-
 export function isSubstr(str: string, sub: string) {
   let res = false;
   let i = 0;

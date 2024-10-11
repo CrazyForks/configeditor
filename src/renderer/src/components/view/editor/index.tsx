@@ -8,10 +8,10 @@ import {
 import { EditorHeadBar } from './comps/editor-headbar'
 import { FileSidebar } from './comps/file-sidebar'
 import { MonacoEditor } from './comps/monaco-editor'
-import { useInit } from './hooks'
+import { useInitConfigEditor } from './hooks'
 
 export default function ConfigEditor() {
-  useInit();
+  useInitConfigEditor();
 
   return <>
     <ResizablePanelGroup
