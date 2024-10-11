@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import _ from 'lodash'
 
 export default function SettingsDialog(props: {
   isSettingDialogOpen: boolean
@@ -16,9 +17,31 @@ export default function SettingsDialog(props: {
 }) {
   const { isSettingDialogOpen, setIsSettingDialogOpen } = props;
   const [nowFilePath] = useAtom(nowFilePathAtom)
+  const [nowFileInfo] = useAtom(nowFileInfoAtom)
+  const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
   const [darkMode, setDarkMode] = useState(false)
   const [language, setLanguage] = useState('en')
   const [fontSize, setFontSize] = useState('14')
+  const [newRefreshCmd, setNewRefreshCmd] = useState('')
+
+  useEffect(() => {
+    if (nowFileInfo) {
+      setNewRefreshCmd(nowFileInfo.refreshCmd)
+    }
+  }, [])
+
+  const onSaveBtnClick = () => {
+    if (nowFileInfo) {
+      const newFileInfos = _.cloneDeep(fileInfos)
+      newFileInfos.forEach(fileInfo => {
+        if (fileInfo.filePath === nowFilePath) {
+          fileInfo.refreshCmd = newRefreshCmd
+        }
+      })
+      localStorage.setItem('fileInfos', JSON.stringify(newFileInfos))
+      setFileInfos(newFileInfos)
+    }
+  }
 
   return (
     <Dialog open={isSettingDialogOpen} onOpenChange={setIsSettingDialogOpen}>
@@ -58,7 +81,7 @@ export default function SettingsDialog(props: {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="command">刷新按钮命令</Label>
-                <Input id="command" placeholder="Enter command..." value={'source /user/path/.zshrc'} />
+                <Input id="command" placeholder="Enter command..." value={newRefreshCmd} onChange={e => setNewRefreshCmd(e.target.value)} />
               </div>
             </div>
           </TabsContent>
@@ -137,7 +160,7 @@ export default function SettingsDialog(props: {
         <DialogFooter>
           <div className="flex items-center space-x-2 justify-end">
             <Button><RefreshCw className="mr-2 h-4 w-4" />还原设置</Button>
-            <Button><HardDrive className="mr-2 h-4 w-4" />存储设置</Button>
+            <Button onClick={onSaveBtnClick}><HardDrive className="mr-2 h-4 w-4" />存储设置</Button>
           </div>
         </DialogFooter>
       </DialogContent>

@@ -4,7 +4,7 @@ import { Github } from "lucide-react";
 export function WelcomeFragment() {
     return <div className="w-full h-[100%] p-8 bg-gray-50 flex flex-col items-center" style={{ maxHeight: '100%', overflow: 'auto' }}>
         <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">欢迎使用配置管理器</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">欢迎使用配置文件管理器</h2>
 
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
                 <h3 className="text-xl font-semibold mb-4 text-gray-700">快速入门</h3>
