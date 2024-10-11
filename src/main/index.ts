@@ -4,6 +4,7 @@ import fs from 'fs'
 import os from 'os'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { exec } from 'child_process'
 
 function createWindow(): void {
   // Create the browser window.
@@ -124,6 +125,31 @@ function createWindow(): void {
     }
     return { code, msg }
   })
+
+  // 执行refresh command
+  ipcMain.handle('exec-refresh', (_, arg) => {
+    let code = 0;
+    let msg: any;
+    let { refreshCmd } = arg ?? {};
+    refreshCmd = refreshCmd ?? '';
+    exec(refreshCmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`执行出错: ${error}`);
+        code = 1;
+        msg = '执行出错'
+      } else if (stderr) {
+        console.error(`标准错误输出: ${stderr}`);
+        code = 2;
+        msg = '标准错误输出'
+      } else {
+        console.log(`标准输出: ${stdout}`);
+        code = 3;
+        msg = '执行成功'
+      }
+    });
+    return { code, msg }
+  });
+
 }
 
 // This method will be called when Electron has finished

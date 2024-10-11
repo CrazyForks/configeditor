@@ -25,10 +25,10 @@ export default function SettingsDialog(props: {
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
 
   useEffect(() => {
-    if (nowFileInfo) {
+    if (nowFileInfo && isSettingDialogOpen) {
       setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
-  }, [])
+  }, [isSettingDialogOpen, nowFileInfo])
 
   const onSaveBtnClick = () => {
     if (nowFileInfo) {
