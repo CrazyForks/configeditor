@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 
 export function WelcomeFragment() {
-    return <>
-        <div className="flex-1 p-8 bg-gray-50 overflow-auto">
-            <div className="max-w-2xl mx-auto">
+    return <div className="w-full h-[90%] p-8 bg-gray-50 flex flex-col items-center">
+        <div className="w-full h-[90%] " style={{maxHeight: '90%', overflow: 'hide'}}>
+            <div className="flex flex-col">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">欢迎使用配置管理器</h2>
 
                 <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
@@ -37,5 +37,5 @@ export function WelcomeFragment() {
                 </div>
             </div>
         </div>
-    </>
+    </div>
 }

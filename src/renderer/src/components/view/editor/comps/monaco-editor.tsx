@@ -15,46 +15,35 @@ export function MonacoEditor() {
 
     useEffect(() => {
         if (nowFilePath) {
-          ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
-            const { content } = arg ?? {};
-            if (typeof content === 'string') {
-              setTextContent(content)
-              setNewTextContent(content)
-            } else {
-              setTextContent('')
-              setNewTextContent('')
-            }
-          })
+            ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
+                const { content } = arg ?? {};
+                if (typeof content === 'string') {
+                    setTextContent(content)
+                    setNewTextContent(content)
+                } else {
+                    setTextContent('')
+                    setNewTextContent('')
+                }
+            })
         }
-      }, [nowFilePath])
-    
+    }, [nowFilePath])
+
     const onEditorChange = (content: string | undefined) => {
         setNewTextContent(content ?? '')
     }
 
-    return <>
-        <div className='w-full flex-1'>
-            {/* Text Editor */}
-            {nowFilePath ? (
-                <>
-                    <Editor
-                        defaultLanguage=""
-                        defaultValue=""
-                        value={textContent}
-                        onChange={onEditorChange}
-                        language='bash'
-                        options={{
-                            fontSize: 14, // 设置字号为14px
-                            automaticLayout: true
-                        }}
-                    />
-                </>
-            ) : (
-                <>
-                    {/* Welcome Page */}
-                    <WelcomeFragment />
-                </>
-            )}
-        </div>
-    </>
+    return <div className='w-full flex-1'>
+        {/* Text Editor */}
+        {nowFilePath ? <Editor
+            defaultLanguage=""
+            defaultValue=""
+            value={textContent}
+            onChange={onEditorChange}
+            language='bash'
+            options={{
+                fontSize: 14, // 设置字号为14px
+                automaticLayout: true
+            }}
+        /> : <WelcomeFragment />}
+    </div>
 }

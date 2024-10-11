@@ -39,8 +39,8 @@ export function AddFileButton() {
                 setFilePath('')
                 setOpen(false)
             } else {
-                alert('读取文件内容失败或文件不存在')
-                // TODO: 权限问题
+                alert('读取文件失败！可能文件不存在或文件权限不足')
+                // TODO: 权限问题，这里是只读的，大部分文件都是只读的
             }
         })
     }
