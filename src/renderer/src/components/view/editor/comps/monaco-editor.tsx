@@ -32,7 +32,7 @@ export function MonacoEditor() {
         setNewTextContent(content ?? '')
     }
 
-    return <div className='w-full flex-1'>
+    return <div className='w-full' style={{height: 'calc(100% - 65px)'}}>
         {/* Text Editor */}
         {nowFilePath ? <Editor
             defaultLanguage=""
