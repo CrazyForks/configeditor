@@ -60,10 +60,9 @@ export function EditorHeadBar() {
 
   return <>
     {/* Top Management Bar */}
-    <div className="bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
-      <div className="flex items-center flex-1">
-        <h1 className={`text-lg font-semibold truncate max-w-[100%] ${isEditing ? 'text-red-700' : 'text-gray-700'}`}>
-          {/* {isEditing && <span style={{ color: 'red' }}>*</span>} */}
+    <div className="w-full max-w-full bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
+      <div className="flex items-center" style={{width: 'calc(100% - 192px)'}}>
+        <h1 className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'}`}>
           {nowFilePath || '选择一个配置文件'}
         </h1>
         {nowFilePath && (
@@ -77,7 +76,7 @@ export function EditorHeadBar() {
           </Button>
         )}
       </div>
-      <div className='whitespace-nowrap'>
+      <div className='whitespace-nowrap w-[192px]'>
         <Button
           onClick={onSaveBtnClick}
           size="sm"

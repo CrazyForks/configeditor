@@ -6,9 +6,13 @@ Input OTP 用作输入框
 * alert要求权限，导入dialog就行
 * onshow时，自动重载文件，防止文件不及时更新？
 * title又有点太长了，需要自适应一下
-* 确定文本文件类型，从而能高亮和自动完成
 * 权限索取
 * 设置面板
+
+* 确定文本文件类型，从而能高亮和自动完成
+** 无后缀，bash
+** 
+* 高亮设置
 # electron-shadcn-typescript
 
 An Electron application boilerplate with React and TypeScript ( & Shadcn )
