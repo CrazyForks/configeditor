@@ -34,7 +34,7 @@ export function FileSidebar() {
     }
 
     return (
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+        <div className="w-full h-full bg-white flex flex-col shadow-sm">
             <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-700">
                     <Atom className="mr-2 h-5 w-5" />
