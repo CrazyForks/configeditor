@@ -14,7 +14,7 @@ export function useInitConfigEditor() {
     }, [])
 }
 
-export function useFilePathSearch(searchName: string) {
+export function useShowFilePaths(searchName: string) {
     const [filePaths] = useAtom(filePathsAtom)
 
     const searchResults = useMemo(() => {

@@ -142,7 +142,7 @@ function createWindow(): void {
         code = 2;
         msg = '标准错误输出'
       } else {
-        console.log(`标准输出: ${stdout}`);
+        console.log(`标准输出:${refreshCmd} ${stdout}`);
         code = 3;
         msg = '执行成功'
       }

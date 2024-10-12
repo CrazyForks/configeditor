@@ -9,14 +9,14 @@ import {
     Trash2
 } from 'lucide-react'
 import { useState } from 'react'
-import { useFilePathSearch } from '../hooks'
+import { useShowFilePaths } from '../hooks'
 import { AddFileButton } from './add-file-button'
 
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [searchName, setSearchName] = useState<string>('')
-    const showFilePaths = useFilePathSearch(searchName)
+    const showFilePaths = useShowFilePaths(searchName)
 
     const onSelect = (filePath: string) => {
         setNowFilePath(filePath)
