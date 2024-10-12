@@ -9,7 +9,6 @@ import { appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from
 import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { toast } from "sonner"
 import _ from 'lodash'
 
 export default function SettingsDialog(props: {
@@ -20,9 +19,10 @@ export default function SettingsDialog(props: {
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
   const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
-  const [darkMode, setDarkMode] = useState(false)
-  const [language, setLanguage] = useState('en')
+
   const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
+  const [newTheme, setNewTheme] = useState('system')
+  const [newLanguage, setNewLanguage] = useState('en')
   const [newEditorTheme, setNewEditorTheme] = useState('github')
   const [newFontSize, setNewFontSize] = useState(14)
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
@@ -33,6 +33,8 @@ export default function SettingsDialog(props: {
     }
     setNewFontSize(appSettings.fontSize)
     setNewEditorTheme(appSettings.editorTheme)
+    setNewLanguage(appSettings.language)
+    setNewTheme(appSettings.theme)
   }, [isSettingDialogOpen, nowFileInfo])
 
   const onSaveBtnClick = () => {
@@ -99,16 +101,16 @@ export default function SettingsDialog(props: {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="dark-mode"
-                    checked={darkMode}
-                    onCheckedChange={setDarkMode}
+                    checked={newTheme === 'dark'}
+                    onCheckedChange={v => setNewTheme(String(v))}
                   />
-                  {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                  {newTheme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="language">Language</Label>
-                <Select value={language} onValueChange={setLanguage}>
+                <Select value={newLanguage} onValueChange={setNewLanguage}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

@@ -9,7 +9,7 @@ import {
     DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { FileInfo, fileInfosAtom, filePathsAtom, nowFilePathAtom } from '@/lib/store'
+import { FileInfo, fileInfosAtom, filePathsAtom, isSudoDialogOpenAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import {
     FolderSearch,
@@ -20,7 +20,7 @@ const { ipcRenderer } = window.require('electron')
 
 export function SudoDialog() {
     const [value, setValue] = useState('')
-    const [open, setOpen] = useState(true);
+    const [isSudoDialogOpen, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
 
     const onOk = () => {
         ipcRenderer.invoke('read-file-content', { value }).then((arg) => {
@@ -36,7 +36,7 @@ export function SudoDialog() {
     const onCancel = () => {}
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={isSudoDialogOpen} onOpenChange={setIsSudoDialogOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>请输入你的登录密码</DialogTitle>

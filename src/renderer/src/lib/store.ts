@@ -32,11 +32,15 @@ export type AppSettings = {
   lineNumber: boolean,
   fontSize: number,
   editorTheme: string,
+  language: string,
 }
 
 export const appSettingsAtom = atom<AppSettings>({
   theme: 'system',
+  editorTheme: 'github',
   lineNumber: true,
   fontSize: 14,
-  editorTheme: 'github',
+  language: 'en',
 })
+
+export const isSudoDialogOpenAtom = atom(false)
