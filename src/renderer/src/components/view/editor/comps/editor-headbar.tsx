@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { SudoDialog } from './sudo-dialog'
 const { ipcRenderer } = window.require('electron')
 
 export function EditorHeadBar() {
@@ -129,8 +130,6 @@ export function EditorHeadBar() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-
-
         </>}
         <Button onClick={() => setIsSettingDialogOpen(true)} size="sm" variant="ghost" className="text-gray-500 hover:text-gray-700 ml-2">
           <Settings className="h-4 w-4" />
@@ -138,5 +137,6 @@ export function EditorHeadBar() {
       </div>
     </div>
     <SettingsDialog isSettingDialogOpen={isSettingDialogOpen} setIsSettingDialogOpen={setIsSettingDialogOpen} />
+    <SudoDialog />
   </>
 }
