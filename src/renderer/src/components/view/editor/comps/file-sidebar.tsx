@@ -38,11 +38,15 @@ export function FileSidebar() {
         setIsLeftPanelOpen(false)
     }
 
+    const onAppTitleClick = () => {
+        setNowFilePath('')
+    }
+
     return (
         <div className="w-full h-full bg-white flex flex-col shadow-sm">
             <div className="p-4 border-b border-gray-200">
                 <div className='flex justify-between items-center mb-3'>
-                    <h2 className="text-lg font-semibold flex items-center text-gray-700">
+                    <h2 onClick={onAppTitleClick} className="text-lg font-semibold flex items-center text-gray-700 cursor-pointer">
                         <Atom className="mr-2 h-5 w-5" />
                         配置文件管理器
                     </h2>
