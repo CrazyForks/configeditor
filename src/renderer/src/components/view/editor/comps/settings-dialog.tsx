@@ -22,14 +22,17 @@ export default function SettingsDialog(props: {
   const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
   const [darkMode, setDarkMode] = useState(false)
   const [language, setLanguage] = useState('en')
-  const [fontSize, setFontSize] = useState('14')
-  const [newRefreshCmd, setNewRefreshCmd] = useState('')
   const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
+  const [newEditorTheme, setNewEditorTheme] = useState('github')
+  const [newFontSize, setNewFontSize] = useState(14)
+  const [newRefreshCmd, setNewRefreshCmd] = useState('')
 
   useEffect(() => {
     if (nowFileInfo && isSettingDialogOpen) {
       setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
+    setNewFontSize(appSettings.fontSize)
+    setNewEditorTheme(appSettings.editorTheme)
   }, [isSettingDialogOpen, nowFileInfo])
 
   const onSaveBtnClick = () => {
@@ -130,7 +133,7 @@ export default function SettingsDialog(props: {
             <div className="space-y-4 py-2 pb-4">
               <div className="space-y-2">
                 <Label htmlFor="font-size">Font Size</Label>
-                <Select value={fontSize} onValueChange={setFontSize}>
+                <Select value={String(newFontSize)} onValueChange={v => setNewFontSize(parseInt(v, 10))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -145,7 +148,7 @@ export default function SettingsDialog(props: {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="theme">Editor Theme</Label>
-                <Select>
+                <Select value={newEditorTheme} onValueChange={setNewEditorTheme}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select theme" />
                   </SelectTrigger>

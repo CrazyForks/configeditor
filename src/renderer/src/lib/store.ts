@@ -30,9 +30,13 @@ export const STORE_APP_SETTINGS = 'STORE_APP_SETTINGS';
 export type AppSettings = {
   theme: 'light' | 'dark' | 'system' | '',
   lineNumber: boolean,
+  fontSize: number,
+  editorTheme: string,
 }
 
 export const appSettingsAtom = atom<AppSettings>({
   theme: 'system',
   lineNumber: true,
+  fontSize: 14,
+  editorTheme: 'github',
 })
