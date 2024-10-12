@@ -21,6 +21,7 @@ export default function SettingsDialog(props: {
   const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
 
   const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
+  const [newPermission, setNewPermission] = useState('read')
   const [newTheme, setNewTheme] = useState('system')
   const [newLanguage, setNewLanguage] = useState('en')
   const [newEditorTheme, setNewEditorTheme] = useState('github')
@@ -76,14 +77,13 @@ export default function SettingsDialog(props: {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="permissions">文件权限</Label>
-                <Select>
+                <Select value={newPermission} onValueChange={setNewPermission}>
                   <SelectTrigger>
                     <SelectValue placeholder="选择文件权限" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="read">Read</SelectItem>
                     <SelectItem value="write">Write</SelectItem>
-                    <SelectItem value="execute">Execute</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
