@@ -18,3 +18,25 @@ export function isSubstr(str: string, sub: string) {
   }
   return res;
 }
+
+export function getDefaultRefreshCmd(filePath: string) {
+  let res = `cat ${filePath}`;
+  if (filePath) {
+    // 获取文件名
+    const fileName = filePath.split("/").pop();
+    if (fileName?.includes('nginx')) {
+      res = `nginx -s reload`;
+    } else if (fileName?.includes('.zshrc')) {
+      res = `source ${filePath}`;
+    } else if (fileName?.includes('.bashrc')) {
+      res = `source ${filePath}`;
+    } else if (fileName?.includes('vimrc')) {
+      res = `source ${filePath}`;
+    } else if (fileName?.includes('tmux.conf')) {
+      res = `tmux source-file ${filePath}`;
+    } else if (fileName?.includes('gitconfig')) {
+      res = `git config --global -e`;
+    }
+  }
+  return res;
+}

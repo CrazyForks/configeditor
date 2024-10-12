@@ -21,3 +21,5 @@ export const newTextContentAtom = atom('')
 export const isEditingAtom = atom((get) => {
   return  get(textContentAtom) !== get(newTextContentAtom)
 })
+
+export const isLeftPanelOpenAtom = atom(true)

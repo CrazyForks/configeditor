@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, isLeftPanelOpenAtom, nowFilePathAtom } from '@/lib/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
     Atom,
+    ChevronLeft,
     FileText,
     Trash2
 } from 'lucide-react'
@@ -17,6 +18,7 @@ export function FileSidebar() {
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useShowFilePaths(searchName)
+    const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
 
     const onSelect = (filePath: string) => {
         setNowFilePath(filePath)
@@ -32,13 +34,22 @@ export function FileSidebar() {
         }
     }
 
+    const onCloseLeftPanelBtnClick = () => {
+        setIsLeftPanelOpen(false)
+    }
+
     return (
         <div className="w-full h-full bg-white flex flex-col shadow-sm">
             <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-700">
-                    <Atom className="mr-2 h-5 w-5" />
-                    配置文件管理器
-                </h2>
+                <div className='flex justify-between items-center mb-3'>
+                    <h2 className="text-lg font-semibold flex items-center text-gray-700">
+                        <Atom className="mr-2 h-5 w-5" />
+                        配置文件管理器
+                    </h2>
+                    <Button onClick={onCloseLeftPanelBtnClick} size="icon" variant="ghost" className=" w-8h-8">
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                </div>
                 <div className="flex mb-2">
                     <Input
                         placeholder="搜索文件"
