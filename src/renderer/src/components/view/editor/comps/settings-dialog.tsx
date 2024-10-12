@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
+import { appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from '@/lib/store'
 import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -24,6 +24,7 @@ export default function SettingsDialog(props: {
   const [language, setLanguage] = useState('en')
   const [fontSize, setFontSize] = useState('14')
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
+  const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
 
   useEffect(() => {
     if (nowFileInfo && isSettingDialogOpen) {

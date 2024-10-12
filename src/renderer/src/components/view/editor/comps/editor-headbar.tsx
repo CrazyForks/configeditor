@@ -83,11 +83,11 @@ export function EditorHeadBar() {
     {/* Top Management Bar */}
     <div className="w-full max-w-full bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
-        {!isLeftPanelOpen && (
+        {/* {!isLeftPanelOpen && (
           <Button onClick={onOpenLeftPanelBtnClick} size="icon" variant="ghost" className="mr-2 h-8 w-8">
             <ChevronRight className="h-4 w-4" />
           </Button>
-        )}
+        )} */}
         <h1 className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'}`}>
           {nowFilePath || '选择一个配置文件'}
         </h1>

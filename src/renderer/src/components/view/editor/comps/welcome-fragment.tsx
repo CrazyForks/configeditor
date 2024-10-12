@@ -13,7 +13,7 @@ export function WelcomeFragment() {
                     <li>点击文件名以选择并编辑配置文件</li>
                     <li>使用顶部工具栏中的 <span className="font-medium">保存</span> 按钮保存更改（可能需要权限）</li>
                     <li>使用 <span className="font-medium">刷新</span> 按钮重新加载配置文件（可自定义刷新命令）</li>
-                    <li>悬停在文件上可以看到删除按钮，点击即可删除文件</li>
+                    <li>悬停在文件上可以看到移除按钮，点击即可移除文件</li>
                 </ol>
             </div>
 

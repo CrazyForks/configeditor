@@ -46,9 +46,9 @@ export function FileSidebar() {
                         <Atom className="mr-2 h-5 w-5" />
                         配置文件管理器
                     </h2>
-                    <Button onClick={onCloseLeftPanelBtnClick} size="icon" variant="ghost" className=" w-8h-8">
+                    {/* <Button onClick={onCloseLeftPanelBtnClick} size="icon" variant="ghost" className=" w-8h-8">
                         <ChevronLeft className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                 </div>
                 <div className="flex mb-2">
                     <Input

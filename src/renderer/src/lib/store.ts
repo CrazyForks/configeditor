@@ -23,3 +23,16 @@ export const isEditingAtom = atom((get) => {
 })
 
 export const isLeftPanelOpenAtom = atom(true)
+
+
+export const STORE_APP_SETTINGS = 'STORE_APP_SETTINGS';
+
+export type AppSettings = {
+  theme: 'light' | 'dark' | 'system' | '',
+  lineNumber: boolean,
+}
+
+export const appSettingsAtom = atom<AppSettings>({
+  theme: 'system',
+  lineNumber: true,
+})
