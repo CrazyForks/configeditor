@@ -1,18 +1,18 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { isEditingAtom, isLeftPanelOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
-import { useAtom } from 'jotai'
-import { Check, ChevronRight, Copy, RefreshCw, Save, Settings } from 'lucide-react'
-import { useState } from 'react'
-import SettingsDialog from './settings-dialog'
-import { toast } from "sonner"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { useAtom } from 'jotai'
+import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from "sonner"
+import SettingsDialog from './settings-dialog'
 import { SudoDialog } from './sudo-dialog'
 const { ipcRenderer } = window.require('electron')
 
@@ -22,9 +22,8 @@ export function EditorHeadBar() {
   const [isEditing] = useAtom(isEditingAtom);
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
-  const [textContent, setTextContent] = useAtom(textContentAtom)
+  const [, setTextContent] = useAtom(textContentAtom)
   const [newTextContent] = useAtom(newTextContentAtom)
-  const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
 
   const onSaveBtnClick = () => {
     return new Promise((resolve) => {
@@ -40,26 +39,43 @@ export function EditorHeadBar() {
               setTextContent(newTextContent)
               toast("文件存储成功")
             })
+            resolve(true)
           } else if (code === 2) {
             // 不可写(读取文件出错或文件不可写)
-            alert('Save failed: ' + msg)
+            alert('读取文件出错或文件不可写')
+            // TODO sudo dialog
+            resolve(false)
+          } else {
+            resolve(false)
           }
-          resolve(true)
         })
+      } else {
+        resolve(false)
       }
     })
   }
 
   const onRefreshBtnClick = () => {
     onSaveBtnClick().then((res) => {
-      console.log('Refreshing config:', nowFilePath)
-      if (nowFileInfo?.refreshCmd) {
-        ipcRenderer.invoke('exec-refresh', { refreshCmd: nowFileInfo?.refreshCmd }).then((res) => {
-          console.log('exec-refresh:', res)
-          toast("配置文件刷新成功")
-        })
-      } else {
-        toast('No refresh command found')
+      if (res) {
+        if (nowFileInfo?.refreshCmd) {
+          ipcRenderer.invoke('exec-refresh', { refreshCmd: nowFileInfo?.refreshCmd }).then((res) => {
+            const { code, msg } = res ?? {}
+            switch (code) {
+              case 2:
+                toast('配置文件刷新失败:' + msg)
+                break;
+              case 3:
+                toast('配置文件刷新成功')
+                break;
+              default:
+                break;
+            }
+            console.log('exec-refresh:', res)
+          })
+        } else {
+          toast('没有命令，请在设置中配置')
+        }
       }
     })
   }
@@ -71,13 +87,9 @@ export function EditorHeadBar() {
         setIsPathCopied(true)
         setTimeout(() => setIsPathCopied(false), 2000)
       } catch (err) {
-        alert('Failed to copy: Please try again')
+        alert('Failed to copy, please try again')
       }
     }
-  }
-
-  const onOpenLeftPanelBtnClick = () => {
-    setIsLeftPanelOpen(true)
   }
 
   return <>
