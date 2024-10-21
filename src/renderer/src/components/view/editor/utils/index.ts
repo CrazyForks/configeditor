@@ -1,3 +1,5 @@
+import { FileInfo } from "../store";
+
 export function isSubstr(str: string, sub: string) {
   let res = false;
   let i = 0;
@@ -39,4 +41,13 @@ export function getDefaultRefreshCmd(filePath: string) {
     }
   }
   return res;
+}
+
+const FILE_INFOS = 'configeditorfileinfos';
+export function saveFileInfos(newFileInfos: FileInfo[]) {
+  localStorage.setItem(FILE_INFOS, JSON.stringify(newFileInfos))
+}
+
+export function readFileInfos(): FileInfo[] {
+  return JSON.parse(localStorage.getItem(FILE_INFOS) || '[]')
 }

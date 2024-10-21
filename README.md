@@ -1,5 +1,6 @@
 # 需求
 ## ai能搞定的需求
+* 远程日志
 * zsh的刷新
 sonner充当toast
 Input OTP 用作输入框

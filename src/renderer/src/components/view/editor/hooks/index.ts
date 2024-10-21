@@ -1,16 +1,14 @@
 import { fileInfosAtom, filePathsAtom } from '@/components/view/editor/store'
 import { useAtom } from "jotai"
 import { useEffect, useMemo } from "react"
-import { isSubstr } from "../utils"
+import { isSubstr, readFileInfos } from "../utils"
 
 export function useInitConfigEditor() {
     const [, setFileInfos] = useAtom(fileInfosAtom)
 
     useEffect(() => {
-        const localStorageFiles = localStorage.getItem('filePaths')
-        if (localStorageFiles) {
-            setFileInfos(JSON.parse(localStorageFiles))
-        }
+        const localFileInfos = readFileInfos()
+        setFileInfos(localFileInfos)
     }, [])
 }
 

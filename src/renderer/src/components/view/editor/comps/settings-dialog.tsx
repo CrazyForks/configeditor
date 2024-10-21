@@ -10,6 +10,7 @@ import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import _ from 'lodash'
+import { saveFileInfos } from "../utils"
 
 export default function SettingsDialog(props: {
   isSettingDialogOpen: boolean
@@ -46,7 +47,7 @@ export default function SettingsDialog(props: {
           fileInfo.refreshCmd = newRefreshCmd
         }
       })
-      localStorage.setItem('filePaths', JSON.stringify(newFileInfos))
+      saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
       console.log('newFileInfos', newFileInfos)
     }

@@ -12,6 +12,7 @@ import {
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
 import { AddFileButton } from './add-file-button'
+import { saveFileInfos } from '../utils'
 
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
@@ -28,7 +29,7 @@ export function FileSidebar() {
         e.stopPropagation()
         const newFileInfos = fileInfos.filter((file) => file.filePath !== filePath)
         setFileInfos(newFileInfos)
-        localStorage.setItem('filePaths', JSON.stringify(newFileInfos))
+        saveFileInfos(newFileInfos)
         if (nowFilePath === filePath) {
             setNowFilePath('')
         }
