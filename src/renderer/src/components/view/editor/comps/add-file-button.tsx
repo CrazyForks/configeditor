@@ -34,8 +34,8 @@ export function AddFileButton() {
                     newFileInfos.unshift({filePath, refreshCmd: 'cat ' + filePath});
                 }
                 setFileInfos(newFileInfos)
-                setNowFilePath(filePath)
                 saveFileInfos(newFileInfos)
+                setNowFilePath(filePath)
                 setFilePath('')
                 setOpen(false)
             } else {
@@ -68,11 +68,7 @@ export function AddFileButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button
-                    onClick={() => { }}
-                    size="sm"
-                    className="px-2 h-8 bg-blue-500 hover:bg-blue-600 rounded-md"
-                >
+                <Button size="sm" className="px-2 h-8 bg-blue-500 hover:bg-blue-600 rounded-md">
                     <Plus className="h-4 w-4 text-white" />
                 </Button>
             </DialogTrigger>

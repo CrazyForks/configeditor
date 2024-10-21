@@ -1,25 +1,23 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, isLeftPanelOpenAtom, nowFilePathAtom } from '@/components/view/editor/store'
+import { fileInfosAtom, nowFilePathAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
     Atom,
-    ChevronLeft,
     FileText,
     Trash2
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
-import { AddFileButton } from './add-file-button'
 import { saveFileInfos } from '../utils'
+import { AddFileButton } from './add-file-button'
 
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useShowFilePaths(searchName)
-    const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
 
     const onSelect = (filePath: string) => {
         setNowFilePath(filePath)
@@ -33,10 +31,6 @@ export function FileSidebar() {
         if (nowFilePath === filePath) {
             setNowFilePath('')
         }
-    }
-
-    const onCloseLeftPanelBtnClick = () => {
-        setIsLeftPanelOpen(false)
     }
 
     const onAppTitleClick = () => {
