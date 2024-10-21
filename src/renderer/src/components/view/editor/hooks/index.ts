@@ -1,7 +1,7 @@
-import { fileInfosAtom, filePathsAtom } from "@/lib/store"
+import { fileInfosAtom, filePathsAtom } from '@/components/view/editor/store'
 import { useAtom } from "jotai"
 import { useEffect, useMemo } from "react"
-import { isSubstr } from "./utils"
+import { isSubstr } from "../utils"
 
 export function useInitConfigEditor() {
     const [, setFileInfos] = useAtom(fileInfosAtom)

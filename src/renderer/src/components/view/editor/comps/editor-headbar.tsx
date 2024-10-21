@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { isEditingAtom, isLeftPanelOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/lib/store'
+import { isEditingAtom, isLeftPanelOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Check, ChevronRight, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'

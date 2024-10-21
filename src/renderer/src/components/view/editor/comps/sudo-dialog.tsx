@@ -9,7 +9,7 @@ import {
     DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { FileInfo, fileInfosAtom, filePathsAtom, isSudoDialogOpenAtom, nowFilePathAtom } from '@/lib/store'
+import { FileInfo, fileInfosAtom, filePathsAtom, isSudoDialogOpenAtom, nowFilePathAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import {
     FolderSearch,

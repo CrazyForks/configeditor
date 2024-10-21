@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, isLeftPanelOpenAtom, nowFilePathAtom } from '@/lib/store'
+import { fileInfosAtom, isLeftPanelOpenAtom, nowFilePathAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {

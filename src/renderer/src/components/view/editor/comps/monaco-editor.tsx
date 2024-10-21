@@ -1,5 +1,5 @@
 
-import { newTextContentAtom, nowFilePathAtom, textContentAtom } from '@/lib/store'
+import { newTextContentAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"

@@ -10,10 +10,10 @@ import { FileSidebar } from './comps/file-sidebar'
 import { MonacoEditor } from './comps/monaco-editor'
 import { useInitConfigEditor } from './hooks'
 import { useAtom } from "jotai"
-import { isLeftPanelOpenAtom } from "@/lib/store"
+import { isLeftPanelOpenAtom } from '@/components/view/editor/store'
 
 export default function ConfigEditor() {
-  const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
+  const [isLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
   useInitConfigEditor();
 
   return <>
