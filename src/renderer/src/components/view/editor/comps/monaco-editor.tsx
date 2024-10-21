@@ -1,5 +1,5 @@
 
-import { newTextContentAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, newTextContentAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
@@ -12,6 +12,7 @@ export function MonacoEditor() {
     const [nowFilePath] = useAtom(nowFilePathAtom)
     const [textContent, setTextContent] = useAtom(textContentAtom);
     const [, setNewTextContent] = useAtom(newTextContentAtom);
+    const [appSettings] = useAtom(appSettingsAtom);
 
     useEffect(() => {
         if (nowFilePath) {
@@ -42,7 +43,9 @@ export function MonacoEditor() {
             language='bash'
             options={{
                 fontSize: 14, // 设置字号为14px
-                automaticLayout: true
+                automaticLayout: true,
+                wordWrap: appSettings.wordWrap ? 'on' : 'off',
+                lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
             }}
         /> : <WelcomeFragment />}
     </div>

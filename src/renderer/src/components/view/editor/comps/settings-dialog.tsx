@@ -23,11 +23,11 @@ export default function SettingsDialog(props: {
 
   const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
   const [newPermission, setNewPermission] = useState('read')
+  const [newRefreshCmd, setNewRefreshCmd] = useState('')
   const [newTheme, setNewTheme] = useState('system')
   const [newLanguage, setNewLanguage] = useState('en')
   const [newEditorTheme, setNewEditorTheme] = useState('github')
   const [newFontSize, setNewFontSize] = useState(14)
-  const [newRefreshCmd, setNewRefreshCmd] = useState('')
 
   useEffect(() => {
     if (nowFileInfo && isSettingDialogOpen) {
@@ -49,7 +49,12 @@ export default function SettingsDialog(props: {
       })
       saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
-      console.log('newFileInfos', newFileInfos)
+    }
+  }
+
+  const onRevertBtnClick = () => {
+    if (nowFileInfo) {
+      setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
   }
 
@@ -78,7 +83,7 @@ export default function SettingsDialog(props: {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="permissions">文件权限</Label>
-                <Select value={newPermission} onValueChange={setNewPermission}>
+                <Select disabled value={newPermission} onValueChange={setNewPermission}>
                   <SelectTrigger>
                     <SelectValue placeholder="选择文件权限" />
                   </SelectTrigger>
@@ -168,7 +173,7 @@ export default function SettingsDialog(props: {
         </Tabs>
         <DialogFooter>
           <div className="flex items-center space-x-2 justify-end">
-            <Button><RefreshCw className="mr-2 h-4 w-4" />还原设置</Button>
+            <Button onClick={onRevertBtnClick} ><RefreshCw className="mr-2 h-4 w-4" />还原设置</Button>
             <Button onClick={onSaveBtnClick}><HardDrive className="mr-2 h-4 w-4" />存储设置</Button>
           </div>
         </DialogFooter>

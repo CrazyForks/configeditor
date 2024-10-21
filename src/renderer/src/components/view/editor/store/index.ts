@@ -9,6 +9,8 @@ export type AppSettings = {
   fontSize: number,
   editorTheme: string,
   language: string,
+  wordWrap: boolean,
+  lineNumbers: boolean,
 }
 
 export const STORE_APP_SETTINGS = 'STORE_APP_SETTINGS';
@@ -34,6 +36,8 @@ export const appSettingsAtom = atom<AppSettings>({
   lineNumber: true,
   fontSize: 14,
   language: 'en',
+  wordWrap: false,
+  lineNumbers: true,
 })
 
 export const isSudoDialogOpenAtom = atom(false)
