@@ -42,7 +42,7 @@ export function MonacoEditor() {
             onChange={onEditorChange}
             language='bash'
             options={{
-                fontSize: 14, // 设置字号为14px
+                fontSize: appSettings.fontSize, // 设置字号为14px
                 automaticLayout: true,
                 wordWrap: appSettings.wordWrap ? 'on' : 'off',
                 lineNumbers: appSettings.lineNumbers ? 'on' : 'off',

@@ -12,8 +12,15 @@ export type AppSettings = {
   wordWrap: boolean,
   lineNumbers: boolean,
 }
-
-export const STORE_APP_SETTINGS = 'STORE_APP_SETTINGS';
+export const defaultAppSettings: AppSettings = {
+  theme: 'system',
+  editorTheme: 'github',
+  lineNumber: true,
+  fontSize: 14,
+  language: 'en',
+  wordWrap: false,
+  lineNumbers: true,
+}
 
 export const fileInfosAtom = atom<FileInfo[]>([])
 export const filePathsAtom = atom<string[]>((get) => get(fileInfosAtom).map(({ filePath }) => (filePath ?? '')))
@@ -30,14 +37,6 @@ export const isEditingAtom = atom((get) => get(textContentAtom) !== get(newTextC
 
 export const isLeftPanelOpenAtom = atom(true)
 
-export const appSettingsAtom = atom<AppSettings>({
-  theme: 'system',
-  editorTheme: 'github',
-  lineNumber: true,
-  fontSize: 14,
-  language: 'en',
-  wordWrap: false,
-  lineNumbers: true,
-})
+export const appSettingsAtom = atom<AppSettings>(defaultAppSettings)
 
 export const isSudoDialogOpenAtom = atom(false)

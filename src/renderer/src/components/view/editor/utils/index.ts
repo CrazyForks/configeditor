@@ -1,4 +1,4 @@
-import { FileInfo } from "../store";
+import { AppSettings, defaultAppSettings, FileInfo } from "../store";
 
 export function isSubstr(str: string, sub: string) {
   let res = false;
@@ -50,4 +50,17 @@ export function saveFileInfos(newFileInfos: FileInfo[]) {
 
 export function readFileInfos(): FileInfo[] {
   return JSON.parse(localStorage.getItem(FILE_INFOS) || '[]')
+}
+
+export const STORE_APP_SETTINGS = 'STORE_APP_SETTINGS';
+export function saveAppSettings(appSettings: AppSettings) {
+  localStorage.setItem(STORE_APP_SETTINGS, JSON.stringify(appSettings))
+}
+
+export function readAppSettings(): AppSettings {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_APP_SETTINGS) || '');
+  } catch (e) {
+    return defaultAppSettings;
+  }
 }

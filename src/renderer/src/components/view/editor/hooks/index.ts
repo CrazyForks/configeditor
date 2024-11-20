@@ -1,14 +1,17 @@
-import { fileInfosAtom, filePathsAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, fileInfosAtom, filePathsAtom } from '@/components/view/editor/store'
 import { useAtom } from "jotai"
 import { useEffect, useMemo } from "react"
-import { isSubstr, readFileInfos } from "../utils"
+import { isSubstr, readAppSettings, readFileInfos } from "../utils"
 
 export function useInitConfigEditor() {
+    const [appSettings, setAppSettings] = useAtom(appSettingsAtom)
     const [, setFileInfos] = useAtom(fileInfosAtom)
 
     useEffect(() => {
         const localFileInfos = readFileInfos()
         setFileInfos(localFileInfos)
+        const localAppSettings = readAppSettings()
+        setAppSettings(localAppSettings)
     }, [])
 }
 

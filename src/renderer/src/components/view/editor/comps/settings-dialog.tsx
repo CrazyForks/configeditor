@@ -10,7 +10,7 @@ import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import _ from 'lodash'
-import { saveFileInfos } from "../utils"
+import { saveAppSettings, saveFileInfos } from "../utils"
 
 export default function SettingsDialog(props: {
   isSettingDialogOpen: boolean
@@ -50,6 +50,10 @@ export default function SettingsDialog(props: {
       saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
     }
+    const newAppSettings = {...appSettings, fontSize: newFontSize};
+    setAppSettings(newAppSettings);
+    saveAppSettings(newAppSettings);
+    alert('保存成功')
   }
 
   const onRevertBtnClick = () => {
@@ -102,7 +106,7 @@ export default function SettingsDialog(props: {
           <TabsContent value="general">
             <div className="space-y-4 py-2 pb-4">
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="command">明暗模式</Label>
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -112,9 +116,9 @@ export default function SettingsDialog(props: {
                   />
                   {newTheme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </div>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="language">Language</Label>
                 <Select value={newLanguage} onValueChange={setNewLanguage}>
                   <SelectTrigger>
@@ -128,7 +132,8 @@ export default function SettingsDialog(props: {
                     <SelectItem value="zh">中文</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
+
               <div className="space-y-2">
                 <Label>About</Label>
                 <Button variant="outline" className="w-full justify-start">
@@ -136,12 +141,14 @@ export default function SettingsDialog(props: {
                 </Button>
               </div>
             </div>
+
           </TabsContent>
+
           <TabsContent value="editor">
             <div className="space-y-4 py-2 pb-4">
               <div className="space-y-2">
                 <Label htmlFor="font-size">Font Size</Label>
-                <Select value={String(newFontSize)} onValueChange={v => setNewFontSize(parseInt(v, 10))}>
+                <Select value={String(newFontSize)} onValueChange={v => {console.log('zws', v); setNewFontSize(parseInt(v, 10))}}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
