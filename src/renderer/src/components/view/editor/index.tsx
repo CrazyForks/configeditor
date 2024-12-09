@@ -5,9 +5,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { EditorHeadBar } from './comps/editor-headbar'
-import { FileSidebar } from './comps/file-sidebar'
-import { MonacoEditor } from './comps/monaco-editor'
+import { EditorHeadBar } from './components/editor-headbar'
+import { FileSidebar } from './components/file-sidebar'
+import { MonacoEditor } from './components/monaco-editor'
 import { useInitConfigEditor } from './hooks'
 
 export default function ConfigEditor() {

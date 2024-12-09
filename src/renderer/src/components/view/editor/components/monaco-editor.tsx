@@ -46,6 +46,7 @@ export function MonacoEditor() {
                 automaticLayout: true,
                 wordWrap: appSettings.wordWrap ? 'on' : 'off',
                 lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
+                theme: appSettings.theme,
             }}
         /> : <WelcomeFragment />}
     </div>

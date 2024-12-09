@@ -29,7 +29,7 @@ export function WelcomeFragment() {
             <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-xl font-semibold mb-4 text-gray-700">了解更多</h3>
                 <p className="mb-4 text-gray-600">访问我们的 GitHub 仓库，获取详细文档、报告问题或贡献代码：</p>
-                <Button variant="outline" className="flex items-center" onClick={() => window.open('https://github.com/yourusername/config-manager', '_blank')}>
+                <Button variant="outline" className="flex items-center" onClick={() => window.open('https://github.com/heroisuseless/configeditor', '_blank')}>
                     <Github className="mr-2 h-4 w-4" />
                     访问 GitHub 仓库
                 </Button>

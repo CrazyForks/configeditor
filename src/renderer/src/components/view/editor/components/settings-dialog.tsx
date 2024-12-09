@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from '@/components/view/editor/store'
+import { AppSettings, appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { HardDrive, Info, Moon, RefreshCw, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ export default function SettingsDialog(props: {
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
   const [newTheme, setNewTheme] = useState('system')
   const [newLanguage, setNewLanguage] = useState('en')
-  const [newEditorTheme, setNewEditorTheme] = useState('github')
+  const [newEditorTheme, setNewEditorTheme] = useState('vs')
   const [newFontSize, setNewFontSize] = useState(14)
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function SettingsDialog(props: {
       saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
     }
-    const newAppSettings = {...appSettings, fontSize: newFontSize};
+    const newAppSettings: AppSettings = {...appSettings, fontSize: newFontSize, editorTheme: newEditorTheme};
     setAppSettings(newAppSettings);
     saveAppSettings(newAppSettings);
     alert('保存成功')
@@ -168,10 +168,9 @@ export default function SettingsDialog(props: {
                     <SelectValue placeholder="Select theme" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="github">GitHub</SelectItem>
-                    <SelectItem value="monokai">Monokai</SelectItem>
+                    <SelectItem value="vs">vs</SelectItem>
+                    <SelectItem value="vs-dark">vs-dark</SelectItem>
+                    <SelectItem value="hc-black">hc-black</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
