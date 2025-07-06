@@ -12,26 +12,44 @@ import { DebugPanel } from './components/debug-panel'
 import { useInitConfigEditor } from './hooks'
 import { useAtom } from 'jotai'
 import { isLeftPanelOpenAtom } from './store'
+import { useEffect, useRef } from "react"
+import { ImperativePanelHandle } from "react-resizable-panels"
 
 export default function ConfigEditor() {
   useInitConfigEditor();
   const [isLeftPanelOpen] = useAtom(isLeftPanelOpenAtom);
+  const resizablePanelRef = useRef<ImperativePanelHandle>(null);
+
+  useEffect(() => {
+    if (resizablePanelRef.current) {
+      console.log('Resizable panel ref is set:', resizablePanelRef.current);
+      if (isLeftPanelOpen) {
+        resizablePanelRef.current.expand();
+      } else {
+        resizablePanelRef.current.collapse();
+      }
+    }
+  }, [isLeftPanelOpen]);
 
   return <>
     <ResizablePanelGroup
-      key={`panel-group-${isLeftPanelOpen}`}
       direction="horizontal"
       className="w-screen h-screen bg-gray-100 text-gray-800 text-sm font-sans"
     >
-      {isLeftPanelOpen && (
-        <>
-          <ResizablePanel defaultSize={30} minSize={10}>
-            <FileSidebar />
-          </ResizablePanel>
-          <ResizableHandle />
-        </>
-      )}
-      <ResizablePanel defaultSize={isLeftPanelOpen ? 70 : 100} minSize={10}>
+      <ResizablePanel
+        ref={resizablePanelRef}
+        defaultSize={30}
+        collapsedSize={0}
+        collapsible={true}
+        minSize={10}
+      >
+        <FileSidebar />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel 
+        defaultSize={70}
+        minSize={10}
+      >
         <div className='w-full h-full bg-gray-50 flex flex-col'>
           <EditorHeadBar />
           <MonacoEditor />
