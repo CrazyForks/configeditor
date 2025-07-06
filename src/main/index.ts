@@ -134,11 +134,17 @@ function createWindow(): void {
     let { refreshCmd } = arg ?? {};
     refreshCmd = refreshCmd ?? '';
     try {
-      msg = execSync(refreshCmd);
+      const result = execSync(refreshCmd, { encoding: 'utf8' });
+      msg = result;
       code = 3;
-    } catch (err) {
-      msg = err;
+    } catch (err: any) {
+      msg = err.message || err.stderr || err.stdout || err;
       code = 2;
+      
+      // 如果是权限错误，提供更详细的信息
+      if (err.message && (err.message.includes('Permission denied') || err.message.includes('Operation not permitted'))) {
+        msg = `权限不足: ${err.message}`;
+      }
     }
     return { code, msg }
   });
@@ -339,6 +345,51 @@ function createWindow(): void {
     })
   })
 
+  // 使用sudo执行远程refresh命令
+  ipcMain.handle('exec-remote-refresh-sudo', async (_, arg) => {
+    const { refreshCmd, remoteInfo, sudoPassword } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        // 使用sudo执行远程命令
+        const sudoCmd = `echo '${sudoPassword}' | sudo -S ${refreshCmd}`
+        
+        conn.exec(sudoCmd, (err, stream) => {
+          if (err) {
+            conn.end()
+            resolve({ code: 2, msg: '执行sudo命令失败: ' + err.message })
+            return
+          }
+          
+          let stdout = ''
+          let stderr = ''
+          
+          stream.on('close', (code) => {
+            conn.end()
+            if (code === 0) {
+              resolve({ code: 3, msg: '命令执行成功', output: stdout })
+            } else {
+              resolve({ code: 2, msg: 'sudo命令执行失败: ' + stderr })
+            }
+          }).on('data', (data) => {
+            stdout += data
+          }).stderr.on('data', (data) => {
+            stderr += data
+          })
+        })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: '连接失败: ' + err.message })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
   // 使用sudo写入本地文件
   ipcMain.handle('write-file-sudo', async (_, arg) => {
     const { filePath, content, sudoPassword } = arg ?? {}
@@ -365,6 +416,24 @@ function createWindow(): void {
       } catch (err: any) {
         resolve({ code: 2, msg: '创建临时文件失败: ' + err.message })
       }
+    })
+  })
+
+  // 使用sudo执行本地refresh命令
+  ipcMain.handle('exec-refresh-sudo', async (_, arg) => {
+    const { refreshCmd, sudoPassword } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      // 使用sudo执行命令
+      const sudoCmd = `echo '${sudoPassword}' | sudo -S ${refreshCmd}`
+      
+      exec(sudoCmd, (error, stdout, stderr) => {
+        if (error) {
+          resolve({ code: 2, msg: 'sudo命令执行失败: ' + (stderr || error.message) })
+        } else {
+          resolve({ code: 3, msg: '命令执行成功', output: stdout })
+        }
+      })
     })
   })
 }

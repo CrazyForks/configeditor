@@ -47,6 +47,18 @@ export const isEditingAtom = atom((get) => get(textContentAtom) !== get(newTextC
 
 export const isLeftPanelOpenAtom = atom(true)
 
-export const appSettingsAtom = atom<AppSettings>(defaultAppSettings)
+// sudo dialog相关
+export type SudoScenario = {
+  type: 'user' | 'root'
+  description: string
+  purpose: 'file' | 'command'  // 区分是文件操作还是命令执行
+}
 
 export const isSudoDialogOpenAtom = atom(false)
+export const sudoScenarioAtom = atom<SudoScenario>({
+  type: 'user',
+  description: '请输入你的登录密码（sudo密码）',
+  purpose: 'file'
+})
+
+export const appSettingsAtom = atom<AppSettings>(defaultAppSettings)

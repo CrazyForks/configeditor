@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'
@@ -25,6 +25,34 @@ export function EditorHeadBar() {
   const [, setTextContent] = useAtom(textContentAtom)
   const [newTextContent] = useAtom(newTextContentAtom)
   const [, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
+  const [, setSudoScenario] = useAtom(sudoScenarioAtom)
+
+  // 根据错误信息判断需要哪种sudo权限
+  const openSudoDialog = (errorMsg: string, isForCommand = false) => {
+    if (isForCommand && (errorMsg.includes('systemctl') || errorMsg.includes('service') || errorMsg.includes('nginx') || errorMsg.includes('apache'))) {
+      // 系统服务相关命令通常需要root密码
+      setSudoScenario({
+        type: 'root',
+        description: '请输入root密码',
+        purpose: 'command'
+      })
+    } else if (isForCommand) {
+      // 其他命令操作
+      setSudoScenario({
+        type: 'user',
+        description: '请输入你的登录密码',
+        purpose: 'command'
+      })
+    } else {
+      // 文件权限相关通常使用用户的sudo密码
+      setSudoScenario({
+        type: 'user',
+        description: '请输入你的登录密码',
+        purpose: 'file'
+      })
+    }
+    setIsSudoDialogOpen(true)
+  }
 
   const onSaveBtnClick = () => {
     return new Promise((resolve) => {
@@ -47,7 +75,7 @@ export function EditorHeadBar() {
               // 保存失败，可能需要sudo权限
               toast(`远程文件保存失败: ${msg || '权限不足'}`)
               if (msg && msg.includes('Permission denied')) {
-                setIsSudoDialogOpen(true)
+                openSudoDialog(msg)
               }
               resolve(false)
             } else {
@@ -74,7 +102,7 @@ export function EditorHeadBar() {
             } else if (code === 2) {
               // 不可写(读取文件出错或文件不可写)
               toast(`读取文件出错或文件不可写: ${msg || '权限不足'}`)
-              setIsSudoDialogOpen(true)
+              openSudoDialog(msg || '权限不足')
               resolve(false)
             } else {
               resolve(false)
@@ -101,6 +129,10 @@ export function EditorHeadBar() {
               switch (code) {
                 case 2:
                   toast('远程配置文件刷新失败:' + msg)
+                  // 检查是否需要sudo权限
+                  if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
+                    openSudoDialog(msg, true)
+                  }
                   break;
                 case 3:
                   toast('远程配置文件刷新成功')
@@ -119,6 +151,10 @@ export function EditorHeadBar() {
               switch (code) {
                 case 2:
                   toast('配置文件刷新失败:' + msg)
+                  // 检查是否需要sudo权限
+                  if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
+                    openSudoDialog(msg, true)
+                  }
                   break;
                 case 3:
                   toast('配置文件刷新成功')
