@@ -22,19 +22,19 @@ function getLanguageFromFilePath(filePath: string, fileExt: string): string {
     'package.json': 'json',
     'tsconfig.json': 'json',
     'composer.json': 'json',
-    '.gitignore': 'gitignore',
-    '.env': 'dotenv',
+    '.gitignore': 'plaintext',
+    '.env': 'properties', // 使用properties格式来高亮环境变量文件
     '.zshrc': 'shell',
     '.bashrc': 'shell',
     '.bash_profile': 'shell',
     '.profile': 'shell',
-    'nginx.conf': 'nginx',
-    'nginx.config': 'nginx',
-    '.htaccess': 'apache',
-    'httpd.conf': 'apache',
-    'apache.conf': 'apache',
-    'vimrc': 'vim',
-    '.vimrc': 'vim',
+    'nginx.conf': 'ini', // nginx配置文件，使用ini格式作为备选
+    'nginx.config': 'ini',
+    '.htaccess': 'ini', // Apache配置，使用ini格式作为备选
+    'httpd.conf': 'ini',
+    'apache.conf': 'ini',
+    'vimrc': 'plaintext',
+    '.vimrc': 'plaintext',
     'hosts': 'plaintext',
     'passwd': 'plaintext',
     'shadow': 'plaintext',
@@ -61,8 +61,8 @@ function getLanguageFromFilePath(filePath: string, fileExt: string): string {
     'scss': 'scss',
     'sass': 'sass',
     'less': 'less',
-    'vue': 'vue',
-    'svelte': 'svelte',
+    'vue': 'html', // Vue文件使用html高亮
+    'svelte': 'html', // Svelte文件使用html高亮
     
     // 编程语言
     'py': 'python',
@@ -82,8 +82,8 @@ function getLanguageFromFilePath(filePath: string, fileExt: string): string {
     'dart': 'dart',
     'r': 'r',
     'sql': 'sql',
-    'mysql': 'mysql',
-    'postgres': 'pgsql',
+    'mysql': 'sql',
+    'postgres': 'sql',
     'sqlite': 'sql',
     
     // 标记语言
@@ -92,11 +92,12 @@ function getLanguageFromFilePath(filePath: string, fileExt: string): string {
     'xml': 'xml',
     'yaml': 'yaml',
     'yml': 'yaml',
-    'toml': 'toml',
+    'toml': 'ini', // TOML使用ini高亮
     'ini': 'ini',
     'cfg': 'ini',
     'conf': 'ini',
     'config': 'ini',
+    'properties': 'properties',
     
     // Shell脚本
     'sh': 'shell',
@@ -117,11 +118,11 @@ function getLanguageFromFilePath(filePath: string, fileExt: string): string {
     'lua': 'lua',
     'perl': 'perl',
     'pl': 'perl',
-    'tcl': 'tcl',
-    'vim': 'vim',
+    'tcl': 'plaintext', // TCL使用plaintext
+    'vim': 'plaintext', // Vim脚本使用plaintext
     'tex': 'latex',
     'latex': 'latex',
-    'log': 'log',
+    'log': 'plaintext', // 日志文件使用plaintext
     'txt': 'plaintext',
     'text': 'plaintext',
   }
