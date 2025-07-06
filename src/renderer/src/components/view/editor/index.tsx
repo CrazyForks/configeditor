@@ -18,6 +18,7 @@ export default function ConfigEditor() {
 
   return <>
     <ResizablePanelGroup
+      key={`panel-group-${isLeftPanelOpen}`}
       direction="horizontal"
       className="w-screen h-screen bg-gray-100 text-gray-800 text-sm font-sans"
     >
