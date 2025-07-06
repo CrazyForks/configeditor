@@ -75,7 +75,8 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 items-center 
                 w-full 
                 py-3 
-                px-4 
+                px-2
+                pr-0
                 text-sm 
                 text-gray-700
                 transition-colors 
@@ -143,7 +144,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
             <Button
                 variant="ghost"
                 size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500 ml-2"
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
                 onClick={(e) => onDelete(filePath, e)}
             >
                 <Trash2 className="h-4 w-4" />

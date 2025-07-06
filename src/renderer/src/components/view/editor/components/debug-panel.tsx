@@ -1,13 +1,17 @@
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { isDebugPanelOpenAtom, debugLogsAtom, clearDebugLogsAtom } from '@/components/view/editor/store'
+import { isDebugPanelOpenAtom, debugLogsAtom, clearDebugLogsAtom, type DebugLogType } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import {
     X,
     Trash2,
     Terminal,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    Info
 } from 'lucide-react'
 import { useState, useRef, useCallback } from 'react'
 
@@ -21,8 +25,35 @@ export function DebugPanel() {
     const dragStartY = useRef(0)
     const dragStartHeight = useRef(0)
 
-    if (!isDebugPanelOpen) {
-        return null
+    // 获取日志类型对应的样式和图标
+    const getLogStyle = (type: DebugLogType) => {
+        switch (type) {
+            case 'success':
+                return {
+                    bgColor: 'bg-green-50 border-green-200 hover:bg-green-100',
+                    textColor: 'text-green-800',
+                    icon: <CheckCircle className="h-3 w-3 text-green-500" />
+                }
+            case 'error':
+                return {
+                    bgColor: 'bg-red-50 border-red-200 hover:bg-red-100',
+                    textColor: 'text-red-800',
+                    icon: <XCircle className="h-3 w-3 text-red-500" />
+                }
+            case 'warning':
+                return {
+                    bgColor: 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100',
+                    textColor: 'text-yellow-800',
+                    icon: <AlertCircle className="h-3 w-3 text-yellow-500" />
+                }
+            case 'info':
+            default:
+                return {
+                    bgColor: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
+                    textColor: 'text-gray-700',
+                    icon: <Info className="h-3 w-3 text-gray-500" />
+                }
+        }
     }
 
     const onClose = () => {
@@ -65,6 +96,10 @@ export function DebugPanel() {
         document.addEventListener('mousemove', handleMouseMove)
         document.addEventListener('mouseup', handleMouseUp)
     }, [panelHeight])
+
+    if (!isDebugPanelOpen) {
+        return null
+    }
 
     return (
         <div 
@@ -131,14 +166,30 @@ export function DebugPanel() {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {debugLogs.map((log, index) => (
-                                <div
-                                    key={index}
-                                    className="text-xs font-mono text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 transition-colors"
-                                >
-                                    {log}
-                                </div>
-                            ))}
+                            {debugLogs.map((log) => {
+                                const style = getLogStyle(log.type)
+                                return (
+                                    <div
+                                        key={log.id}
+                                        className={`text-xs font-mono px-3 py-2 rounded-lg border transition-colors flex items-start gap-2 ${style.bgColor} ${style.textColor}`}
+                                    >
+                                        <div className="flex-shrink-0 mt-0.5">
+                                            {style.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs opacity-60">[{log.timestamp}]</span>
+                                                <span className="text-xs font-semibold uppercase opacity-80">
+                                                    {log.type}
+                                                </span>
+                                            </div>
+                                            <div className="break-words">
+                                                {log.message}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     )}
                 </ScrollArea>

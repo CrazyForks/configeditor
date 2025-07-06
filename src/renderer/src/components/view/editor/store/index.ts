@@ -49,17 +49,31 @@ export const isFileLoadingAtom = atom(false)
 export const isLeftPanelOpenAtom = atom(true)
 
 // Debug panel 相关状态
+export type DebugLogType = 'info' | 'success' | 'error' | 'warning'
+
+export type DebugLog = {
+  id: string
+  message: string
+  type: DebugLogType
+  timestamp: string
+}
+
 export const isDebugPanelOpenAtom = atom(false)
-export const debugLogsAtom = atom<string[]>([])
+export const debugLogsAtom = atom<DebugLog[]>([])
 
 // 添加日志的action
 export const addDebugLogAtom = atom(
   null,
-  (get, set, message: string) => {
+  (get, set, message: string, type: DebugLogType = 'info') => {
     const currentLogs = get(debugLogsAtom);
     const timestamp = new Date().toLocaleTimeString();
-    const logWithTimestamp = `[${timestamp}] ${message}`;
-    set(debugLogsAtom, [...currentLogs, logWithTimestamp]);
+    const newLog: DebugLog = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      message,
+      type,
+      timestamp
+    };
+    set(debugLogsAtom, [...currentLogs, newLog]);
   }
 )
 

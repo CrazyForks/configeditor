@@ -32,13 +32,13 @@ export function SudoDialog() {
         }
 
         setIsLoading(true)
-        addDebugLog(`🔐 开始执行sudo操作: ${sudoScenario.purpose === 'command' ? '命令执行' : '文件保存'}`)
+        addDebugLog(`开始执行sudo操作: ${sudoScenario.purpose === 'command' ? '命令执行' : '文件保存'}`, 'info')
 
         if (sudoScenario.purpose === 'command') {
             // 执行命令
             if (nowFileInfo?.remoteInfo) {
                 // 远程命令执行
-                addDebugLog(`🔐 使用sudo执行远程命令: ${nowFileInfo.refreshCmd}`)
+                addDebugLog(`使用sudo执行远程命令: ${nowFileInfo.refreshCmd}`, 'info')
                 ipcRenderer.invoke('exec-remote-refresh-sudo', { 
                     refreshCmd: nowFileInfo.refreshCmd,
                     remoteInfo: nowFileInfo.remoteInfo,
@@ -47,25 +47,25 @@ export function SudoDialog() {
                     const { code, msg, output } = arg ?? {}
                     if (code === 3) {
                         toast("远程命令执行成功")
-                        addDebugLog(`✅ sudo远程命令执行成功`)
+                        addDebugLog(`sudo远程命令执行成功`, 'success')
                         if (output) {
-                            addDebugLog(`命令输出: ${output}`)
+                            addDebugLog(`命令输出: ${output}`, 'info')
                         }
                         setIsSudoDialogOpen(false)
                         setPassword('')
                     } else {
                         toast(`远程命令执行失败: ${msg || '权限验证失败'}`)
-                        addDebugLog(`❌ sudo远程命令执行失败: ${msg || '权限验证失败'}`)
+                        addDebugLog(`sudo远程命令执行失败: ${msg || '权限验证失败'}`, 'error')
                     }
                 }).catch((err) => {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
-                    addDebugLog(`❌ sudo远程连接失败: ${err.message || '未知错误'}`)
+                    addDebugLog(`sudo远程连接失败: ${err.message || '未知错误'}`, 'error')
                 }).finally(() => {
                     setIsLoading(false)
                 })
             } else {
                 // 本地命令执行
-                addDebugLog(`🔐 使用sudo执行本地命令: ${nowFileInfo?.refreshCmd}`)
+                addDebugLog(`使用sudo执行本地命令: ${nowFileInfo?.refreshCmd}`, 'info')
                 ipcRenderer.invoke('exec-refresh-sudo', { 
                     refreshCmd: nowFileInfo?.refreshCmd,
                     sudoPassword: password 
@@ -73,19 +73,19 @@ export function SudoDialog() {
                     const { code, msg, output } = arg ?? {}
                     if (code === 3) {
                         toast("命令执行成功")
-                        addDebugLog(`✅ sudo本地命令执行成功`)
+                        addDebugLog(`sudo本地命令执行成功`, 'success')
                         if (output) {
-                            addDebugLog(`命令输出: ${output}`)
+                            addDebugLog(`命令输出: ${output}`, 'info')
                         }
                         setIsSudoDialogOpen(false)
                         setPassword('')
                     } else {
                         toast(`命令执行失败: ${msg || '权限验证失败'}`)
-                        addDebugLog(`❌ sudo本地命令执行失败: ${msg || '权限验证失败'}`)
+                        addDebugLog(`sudo本地命令执行失败: ${msg || '权限验证失败'}`, 'error')
                     }
                 }).catch((err) => {
                     toast(`命令执行失败: ${err.message || '未知错误'}`)
-                    addDebugLog(`❌ sudo本地命令执行失败: ${err.message || '未知错误'}`)
+                    addDebugLog(`sudo本地命令执行失败: ${err.message || '未知错误'}`, 'error')
                 }).finally(() => {
                     setIsLoading(false)
                 })
@@ -94,7 +94,7 @@ export function SudoDialog() {
             // 文件操作
             if (nowFileInfo?.remoteInfo) {
                 // 远程文件使用sudo保存
-                addDebugLog(`🔐 使用sudo保存远程文件: ${nowFilePath}`)
+                addDebugLog(`使用sudo保存远程文件: ${nowFilePath}`, 'info')
                 ipcRenderer.invoke('write-remote-file-sudo', { 
                     filePath: nowFilePath, 
                     content: newTextContent,
@@ -106,22 +106,22 @@ export function SudoDialog() {
                         // 保存成功
                         setTextContent(newTextContent)
                         toast("远程文件保存成功")
-                        addDebugLog(`✅ sudo远程文件保存成功: ${nowFilePath}`)
+                        addDebugLog(`sudo远程文件保存成功: ${nowFilePath}`, 'success')
                         setIsSudoDialogOpen(false)
                         setPassword('')
                     } else {
                         toast(`远程文件保存失败: ${msg || '权限验证失败'}`)
-                        addDebugLog(`❌ sudo远程文件保存失败: ${msg || '权限验证失败'}`)
+                        addDebugLog(`sudo远程文件保存失败: ${msg || '权限验证失败'}`, 'error')
                     }
                 }).catch((err) => {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
-                    addDebugLog(`❌ sudo远程连接失败: ${err.message || '未知错误'}`)
+                    addDebugLog(`sudo远程连接失败: ${err.message || '未知错误'}`, 'error')
                 }).finally(() => {
                     setIsLoading(false)
                 })
             } else {
                 // 本地文件使用sudo保存
-                addDebugLog(`🔐 使用sudo保存本地文件: ${nowFilePath}`)
+                addDebugLog(`使用sudo保存本地文件: ${nowFilePath}`, 'info')
                 ipcRenderer.invoke('write-file-sudo', { 
                     filePath: nowFilePath, 
                     content: newTextContent, 
@@ -131,16 +131,16 @@ export function SudoDialog() {
                     if (code === 3) {
                         setTextContent(newTextContent)
                         toast("文件保存成功")
-                        addDebugLog(`✅ sudo本地文件保存成功: ${nowFilePath}`)
+                        addDebugLog(`sudo本地文件保存成功: ${nowFilePath}`, 'success')
                         setIsSudoDialogOpen(false)
                         setPassword('')
                     } else {
                         toast(`文件保存失败: ${msg || '权限验证失败'}`)
-                        addDebugLog(`❌ sudo本地文件保存失败: ${msg || '权限验证失败'}`)
+                        addDebugLog(`sudo本地文件保存失败: ${msg || '权限验证失败'}`, 'error')
                     }
                 }).catch((err) => {
                     toast(`保存文件失败: ${err.message || '未知错误'}`)
-                    addDebugLog(`❌ sudo本地文件保存失败: ${err.message || '未知错误'}`)
+                    addDebugLog(`sudo本地文件保存失败: ${err.message || '未知错误'}`, 'error')
                 }).finally(() => {
                     setIsLoading(false)
                 })
