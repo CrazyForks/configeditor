@@ -85,8 +85,8 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
             `}
         >
             <div
-                {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
-                className={`flex-1 ${isDragEnabled ? 'cursor-grab hover:cursor-grabbing' : ''}`}
+                // {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
+                className={`flex-1 ${isDragging ? 'cursor-grab hover:cursor-grabbing' : ''}`}
                 onClick={() => onSelect(filePath)}
             >
                 <div className="flex items-center w-full py-1">
