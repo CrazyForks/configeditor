@@ -66,7 +66,6 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
         <div
             ref={setNodeRef}
             style={style}
-            {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
             className={`
                 group 
                 relative 
@@ -83,15 +82,14 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                     'hover:bg-gray-100'
                 }
                 ${isDragging ? 'z-50' : ''}
-                ${isDragEnabled ? 'cursor-grab hover:cursor-grabbing' : ''}
             `}
         >
-            <Button
-                variant="ghost"
-                className="flex-1 justify-start p-0 hover:bg-transparent"
+            <div
+                {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
+                className={`flex-1 ${isDragEnabled ? 'cursor-grab hover:cursor-grabbing' : ''}`}
                 onClick={() => onSelect(filePath)}
             >
-                <div className="flex items-center w-full">
+                <div className="flex items-center w-full py-1">
                     <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
                     <div className="flex-1 text-left">
                         <div className="font-medium text-gray-900 truncate">
@@ -107,11 +105,11 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                         </div>
                     )}
                 </div>
-            </Button>
+            </div>
             <Button
                 variant="ghost"
                 size="sm"
-                className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500 ml-2"
                 onClick={(e) => onDelete(filePath, e)}
             >
                 <Trash2 className="h-4 w-4" />
