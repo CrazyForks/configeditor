@@ -1,10 +1,11 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import path, { join } from 'path'
+import { join } from 'path'
 import fs from 'fs'
 import os from 'os'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { exec, execSync } from 'child_process'
+import { Client } from 'ssh2'
 
 function createWindow(): void {
   // Create the browser window.
@@ -45,7 +46,7 @@ function createWindow(): void {
     mainWindow.webContents.openDevTools()
   }
 
-  ipcMain.handle('open-select-dialog', async (_, arg) => {
+  ipcMain.handle('open-select-dialog', async () => {
     const openDialogReturnValue = await dialog.showOpenDialog(mainWindow, {
       title: '选择配置文件',
       properties: ['openFile']
@@ -142,6 +143,230 @@ function createWindow(): void {
     return { code, msg }
   });
 
+  // 测试远程连接
+  ipcMain.handle('test-remote-connection', async (_, arg) => {
+    const { remoteInfo } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        conn.end()
+        resolve({ code: 3, msg: '连接成功' })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: err.message || '连接失败' })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
+  // 读取远程文件内容
+  ipcMain.handle('read-remote-file-content', async (_, arg) => {
+    const { filePath, remoteInfo } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        conn.sftp((err, sftp) => {
+          if (err) {
+            conn.end()
+            resolve({ code: 2, msg: 'SFTP连接失败: ' + err.message })
+            return
+          }
+          
+          sftp.readFile(filePath, 'utf8', (err, data) => {
+            conn.end()
+            if (err) {
+              resolve({ code: 2, msg: '读取文件失败: ' + err.message })
+            } else {
+              resolve({ code: 3, msg: '读取文件成功', content: data })
+            }
+          })
+        })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: '连接失败: ' + err.message })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
+  // 写入远程文件
+  ipcMain.handle('write-remote-file', async (_, arg) => {
+    const { filePath, content, remoteInfo } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        conn.sftp((err, sftp) => {
+          if (err) {
+            conn.end()
+            resolve({ code: 2, msg: 'SFTP连接失败: ' + err.message })
+            return
+          }
+          
+          sftp.writeFile(filePath, content, 'utf8', (err) => {
+            conn.end()
+            if (err) {
+              resolve({ code: 2, msg: '写入文件失败: ' + err.message })
+            } else {
+              resolve({ code: 3, msg: '写入文件成功' })
+            }
+          })
+        })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: '连接失败: ' + err.message })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
+  // 使用sudo写入远程文件
+  ipcMain.handle('write-remote-file-sudo', async (_, arg) => {
+    const { filePath, content, remoteInfo, sudoPassword } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        // 创建临时文件并使用sudo移动
+        const tempFile = `/tmp/config_editor_temp_${Date.now()}`
+        
+        conn.sftp((err, sftp) => {
+          if (err) {
+            conn.end()
+            resolve({ code: 2, msg: 'SFTP连接失败: ' + err.message })
+            return
+          }
+          
+          // 先写入临时文件
+          sftp.writeFile(tempFile, content, 'utf8', (err) => {
+            if (err) {
+              conn.end()
+              resolve({ code: 2, msg: '写入临时文件失败: ' + err.message })
+              return
+            }
+            
+            // 使用sudo移动文件
+            const sudoCmd = `echo '${sudoPassword}' | sudo -S cp ${tempFile} ${filePath} && rm ${tempFile}`
+            
+            conn.exec(sudoCmd, (err, stream) => {
+              if (err) {
+                conn.end()
+                resolve({ code: 2, msg: '执行sudo命令失败: ' + err.message })
+                return
+              }
+              
+              let stderr = ''
+              stream.on('close', (code) => {
+                conn.end()
+                if (code === 0) {
+                  resolve({ code: 3, msg: '写入文件成功' })
+                } else {
+                  resolve({ code: 2, msg: 'sudo写入失败: ' + stderr })
+                }
+              }).on('data', () => {
+                // stdout data (ignored for sudo operation)
+              }).stderr.on('data', (data) => {
+                stderr += data
+              })
+            })
+          })
+        })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: '连接失败: ' + err.message })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
+  // 执行远程刷新命令
+  ipcMain.handle('exec-remote-refresh', async (_, arg) => {
+    const { refreshCmd, remoteInfo } = arg ?? {}
+    
+    return new Promise((resolve) => {
+      const conn = new Client()
+      
+      conn.on('ready', () => {
+        conn.exec(refreshCmd, (err, stream) => {
+          if (err) {
+            conn.end()
+            resolve({ code: 2, msg: '执行命令失败: ' + err.message })
+            return
+          }
+          
+          let stdout = ''
+          let stderr = ''
+          
+          stream.on('close', (code) => {
+            conn.end()
+            if (code === 0) {
+              resolve({ code: 3, msg: '命令执行成功', output: stdout })
+            } else {
+              resolve({ code: 2, msg: '命令执行失败: ' + stderr })
+            }
+          }).on('data', (data) => {
+            stdout += data
+          }).stderr.on('data', (data) => {
+            stderr += data
+          })
+        })
+      }).on('error', (err) => {
+        resolve({ code: 2, msg: '连接失败: ' + err.message })
+      }).connect({
+        host: remoteInfo.host,
+        port: remoteInfo.port,
+        username: remoteInfo.username,
+        password: remoteInfo.password
+      })
+    })
+  })
+
+  // 使用sudo写入本地文件
+  ipcMain.handle('write-file-sudo', async (_, arg) => {
+    const { filePath, content, sudoPassword } = arg ?? {}
+    const absoluteFilePath = getAbsoluteFilePath(filePath)
+    
+    return new Promise((resolve) => {
+      // 创建临时文件
+      const tempFile = `/tmp/config_editor_temp_${Date.now()}`
+      
+      try {
+        // 写入临时文件
+        fs.writeFileSync(tempFile, content)
+        
+        // 使用sudo移动文件
+        const sudoCmd = `echo '${sudoPassword}' | sudo -S cp ${tempFile} ${absoluteFilePath} && rm ${tempFile}`
+        
+        exec(sudoCmd, (error) => {
+          if (error) {
+            resolve({ code: 2, msg: 'sudo写入失败: ' + error.message })
+          } else {
+            resolve({ code: 3, msg: '写入文件成功' })
+          }
+        })
+      } catch (err: any) {
+        resolve({ code: 2, msg: '创建临时文件失败: ' + err.message })
+      }
+    })
+  })
 }
 
 // This method will be called when Electron has finished

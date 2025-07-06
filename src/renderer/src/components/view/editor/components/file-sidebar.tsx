@@ -6,7 +6,8 @@ import { useAtom } from 'jotai'
 import {
     Atom,
     FileText,
-    Trash2
+    Trash2,
+    Globe
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
@@ -66,44 +67,63 @@ export function FileSidebar() {
                     </>
                 ) : (
                     <>
-                        {showFilePaths.map((filePath) => (
-                            <div
-                                key={filePath}
-                                className={`
-                                    group 
-                                    relative 
-                                    flex 
-                                    items-center 
-                                    w-full 
-                                    py-2 
-                                    px-4 
-                                    text-sm 
-                                    text-gray-700
-                                    transition-colors 
-                                    ${nowFilePath === filePath ?
-                                        'bg-blue-100 hover:bg-blue-100' :
-                                        'hover:bg-gray-100'
-                                    }
-                                `}
-                            >
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start p-0 hover:bg-transparent"
-                                    onClick={() => onSelect(filePath)}
+                        {showFilePaths.map((filePath) => {
+                            const fileInfo = fileInfos.find(f => f.filePath === filePath)
+                            const isRemoteFile = !!fileInfo?.remoteInfo
+                            
+                            return (
+                                <div
+                                    key={filePath}
+                                    className={`
+                                        group 
+                                        relative 
+                                        flex 
+                                        items-center 
+                                        w-full 
+                                        py-3 
+                                        px-4 
+                                        text-sm 
+                                        text-gray-700
+                                        transition-colors 
+                                        ${nowFilePath === filePath ?
+                                            'bg-blue-100 hover:bg-blue-100' :
+                                            'hover:bg-gray-100'
+                                        }
+                                    `}
                                 >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    {filePath.split('/')?.pop() ?? ''}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
-                                    onClick={(e) => onDelete(filePath, e)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        ))}
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start p-0 hover:bg-transparent"
+                                        onClick={() => onSelect(filePath)}
+                                    >
+                                        <div className="flex items-center w-full">
+                                            <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                                            <div className="flex-1 text-left">
+                                                <div className="font-medium text-gray-900 truncate">
+                                                    {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
+                                                </div>
+                                                <div className="text-xs text-gray-500 truncate">
+                                                    {filePath}
+                                                </div>
+                                            </div>
+                                            {isRemoteFile && (
+                                                <div title="远程文件" className="flex-shrink-0">
+                                                    <Globe className="ml-2 h-3 w-3 text-blue-500" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
+                                        onClick={(e) => onDelete(filePath, e)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )
+                        })}
                     </>
                 )}
             </ScrollArea>

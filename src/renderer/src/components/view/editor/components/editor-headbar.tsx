@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
 import { useState } from 'react'
@@ -24,31 +24,63 @@ export function EditorHeadBar() {
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
   const [, setTextContent] = useAtom(textContentAtom)
   const [newTextContent] = useAtom(newTextContentAtom)
+  const [, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
 
   const onSaveBtnClick = () => {
     return new Promise((resolve) => {
       if (isEditing) {
         // 文件已编辑过
-        ipcRenderer.invoke('is-file-write', { filePath: nowFilePath }).then((arg) => {
-          // 判断文件是否可写
-          const { code, msg } = arg ?? {}
-          if (code === 3) {
-            // 可写
-            ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then((res) => {
-              // 写入文件成功，处理当前数据
+        if (nowFileInfo?.remoteInfo) {
+          // 远程文件保存
+          ipcRenderer.invoke('write-remote-file', { 
+            filePath: nowFilePath, 
+            content: newTextContent,
+            remoteInfo: nowFileInfo.remoteInfo 
+          }).then((arg) => {
+            const { code, msg } = arg ?? {}
+            if (code === 3) {
+              // 保存成功
               setTextContent(newTextContent)
-              toast("文件存储成功")
-            })
-            resolve(true)
-          } else if (code === 2) {
-            // 不可写(读取文件出错或文件不可写)
-            alert('读取文件出错或文件不可写')
-            // TODO sudo dialog
+              toast("远程文件保存成功")
+              resolve(true)
+            } else if (code === 2) {
+              // 保存失败，可能需要sudo权限
+              toast(`远程文件保存失败: ${msg || '权限不足'}`)
+              if (msg && msg.includes('Permission denied')) {
+                setIsSudoDialogOpen(true)
+              }
+              resolve(false)
+            } else {
+              toast(`远程文件保存失败: ${msg || '未知错误'}`)
+              resolve(false)
+            }
+          }).catch((err) => {
+            toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
             resolve(false)
-          } else {
-            resolve(false)
-          }
-        })
+          })
+        } else {
+          // 本地文件保存
+          ipcRenderer.invoke('is-file-write', { filePath: nowFilePath }).then((arg) => {
+            // 判断文件是否可写
+            const { code, msg } = arg ?? {}
+            if (code === 3) {
+              // 可写
+              ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then(() => {
+                // 写入文件成功，处理当前数据
+                setTextContent(newTextContent)
+                toast("文件存储成功")
+              })
+              resolve(true)
+            } else if (code === 2) {
+              // 不可写(读取文件出错或文件不可写)
+              toast(`读取文件出错或文件不可写: ${msg || '权限不足'}`)
+              setIsSudoDialogOpen(true)
+              resolve(false)
+            } else {
+              resolve(false)
+            }
+          })
+        }
       } else {
         resolve(false)
       }
@@ -59,20 +91,44 @@ export function EditorHeadBar() {
     onSaveBtnClick().then((res) => {
       if (res) {
         if (nowFileInfo?.refreshCmd) {
-          ipcRenderer.invoke('exec-refresh', { refreshCmd: nowFileInfo?.refreshCmd }).then((res) => {
-            const { code, msg } = res ?? {}
-            switch (code) {
-              case 2:
-                toast('配置文件刷新失败:' + msg)
-                break;
-              case 3:
-                toast('配置文件刷新成功')
-                break;
-              default:
-                break;
-            }
-            console.log('exec-refresh:', res)
-          })
+          if (nowFileInfo.remoteInfo) {
+            // 远程命令执行
+            ipcRenderer.invoke('exec-remote-refresh', { 
+              refreshCmd: nowFileInfo.refreshCmd,
+              remoteInfo: nowFileInfo.remoteInfo 
+            }).then((res) => {
+              const { code, msg } = res ?? {}
+              switch (code) {
+                case 2:
+                  toast('远程配置文件刷新失败:' + msg)
+                  break;
+                case 3:
+                  toast('远程配置文件刷新成功')
+                  break;
+                default:
+                  break;
+              }
+              console.log('exec-remote-refresh:', res)
+            }).catch((err) => {
+              toast(`远程命令执行失败: ${err.message || '未知错误'}`)
+            })
+          } else {
+            // 本地命令执行
+            ipcRenderer.invoke('exec-refresh', { refreshCmd: nowFileInfo?.refreshCmd }).then((res) => {
+              const { code, msg } = res ?? {}
+              switch (code) {
+                case 2:
+                  toast('配置文件刷新失败:' + msg)
+                  break;
+                case 3:
+                  toast('配置文件刷新成功')
+                  break;
+                default:
+                  break;
+              }
+              console.log('exec-refresh:', res)
+            })
+          }
         } else {
           toast('没有命令，请在设置中配置')
         }

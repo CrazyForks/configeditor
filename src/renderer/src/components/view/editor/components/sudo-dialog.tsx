@@ -6,34 +6,75 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { FileInfo, fileInfosAtom, filePathsAtom, isSudoDialogOpenAtom, nowFilePathAtom } from '@/components/view/editor/store'
+import { isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import {
-    FolderSearch,
-    Plus
-} from 'lucide-react'
 import { useState } from 'react'
+import { toast } from "sonner"
 const { ipcRenderer } = window.require('electron')
 
 export function SudoDialog() {
-    const [value, setValue] = useState('')
+    const [password, setPassword] = useState('')
     const [isSudoDialogOpen, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
+    const [nowFilePath] = useAtom(nowFilePathAtom)
+    const [nowFileInfo] = useAtom(nowFileInfoAtom)
+    const [newTextContent] = useAtom(newTextContentAtom)
+    const [, setTextContent] = useAtom(textContentAtom)
 
     const onOk = () => {
-        ipcRenderer.invoke('read-file-content', { value }).then((arg) => {
-            if (arg && arg.content && typeof arg.content === 'string') {
-                // TODO
-            } else {
-                alert('读取文件失败！可能文件不存在或文件权限不足')
-                // TODO: 权限问题，这里是只读的，大部分文件都是只读的
-            }
-        })
+        if (!password.trim()) {
+            toast('请输入密码')
+            return
+        }
+
+        if (nowFileInfo?.remoteInfo) {
+            // 远程文件使用sudo保存
+            ipcRenderer.invoke('write-remote-file-sudo', { 
+                filePath: nowFilePath, 
+                content: newTextContent,
+                remoteInfo: nowFileInfo.remoteInfo,
+                sudoPassword: password
+            }).then((arg) => {
+                const { code, msg } = arg ?? {}
+                if (code === 3) {
+                    // 保存成功
+                    setTextContent(newTextContent)
+                    toast("远程文件保存成功")
+                    setIsSudoDialogOpen(false)
+                    setPassword('')
+                } else {
+                    toast(`远程文件保存失败: ${msg || '权限验证失败'}`)
+                }
+            }).catch((err) => {
+                toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+            })
+        } else {
+            // 本地文件使用sudo保存
+            ipcRenderer.invoke('write-file-sudo', { 
+                filePath: nowFilePath, 
+                content: newTextContent, 
+                sudoPassword: password 
+            }).then((arg) => {
+                const { code, msg } = arg ?? {}
+                if (code === 3) {
+                    setTextContent(newTextContent)
+                    toast("文件保存成功")
+                    setIsSudoDialogOpen(false)
+                    setPassword('')
+                } else {
+                    toast(`文件保存失败: ${msg || '权限验证失败'}`)
+                }
+            }).catch((err) => {
+                toast(`保存文件失败: ${err.message || '未知错误'}`)
+            })
+        }
     }
 
-    const onCancel = () => {}
+    const onCancel = () => {
+        setIsSudoDialogOpen(false)
+        setPassword('')
+    }
 
     return (
         <Dialog open={isSudoDialogOpen} onOpenChange={setIsSudoDialogOpen}>
@@ -44,7 +85,12 @@ export function SudoDialog() {
                 </DialogHeader>
                 <div className="flex items-center space-x-2">
                     <div className="grid flex-1 gap-2">
-                        <Input value={value} onChange={(e) => setValue(e.target.value)} />
+                        <Input 
+                            type="password" 
+                            placeholder="输入密码" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                        />
                     </div>
                 </div>
                 <DialogFooter className="sm:justify-end">

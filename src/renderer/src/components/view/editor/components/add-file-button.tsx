@@ -46,47 +46,81 @@ export function AddFileButton() {
         }
         
         // 验证远程连接信息
-        if (isAdvancedOpen) {
-            if (!host.trim() || !port.trim() || !username.trim() || !password.trim()) {
-                alert('请填写完整的远程连接信息')
-                return
-            }
+        const isRemoteFile = isAdvancedOpen && host.trim() && port.trim() && username.trim() && password.trim()
+        if (isAdvancedOpen && !isRemoteFile) {
+            alert('请填写完整的远程连接信息')
+            return
         }
 
-        ipcRenderer.invoke('read-file-content', { filePath }).then((arg) => {
-            if (arg && arg.content && typeof arg.content === 'string') {
-                const newFileInfos: FileInfo[] = [...fileInfos];
-                if (!filePaths.includes(filePath)) {
+        // 检查文件是否已存在
+        if (filePaths.includes(filePath)) {
+            alert('文件已存在于列表中')
+            return
+        }
+
+        if (isRemoteFile) {
+            // 远程文件，先测试连接
+            const remoteInfo = {
+                host: host.trim(),
+                port: parseInt(port),
+                username: username.trim(),
+                password: password.trim()
+            }
+            
+            ipcRenderer.invoke('test-remote-connection', { remoteInfo }).then((arg) => {
+                const { code, msg } = arg ?? {}
+                if (code === 3) {
+                    // 连接成功，添加远程文件
+                    const newFileInfos: FileInfo[] = [...fileInfos];
                     const fileInfo: FileInfo = {
                         filePath, 
                         refreshCmd: 'cat ' + filePath,
                         description: description.trim(),
-                        remoteInfo: isAdvancedOpen ? {
-                            host: host.trim(),
-                            port: parseInt(port),
-                            username: username.trim(),
-                            password: password.trim()
-                        } : undefined
+                        remoteInfo
                     };
                     newFileInfos.unshift(fileInfo);
+                    setFileInfos(newFileInfos)
+                    saveFileInfos(newFileInfos)
+                    setNowFilePath(filePath)
+                    resetForm()
+                    setOpen(false)
+                } else {
+                    alert(`远程连接失败: ${msg || '连接验证失败'}`)
                 }
-                setFileInfos(newFileInfos)
-                saveFileInfos(newFileInfos)
-                setNowFilePath(filePath)
-                setFilePath('')
-                setDescription('')
-                // 重置高级设置
-                setIsAdvancedOpen(false)
-                setHost('')
-                setPort('')
-                setUsername('')
-                setPassword('')
-                setOpen(false)
-            } else {
-                alert('读取文件失败！可能文件不存在或文件权限不足')
-                // 权限问题，这里是只读的，大部分文件都是只读的，所以这里不做特殊处理了
-            }
-        })
+            }).catch((err) => {
+                alert(`远程连接失败: ${err.message || '未知错误'}`)
+            })
+        } else {
+            // 本地文件
+            ipcRenderer.invoke('read-file-content', { filePath }).then((arg) => {
+                if (arg && arg.content && typeof arg.content === 'string') {
+                    const newFileInfos: FileInfo[] = [...fileInfos];
+                    const fileInfo: FileInfo = {
+                        filePath, 
+                        refreshCmd: 'cat ' + filePath,
+                        description: description.trim()
+                    };
+                    newFileInfos.unshift(fileInfo);
+                    setFileInfos(newFileInfos)
+                    saveFileInfos(newFileInfos)
+                    setNowFilePath(filePath)
+                    resetForm()
+                    setOpen(false)
+                } else {
+                    alert('读取文件失败！可能文件不存在或文件权限不足')
+                }
+            })
+        }
+    }
+
+    const resetForm = () => {
+        setFilePath('')
+        setDescription('')
+        setIsAdvancedOpen(false)
+        setHost('')
+        setPort('')
+        setUsername('')
+        setPassword('')
     }
 
     // 打开选择配置文件窗口
