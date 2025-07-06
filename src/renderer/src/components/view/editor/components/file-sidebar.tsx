@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom } from '@/components/view/editor/store'
+import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom, isDebugPanelOpenAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAtom } from 'jotai'
@@ -156,6 +156,7 @@ export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
+    const [, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useShowFilePaths(searchName)
 
@@ -184,6 +185,10 @@ export function FileSidebar() {
         setNowFilePath('')
     }
 
+    const onShowDebugPanel = () => {
+        setIsDebugPanelOpen(true)
+    }
+
     const onHideLeftPanel = () => {
         setIsLeftPanelOpen(false)
     }
@@ -209,9 +214,9 @@ export function FileSidebar() {
         <div className="w-full h-full bg-white flex flex-col shadow-sm">
             <div className="p-4 border-b border-gray-200">
                 <div className='flex justify-between items-center mb-3'>
-                    <h2 onClick={onAppTitleClick} className="text-lg font-semibold flex items-center text-gray-700 cursor-pointer hover:underline">
-                        <Atom className="mr-2 h-5 w-5" />
-                        配置文件管理器
+                    <h2 className="text-lg font-semibold flex items-center text-gray-700">
+                        <Atom className="mr-2 h-5 w-5" onClick={onShowDebugPanel} />
+                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:underline">配置文件管理器</span>
                     </h2>
                     <Button
                         onClick={onHideLeftPanel}

@@ -8,6 +8,7 @@ import {
 import { EditorHeadBar } from './components/editor-headbar'
 import { FileSidebar } from './components/file-sidebar'
 import { MonacoEditor } from './components/monaco-editor'
+import { DebugPanel } from './components/debug-panel'
 import { useInitConfigEditor } from './hooks'
 import { useAtom } from 'jotai'
 import { isLeftPanelOpenAtom } from './store'
@@ -37,5 +38,6 @@ export default function ConfigEditor() {
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
+    <DebugPanel />
   </>
 }

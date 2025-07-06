@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
@@ -30,6 +30,7 @@ export function EditorHeadBar() {
   const [, setSudoScenario] = useAtom(sudoScenarioAtom)
   const [isSaving, setIsSaving] = useAtom(isSavingAtom)
   const [isRefreshing, setIsRefreshing] = useAtom(isRefreshingAtom)
+  const [, addDebugLog] = useAtom(addDebugLogAtom)
 
   const onShowLeftPanel = () => {
     setIsLeftPanelOpen(true)
@@ -66,9 +67,12 @@ export function EditorHeadBar() {
     return new Promise((resolve) => {
       if (isEditing && !isSaving) {
         setIsSaving(true)
+        addDebugLog(`开始保存文件: ${nowFilePath}`)
+        
         // 文件已编辑过
         if (nowFileInfo?.remoteInfo) {
           // 远程文件保存
+          addDebugLog(`执行远程文件保存: ${nowFileInfo.remoteInfo.host}:${nowFileInfo.remoteInfo.port}`)
           ipcRenderer.invoke('write-remote-file', { 
             filePath: nowFilePath, 
             content: newTextContent,
@@ -79,26 +83,31 @@ export function EditorHeadBar() {
               // 保存成功
               setTextContent(newTextContent)
               toast("远程文件保存成功")
+              addDebugLog(`✅ 远程文件保存成功: ${nowFilePath}`)
               resolve(true)
             } else if (code === 2) {
               // 保存失败，可能需要sudo权限
               toast(`远程文件保存失败: ${msg || '权限不足'}`)
+              addDebugLog(`❌ 远程文件保存失败: ${msg || '权限不足'}`)
               if (msg && msg.includes('Permission denied')) {
                 openSudoDialog(msg)
               }
               resolve(false)
             } else {
               toast(`远程文件保存失败: ${msg || '未知错误'}`)
+              addDebugLog(`❌ 远程文件保存失败: ${msg || '未知错误'}`)
               resolve(false)
             }
           }).catch((err) => {
             toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+            addDebugLog(`❌ 连接远程服务器失败: ${err.message || '未知错误'}`)
             resolve(false)
           }).finally(() => {
             setIsSaving(false)
           })
         } else {
           // 本地文件保存
+          addDebugLog(`执行本地文件保存: ${nowFilePath}`)
           ipcRenderer.invoke('is-file-write', { filePath: nowFilePath }).then((arg) => {
             // 判断文件是否可写
             const { code, msg } = arg ?? {}
@@ -108,14 +117,17 @@ export function EditorHeadBar() {
                 // 写入文件成功，处理当前数据
                 setTextContent(newTextContent)
                 toast("文件存储成功")
+                addDebugLog(`✅ 本地文件保存成功: ${nowFilePath}`)
               })
               resolve(true)
             } else if (code === 2) {
               // 不可写(读取文件出错或文件不可写)
               toast(`读取文件出错或文件不可写: ${msg || '权限不足'}`)
+              addDebugLog(`❌ 文件不可写: ${msg || '权限不足'}`)
               openSudoDialog(msg || '权限不足')
               resolve(false)
             } else {
+              addDebugLog(`❌ 文件保存失败: 未知错误`)
               resolve(false)
             }
           }).finally(() => {
@@ -132,19 +144,25 @@ export function EditorHeadBar() {
     if (isRefreshing) return
     
     setIsRefreshing(true)
+    addDebugLog(`开始刷新操作: ${nowFilePath}`)
+    
     onSaveBtnClick().then((res) => {
       if (res) {
         if (nowFileInfo?.refreshCmd) {
+          addDebugLog(`执行刷新命令: ${nowFileInfo.refreshCmd}`)
+          
           if (nowFileInfo.remoteInfo) {
             // 远程命令执行
+            addDebugLog(`在远程服务器执行: ${nowFileInfo.remoteInfo.host}:${nowFileInfo.remoteInfo.port}`)
             ipcRenderer.invoke('exec-remote-refresh', { 
               refreshCmd: nowFileInfo.refreshCmd,
               remoteInfo: nowFileInfo.remoteInfo 
             }).then((res) => {
-              const { code, msg } = res ?? {}
+              const { code, msg, output } = res ?? {}
               switch (code) {
                 case 2:
                   toast('远程配置文件刷新失败:' + msg)
+                  addDebugLog(`❌ 远程命令执行失败: ${msg}`)
                   // 检查是否需要sudo权限
                   if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
                     openSudoDialog(msg, true)
@@ -152,6 +170,10 @@ export function EditorHeadBar() {
                   break;
                 case 3:
                   toast('远程配置文件刷新成功')
+                  addDebugLog(`✅ 远程命令执行成功`)
+                  if (output) {
+                    addDebugLog(`命令输出: ${output}`)
+                  }
                   break;
                 default:
                   break;
@@ -159,16 +181,19 @@ export function EditorHeadBar() {
               console.log('exec-remote-refresh:', res)
             }).catch((err) => {
               toast(`远程命令执行失败: ${err.message || '未知错误'}`)
+              addDebugLog(`❌ 远程命令执行失败: ${err.message || '未知错误'}`)
             }).finally(() => {
               setIsRefreshing(false)
             })
           } else {
             // 本地命令执行
+            addDebugLog(`在本地执行命令: ${nowFileInfo.refreshCmd}`)
             ipcRenderer.invoke('exec-refresh', { refreshCmd: nowFileInfo?.refreshCmd }).then((res) => {
               const { code, msg } = res ?? {}
               switch (code) {
                 case 2:
                   toast('配置文件刷新失败:' + msg)
+                  addDebugLog(`❌ 本地命令执行失败: ${msg}`)
                   // 检查是否需要sudo权限
                   if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
                     openSudoDialog(msg, true)
@@ -176,6 +201,7 @@ export function EditorHeadBar() {
                   break;
                 case 3:
                   toast('配置文件刷新成功')
+                  addDebugLog(`✅ 本地命令执行成功: ${msg}`)
                   break;
                 default:
                   break;
@@ -187,12 +213,15 @@ export function EditorHeadBar() {
           }
         } else {
           toast('没有命令，请在设置中配置')
+          addDebugLog(`❌ 没有配置刷新命令`)
           setIsRefreshing(false)
         }
       } else {
+        addDebugLog(`❌ 文件保存失败，取消刷新操作`)
         setIsRefreshing(false)
       }
     }).catch(() => {
+      addDebugLog(`❌ 保存操作异常，取消刷新操作`)
       setIsRefreshing(false)
     })
   }

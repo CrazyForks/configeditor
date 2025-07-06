@@ -48,6 +48,29 @@ export const isFileLoadingAtom = atom(false)
 
 export const isLeftPanelOpenAtom = atom(true)
 
+// Debug panel 相关状态
+export const isDebugPanelOpenAtom = atom(false)
+export const debugLogsAtom = atom<string[]>([])
+
+// 添加日志的action
+export const addDebugLogAtom = atom(
+  null,
+  (get, set, message: string) => {
+    const currentLogs = get(debugLogsAtom);
+    const timestamp = new Date().toLocaleTimeString();
+    const logWithTimestamp = `[${timestamp}] ${message}`;
+    set(debugLogsAtom, [...currentLogs, logWithTimestamp]);
+  }
+)
+
+// 清空日志的action
+export const clearDebugLogsAtom = atom(
+  null,
+  (_get, set) => {
+    set(debugLogsAtom, []);
+  }
+)
+
 // 保存和刷新loading状态
 export const isSavingAtom = atom(false)
 export const isRefreshingAtom = atom(false)
