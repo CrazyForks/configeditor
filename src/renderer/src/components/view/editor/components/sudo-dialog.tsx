@@ -16,6 +16,7 @@ const { ipcRenderer } = window.require('electron')
 
 export function SudoDialog() {
     const [password, setPassword] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [isSudoDialogOpen, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
     const [nowFilePath] = useAtom(nowFilePathAtom)
     const [nowFileInfo] = useAtom(nowFileInfoAtom)
@@ -28,6 +29,8 @@ export function SudoDialog() {
             toast('请输入密码')
             return
         }
+
+        setIsLoading(true)
 
         if (sudoScenario.purpose === 'command') {
             // 执行命令
@@ -48,6 +51,8 @@ export function SudoDialog() {
                     }
                 }).catch((err) => {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+                }).finally(() => {
+                    setIsLoading(false)
                 })
             } else {
                 // 本地命令执行
@@ -65,6 +70,8 @@ export function SudoDialog() {
                     }
                 }).catch((err) => {
                     toast(`命令执行失败: ${err.message || '未知错误'}`)
+                }).finally(() => {
+                    setIsLoading(false)
                 })
             }
         } else {
@@ -89,6 +96,8 @@ export function SudoDialog() {
                     }
                 }).catch((err) => {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+                }).finally(() => {
+                    setIsLoading(false)
                 })
             } else {
                 // 本地文件使用sudo保存
@@ -108,6 +117,8 @@ export function SudoDialog() {
                     }
                 }).catch((err) => {
                     toast(`保存文件失败: ${err.message || '未知错误'}`)
+                }).finally(() => {
+                    setIsLoading(false)
                 })
             }
         }
@@ -116,10 +127,17 @@ export function SudoDialog() {
     const onCancel = () => {
         setIsSudoDialogOpen(false)
         setPassword('')
+        setIsLoading(false)
     }
 
     return (
-        <Dialog open={isSudoDialogOpen} onOpenChange={setIsSudoDialogOpen}>
+        <Dialog open={isSudoDialogOpen} onOpenChange={(open) => {
+            if (!open) {
+                setPassword('')
+                setIsLoading(false)
+            }
+            setIsSudoDialogOpen(open)
+        }}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>{sudoScenario.description}</DialogTitle>
@@ -136,7 +154,8 @@ export function SudoDialog() {
                             type="password" 
                             placeholder={sudoScenario.type === 'root' ? '输入root密码' : '输入用户密码'} 
                             value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>
@@ -145,6 +164,7 @@ export function SudoDialog() {
                         type="button"
                         variant="secondary"
                         onClick={onCancel}
+                        disabled={isLoading}
                         className="rounded-md"
                     >
                         取消
@@ -153,9 +173,10 @@ export function SudoDialog() {
                         type="button"
                         variant="secondary"
                         onClick={onOk}
-                        className=" bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                        disabled={isLoading}
+                        className=" bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        确定
+                        {isLoading ? '处理中...' : '确定'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
