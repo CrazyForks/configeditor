@@ -36,8 +36,15 @@ export function AddFileButton() {
     const [port, setPort] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [description, setDescription] = useState('')
 
     const onOk = () => {
+        // 验证文件描述不能为空
+        if (!description.trim()) {
+            alert('请输入文件描述')
+            return
+        }
+        
         // 验证远程连接信息
         if (isAdvancedOpen) {
             if (!host.trim() || !port.trim() || !username.trim() || !password.trim()) {
@@ -53,6 +60,7 @@ export function AddFileButton() {
                     const fileInfo: FileInfo = {
                         filePath, 
                         refreshCmd: 'cat ' + filePath,
+                        description: description.trim(),
                         remoteInfo: isAdvancedOpen ? {
                             host: host.trim(),
                             port: parseInt(port),
@@ -66,6 +74,7 @@ export function AddFileButton() {
                 saveFileInfos(newFileInfos)
                 setNowFilePath(filePath)
                 setFilePath('')
+                setDescription('')
                 // 重置高级设置
                 setIsAdvancedOpen(false)
                 setHost('')
@@ -127,6 +136,16 @@ export function AddFileButton() {
                             <span className="sr-only">Search</span>
                             <FolderSearch className="h-4 w-4" />
                         </Button>
+                    </div>
+                    
+                    <div className="grid gap-2">
+                        <Label htmlFor="description">描述 <span className="text-red-500">*</span></Label>
+                        <Input 
+                            id="description"
+                            value={description} 
+                            onChange={(e) => setDescription(e.target.value)} 
+                            placeholder="请输入文件描述"
+                        />
                     </div>
                     
                     {/* 高级设置 - 可折叠 */}

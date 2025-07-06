@@ -5,6 +5,7 @@ import { atom } from 'jotai'
 export type FileInfo = { 
   filePath: string; 
   refreshCmd: string;
+  description: string;
   remoteInfo?: {
     host: string;
     port: number;
