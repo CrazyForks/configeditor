@@ -2,13 +2,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAtom } from 'jotai'
 import {
     Atom,
-    FileText,
     Trash2,
     Globe,
-    ChevronLeft
+    ChevronLeft,
+    GripVertical
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
@@ -85,28 +86,60 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 ${isDragging ? 'z-50' : ''}
             `}
         >
-            <div
-                {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
-                className={`flex-1 ${isDragEnabled && isDragging ? 'cursor-grabbing' : isDragEnabled ? 'cursor-grab' : ''}`}
-                onClick={() => onSelect(filePath)}
-            >
-                <div className="flex items-center w-full py-1">
-                    <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-900 truncate">
-                            {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
-                        </div>
-                        <div className="text-xs text-gray-500 truncate">
-                            {filePath}
-                        </div>
-                    </div>
-                    {isRemoteFile && (
-                        <div title="远程文件" className="flex-shrink-0">
-                            <Globe className="ml-2 h-3 w-3 text-blue-500" />
-                        </div>
-                    )}
+            {/* 拖动图标 */}
+            {isDragEnabled && (
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-gray-600 transition-colors"
+                    title="拖动排序"
+                >
+                    <GripVertical className="h-4 w-4 text-gray-400" />
                 </div>
-            </div>
+            )}
+            
+            {/* 文件内容区域 - 只处理点击选择 */}
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div
+                            className="flex-1 cursor-pointer overflow-hidden"
+                            onClick={() => onSelect(filePath)}
+                        >
+                            <div className="flex items-center w-full py-1">
+                                <div className="flex-1 text-left min-w-0">
+                                    <div className="font-medium text-gray-900 truncate flex items-center">
+                                        {isRemoteFile && (
+                                            <div title="远程文件" className="flex-shrink-0">
+                                                <Globe className="mr-1 h-3 w-3 text-blue-500" />
+                                            </div>
+                                        )}
+                                        <span className="truncate">
+                                            {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
+                                        </span>
+                                    </div>
+                                    <div className="text-xs text-gray-500 truncate">
+                                        {filePath}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" align="start" className="max-w-md p-3 bg-white border border-gray-200 shadow-lg">
+                        <div className="space-y-1">
+                            <div className="text-sm text-gray-600">
+                                标题: {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                路径: {filePath}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                                类型: {isRemoteFile ? '远程' : '本地'}文件
+                            </div>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <Button
                 variant="ghost"
                 size="sm"
