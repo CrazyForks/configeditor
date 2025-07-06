@@ -7,9 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { Check, Copy, RefreshCw, Save, Settings, Loader2, RotateCcw } from 'lucide-react'
+import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
@@ -20,6 +20,7 @@ export function EditorHeadBar() {
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [isEditing] = useAtom(isEditingAtom);
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
   const [isReloadingFile, setIsReloadingFile] = useState(false)
@@ -29,6 +30,10 @@ export function EditorHeadBar() {
   const [, setSudoScenario] = useAtom(sudoScenarioAtom)
   const [isSaving, setIsSaving] = useAtom(isSavingAtom)
   const [isRefreshing, setIsRefreshing] = useAtom(isRefreshingAtom)
+
+  const onShowLeftPanel = () => {
+    setIsLeftPanelOpen(true)
+  }
 
   // 根据错误信息判断需要哪种sudo权限
   const openSudoDialog = (errorMsg: string, isForCommand = false) => {
@@ -250,11 +255,17 @@ export function EditorHeadBar() {
     {/* Top Management Bar */}
     <div className="w-full max-w-full bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
-        {/* {!isLeftPanelOpen && (
-          <Button onClick={onOpenLeftPanelBtnClick} size="icon" variant="ghost" className="mr-2 h-8 w-8">
+        {!isLeftPanelOpen && (
+          <Button 
+            onClick={onShowLeftPanel} 
+            size="icon" 
+            variant="ghost" 
+            className="mr-2 h-8 w-8"
+            title="显示侧边栏"
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
-        )} */}
+        )}
         <h1 
           className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'} ${nowFilePath ? 'cursor-pointer hover:underline' : ''}`}
           onClick={nowFilePath ? () => onCopyBtnClick(nowFilePath) : undefined}

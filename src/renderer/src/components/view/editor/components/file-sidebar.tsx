@@ -1,13 +1,14 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, nowFilePathAtom } from '@/components/view/editor/store'
+import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useAtom } from 'jotai'
 import {
     Atom,
     FileText,
     Trash2,
-    Globe
+    Globe,
+    ChevronLeft
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
@@ -85,8 +86,8 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
             `}
         >
             <div
-                // {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
-                className={`flex-1 ${isDragging ? 'cursor-grab hover:cursor-grabbing' : ''}`}
+                {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
+                className={`flex-1 ${isDragEnabled && isDragging ? 'cursor-grabbing' : isDragEnabled ? 'cursor-grab' : ''}`}
                 onClick={() => onSelect(filePath)}
             >
                 <div className="flex items-center w-full py-1">
@@ -121,6 +122,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
 export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
+    const [, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useShowFilePaths(searchName)
 
@@ -149,6 +151,10 @@ export function FileSidebar() {
         setNowFilePath('')
     }
 
+    const onHideLeftPanel = () => {
+        setIsLeftPanelOpen(false)
+    }
+
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
 
@@ -174,6 +180,15 @@ export function FileSidebar() {
                         <Atom className="mr-2 h-5 w-5" />
                         配置文件管理器
                     </h2>
+                    <Button
+                        onClick={onHideLeftPanel}
+                        size="sm"
+                        variant="ghost"
+                        className="text-gray-500 hover:text-gray-700"
+                        title="隐藏侧边栏"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
                 </div>
                 <div className="flex mb-2">
                     <Input
