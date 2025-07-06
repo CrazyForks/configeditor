@@ -7,9 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { Check, Copy, RefreshCw, Save, Settings } from 'lucide-react'
+import { Check, Copy, RefreshCw, Save, Settings, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
@@ -26,6 +26,8 @@ export function EditorHeadBar() {
   const [newTextContent] = useAtom(newTextContentAtom)
   const [, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
   const [, setSudoScenario] = useAtom(sudoScenarioAtom)
+  const [isSaving, setIsSaving] = useAtom(isSavingAtom)
+  const [isRefreshing, setIsRefreshing] = useAtom(isRefreshingAtom)
 
   // 根据错误信息判断需要哪种sudo权限
   const openSudoDialog = (errorMsg: string, isForCommand = false) => {
@@ -56,7 +58,8 @@ export function EditorHeadBar() {
 
   const onSaveBtnClick = () => {
     return new Promise((resolve) => {
-      if (isEditing) {
+      if (isEditing && !isSaving) {
+        setIsSaving(true)
         // 文件已编辑过
         if (nowFileInfo?.remoteInfo) {
           // 远程文件保存
@@ -85,6 +88,8 @@ export function EditorHeadBar() {
           }).catch((err) => {
             toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
             resolve(false)
+          }).finally(() => {
+            setIsSaving(false)
           })
         } else {
           // 本地文件保存
@@ -107,6 +112,8 @@ export function EditorHeadBar() {
             } else {
               resolve(false)
             }
+          }).finally(() => {
+            setIsSaving(false)
           })
         }
       } else {
@@ -116,6 +123,9 @@ export function EditorHeadBar() {
   }
 
   const onRefreshBtnClick = () => {
+    if (isRefreshing) return
+    
+    setIsRefreshing(true)
     onSaveBtnClick().then((res) => {
       if (res) {
         if (nowFileInfo?.refreshCmd) {
@@ -143,6 +153,8 @@ export function EditorHeadBar() {
               console.log('exec-remote-refresh:', res)
             }).catch((err) => {
               toast(`远程命令执行失败: ${err.message || '未知错误'}`)
+            }).finally(() => {
+              setIsRefreshing(false)
             })
           } else {
             // 本地命令执行
@@ -163,12 +175,19 @@ export function EditorHeadBar() {
                   break;
               }
               console.log('exec-refresh:', res)
+            }).finally(() => {
+              setIsRefreshing(false)
             })
           }
         } else {
           toast('没有命令，请在设置中配置')
+          setIsRefreshing(false)
         }
+      } else {
+        setIsRefreshing(false)
       }
+    }).catch(() => {
+      setIsRefreshing(false)
     })
   }
 
@@ -212,10 +231,15 @@ export function EditorHeadBar() {
           <Button
             onClick={onSaveBtnClick}
             size="sm"
-            className="mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            disabled={isSaving || !isEditing}
+            className="mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save className="mr-1 h-4 w-4" />
-            保存
+            {isSaving ? (
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-1 h-4 w-4" />
+            )}
+            {isSaving ? '保存中...' : '保存'}
           </Button>
           <TooltipProvider>
             <Tooltip>
@@ -223,10 +247,15 @@ export function EditorHeadBar() {
                 <Button
                   onClick={onRefreshBtnClick}
                   size="sm"
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md"
+                  disabled={isRefreshing}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <RefreshCw className="mr-1 h-4 w-4" />
-                  刷新
+                  {isRefreshing ? (
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-1 h-4 w-4" />
+                  )}
+                  {isRefreshing ? '刷新中...' : '刷新'}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

@@ -48,6 +48,10 @@ export const isFileLoadingAtom = atom(false)
 
 export const isLeftPanelOpenAtom = atom(true)
 
+// 保存和刷新loading状态
+export const isSavingAtom = atom(false)
+export const isRefreshingAtom = atom(false)
+
 // sudo dialog相关
 export type SudoScenario = {
   type: 'user' | 'root'
