@@ -44,6 +44,7 @@ export const nowFileInfoAtom = atom<FileInfo | null>((get) => get(fileInfosAtom)
 export const textContentAtom = atom('')
 export const newTextContentAtom = atom('')
 export const isEditingAtom = atom((get) => get(textContentAtom) !== get(newTextContentAtom))
+export const isFileLoadingAtom = atom(false)
 
 export const isLeftPanelOpenAtom = atom(true)
 

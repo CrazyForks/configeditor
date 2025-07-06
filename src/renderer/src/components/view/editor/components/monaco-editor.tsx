@@ -1,11 +1,12 @@
 
-import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom, isFileLoadingAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
 import { WelcomeFragment } from './welcome-fragment'
 import { useEffect } from 'react'
 import { toast } from "sonner"
+import { Loader2 } from 'lucide-react'
 const { ipcRenderer } = window.require('electron')
 loader.config({ monaco });
 
@@ -280,6 +281,7 @@ export function MonacoEditor() {
     const [textContent, setTextContent] = useAtom(textContentAtom);
     const [, setNewTextContent] = useAtom(newTextContentAtom);
     const [appSettings] = useAtom(appSettingsAtom);
+    const [isFileLoading, setIsFileLoading] = useAtom(isFileLoadingAtom);
 
     // 注册自定义语言（只注册一次）
     useEffect(() => {
@@ -300,6 +302,7 @@ export function MonacoEditor() {
             // 检查是否为远程文件
             if (nowFileInfo.remoteInfo) {
                 // 远程文件，使用 SSH 读取
+                setIsFileLoading(true)
                 ipcRenderer.invoke('read-remote-file-content', { 
                     filePath: nowFilePath,
                     remoteInfo: nowFileInfo.remoteInfo 
@@ -317,9 +320,12 @@ export function MonacoEditor() {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
                     setTextContent('')
                     setNewTextContent('')
+                }).finally(() => {
+                    setIsFileLoading(false)
                 })
             } else {
                 // 本地文件
+                setIsFileLoading(true)
                 ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
                     const { content } = arg ?? {};
                     if (typeof content === 'string') {
@@ -329,8 +335,12 @@ export function MonacoEditor() {
                         setTextContent('')
                         setNewTextContent('')
                     }
+                }).finally(() => {
+                    setIsFileLoading(false)
                 })
             }
+        } else {
+            setIsFileLoading(false)
         }
     }, [nowFilePath, nowFileInfo])
 
@@ -340,19 +350,30 @@ export function MonacoEditor() {
 
     return <div className='w-full' style={{height: 'calc(100% - 65px)'}}>
         {/* Text Editor */}
-        {nowFilePath ? <Editor
-            defaultLanguage=""
-            defaultValue=""
-            value={textContent}
-            onChange={onEditorChange}
-            language={editorLanguage}
-            options={{
-                fontSize: appSettings.fontSize, // 设置字号为14px
-                automaticLayout: true,
-                wordWrap: appSettings.wordWrap ? 'on' : 'off',
-                lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
-                theme: appSettings.theme,
-            }}
-        /> : <WelcomeFragment />}
+        {nowFilePath ? (
+            isFileLoading ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                    <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                    <p className="text-sm">正在加载文件内容...</p>
+                </div>
+            ) : (
+                <Editor
+                    defaultLanguage=""
+                    defaultValue=""
+                    value={textContent}
+                    onChange={onEditorChange}
+                    language={editorLanguage}
+                    options={{
+                        fontSize: appSettings.fontSize, // 设置字号为14px
+                        automaticLayout: true,
+                        wordWrap: appSettings.wordWrap ? 'on' : 'off',
+                        lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
+                        theme: appSettings.theme,
+                    }}
+                />
+            )
+        ) : (
+            <WelcomeFragment />
+        )}
     </div>
 }
