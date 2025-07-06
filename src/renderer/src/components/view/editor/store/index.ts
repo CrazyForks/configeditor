@@ -2,7 +2,16 @@
 
 import { atom } from 'jotai'
 
-export type FileInfo = { filePath: string; refreshCmd: string }
+export type FileInfo = { 
+  filePath: string; 
+  refreshCmd: string;
+  remoteInfo?: {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+  }
+}
 export type AppSettings = {
   theme: 'light' | 'dark' | 'system' | '',
   lineNumber: boolean,
