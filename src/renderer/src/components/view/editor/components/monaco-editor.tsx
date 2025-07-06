@@ -1,5 +1,5 @@
 
-import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
@@ -9,12 +9,136 @@ import { toast } from "sonner"
 const { ipcRenderer } = window.require('electron')
 loader.config({ monaco });
 
+// 根据文件扩展名或文件名获取Monaco Editor语言类型
+function getLanguageFromFilePath(filePath: string, fileExt: string): string {
+  const fileName = filePath.split('/').pop()?.toLowerCase() || ''
+  const ext = fileExt.toLowerCase()
+  
+  // 特殊文件名模式
+  const specialFiles: Record<string, string> = {
+    'dockerfile': 'dockerfile',
+    'makefile': 'makefile',
+    'cmakelists.txt': 'cmake',
+    'package.json': 'json',
+    'tsconfig.json': 'json',
+    'composer.json': 'json',
+    '.gitignore': 'gitignore',
+    '.env': 'dotenv',
+    '.zshrc': 'shell',
+    '.bashrc': 'shell',
+    '.bash_profile': 'shell',
+    '.profile': 'shell',
+    'nginx.conf': 'nginx',
+    'nginx.config': 'nginx',
+    '.htaccess': 'apache',
+    'httpd.conf': 'apache',
+    'apache.conf': 'apache',
+    'vimrc': 'vim',
+    '.vimrc': 'vim',
+    'hosts': 'plaintext',
+    'passwd': 'plaintext',
+    'shadow': 'plaintext',
+    'fstab': 'plaintext',
+    'crontab': 'shell',
+  }
+  
+  if (specialFiles[fileName]) {
+    return specialFiles[fileName]
+  }
+  
+  // 根据扩展名判断
+  const extMap: Record<string, string> = {
+    // Web相关
+    'js': 'javascript',
+    'jsx': 'javascript',
+    'ts': 'typescript',
+    'tsx': 'typescript',
+    'json': 'json',
+    'jsonc': 'json',
+    'html': 'html',
+    'htm': 'html',
+    'css': 'css',
+    'scss': 'scss',
+    'sass': 'sass',
+    'less': 'less',
+    'vue': 'vue',
+    'svelte': 'svelte',
+    
+    // 编程语言
+    'py': 'python',
+    'java': 'java',
+    'cpp': 'cpp',
+    'c': 'c',
+    'h': 'c',
+    'hpp': 'cpp',
+    'cs': 'csharp',
+    'php': 'php',
+    'rb': 'ruby',
+    'go': 'go',
+    'rs': 'rust',
+    'swift': 'swift',
+    'kt': 'kotlin',
+    'scala': 'scala',
+    'dart': 'dart',
+    'r': 'r',
+    'sql': 'sql',
+    'mysql': 'mysql',
+    'postgres': 'pgsql',
+    'sqlite': 'sql',
+    
+    // 标记语言
+    'md': 'markdown',
+    'markdown': 'markdown',
+    'xml': 'xml',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'toml': 'toml',
+    'ini': 'ini',
+    'cfg': 'ini',
+    'conf': 'ini',
+    'config': 'ini',
+    
+    // Shell脚本
+    'sh': 'shell',
+    'bash': 'shell',
+    'zsh': 'shell',
+    'fish': 'shell',
+    'ps1': 'powershell',
+    'psm1': 'powershell',
+    'cmd': 'bat',
+    'bat': 'bat',
+    
+    // 其他
+    'dockerfile': 'dockerfile',
+    'docker': 'dockerfile',
+    'makefile': 'makefile',
+    'mk': 'makefile',
+    'cmake': 'cmake',
+    'lua': 'lua',
+    'perl': 'perl',
+    'pl': 'perl',
+    'tcl': 'tcl',
+    'vim': 'vim',
+    'tex': 'latex',
+    'latex': 'latex',
+    'log': 'log',
+    'txt': 'plaintext',
+    'text': 'plaintext',
+  }
+  
+  return extMap[ext] || 'plaintext'
+}
+
 export function MonacoEditor() {
     const [nowFilePath] = useAtom(nowFilePathAtom)
     const [nowFileInfo] = useAtom(nowFileInfoAtom)
+    const [nowFileExt] = useAtom(nowFileExtAtom)
     const [textContent, setTextContent] = useAtom(textContentAtom);
     const [, setNewTextContent] = useAtom(newTextContentAtom);
     const [appSettings] = useAtom(appSettingsAtom);
+
+    // 根据文件路径和扩展名获取语言类型
+    const editorLanguage = nowFilePath ? getLanguageFromFilePath(nowFilePath, nowFileExt) : 'plaintext'
 
     useEffect(() => {
         if (nowFilePath && nowFileInfo) {
@@ -66,7 +190,7 @@ export function MonacoEditor() {
             defaultValue=""
             value={textContent}
             onChange={onEditorChange}
-            language='bash'
+            language={editorLanguage}
             options={{
                 fontSize: appSettings.fontSize, // 设置字号为14px
                 automaticLayout: true,
