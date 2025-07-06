@@ -163,7 +163,7 @@ export function EditorHeadBar() {
             toast('远程配置文件刷新失败:' + msg)
             addDebugLog(`远程命令执行失败: ${msg}`, 'error')
             // 检查是否需要sudo权限
-            if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
+            if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted') || msg.includes('Interactive authentication required'))) {
               openSudoDialog(msg, true)
             }
             break;
@@ -194,7 +194,7 @@ export function EditorHeadBar() {
             toast('配置文件刷新失败:' + msg)
             addDebugLog(`本地命令执行失败: ${msg}`, 'error')
             // 检查是否需要sudo权限
-            if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted'))) {
+            if (msg && (msg.includes('Permission denied') || msg.includes('Operation not permitted') || msg.includes('Interactive authentication required'))) {
               openSudoDialog(msg, true)
             }
             break;

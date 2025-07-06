@@ -4,7 +4,7 @@ import fs from 'fs'
 import os from 'os'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { exec, execSync } from 'child_process'
+import { exec, execSync, spawn } from 'child_process'
 import { Client } from 'ssh2'
 
 function createWindow(): void {
@@ -353,8 +353,8 @@ function createWindow(): void {
       const conn = new Client()
       
       conn.on('ready', () => {
-        // 使用sudo执行远程命令
-        const sudoCmd = `echo '${sudoPassword}' | sudo -S ${refreshCmd}`
+        // 使用sudo执行远程命令，添加 -p 参数来指定密码提示符
+        const sudoCmd = `sudo -S -p '' ${refreshCmd}`
         
         conn.exec(sudoCmd, (err, stream) => {
           if (err) {
@@ -365,6 +365,7 @@ function createWindow(): void {
           
           let stdout = ''
           let stderr = ''
+          let promptSent = false
           
           stream.on('close', (code) => {
             conn.end()
@@ -377,7 +378,16 @@ function createWindow(): void {
             stdout += data
           }).stderr.on('data', (data) => {
             stderr += data
+            // 如果检测到密码提示符，发送密码
+            if (!promptSent && (data.toString().includes('password') || data.toString().includes('Password') || stderr.includes('[sudo]'))) {
+              stream.write(sudoPassword + '\n')
+              promptSent = true
+            }
           })
+          
+          // 立即发送密码，不等待提示符
+          stream.write(sudoPassword + '\n')
+          promptSent = true
         })
       }).on('error', (err) => {
         resolve({ code: 2, msg: '连接失败: ' + err.message })
@@ -424,15 +434,36 @@ function createWindow(): void {
     const { refreshCmd, sudoPassword } = arg ?? {}
     
     return new Promise((resolve) => {
-      // 使用sudo执行命令
-      const sudoCmd = `echo '${sudoPassword}' | sudo -S ${refreshCmd}`
+      // 使用spawn来更好地控制stdin/stdout
+      const child = spawn('sudo', ['-S', '-p', '', ...refreshCmd.split(' ')], {
+        stdio: ['pipe', 'pipe', 'pipe']
+      })
       
-      exec(sudoCmd, (error, stdout, stderr) => {
-        if (error) {
-          resolve({ code: 2, msg: 'sudo命令执行失败: ' + (stderr || error.message) })
-        } else {
+      let stdout = ''
+      let stderr = ''
+      
+      // 立即发送密码
+      child.stdin.write(sudoPassword + '\n')
+      child.stdin.end()
+      
+      child.stdout.on('data', (data) => {
+        stdout += data.toString()
+      })
+      
+      child.stderr.on('data', (data) => {
+        stderr += data.toString()
+      })
+      
+      child.on('close', (code) => {
+        if (code === 0) {
           resolve({ code: 3, msg: '命令执行成功', output: stdout })
+        } else {
+          resolve({ code: 2, msg: 'sudo命令执行失败: ' + stderr })
         }
+      })
+      
+      child.on('error', (error) => {
+        resolve({ code: 2, msg: 'sudo命令执行失败: ' + error.message })
       })
     })
   })
