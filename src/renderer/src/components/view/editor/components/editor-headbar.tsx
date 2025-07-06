@@ -271,7 +271,7 @@ export function EditorHeadBar() {
                   size="sm"
                   variant="ghost"
                   disabled={isReloadingFile}
-                  className="text-gray-500 hover:text-gray-700 ml-2"
+                  className="text-gray-500 hover:text-gray-700 ml-1"
                 >
                   {isReloadingFile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
