@@ -1,5 +1,5 @@
 
-import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom, isFileLoadingAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom, isFileLoadingAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom, addDebugLogAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
@@ -286,6 +286,7 @@ export function MonacoEditor() {
     const [downloadProgress, setDownloadProgress] = useAtom(downloadProgressAtom);
     const [downloadSpeed, setDownloadSpeed] = useAtom(downloadSpeedAtom);
     const [downloadStatus, setDownloadStatus] = useAtom(downloadStatusAtom);
+    const [, addDebugLog] = useAtom(addDebugLogAtom);
 
     // 注册自定义语言（只注册一次）
     useEffect(() => {
@@ -319,7 +320,14 @@ export function MonacoEditor() {
                     setDownloadSpeed(speed)
                 }
                 
+                // 监听调试日志
+                const handleDebugLog = (_, data) => {
+                    const { message, type } = data
+                    addDebugLog(message, type)
+                }
+                
                 ipcRenderer.on('download-progress', handleDownloadProgress)
+                ipcRenderer.on('debug-log', handleDebugLog)
                 
                 ipcRenderer.invoke('read-remote-file-content', { 
                     filePath: nowFilePath,
@@ -344,6 +352,7 @@ export function MonacoEditor() {
                 }).finally(() => {
                     // 移除监听器
                     ipcRenderer.removeListener('download-progress', handleDownloadProgress)
+                    ipcRenderer.removeListener('debug-log', handleDebugLog)
                     
                     setTimeout(() => {
                         setIsFileLoading(false)

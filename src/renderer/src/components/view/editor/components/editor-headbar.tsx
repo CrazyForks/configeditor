@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
@@ -31,6 +31,9 @@ export function EditorHeadBar() {
   const [isSaving, setIsSaving] = useAtom(isSavingAtom)
   const [isRefreshing, setIsRefreshing] = useAtom(isRefreshingAtom)
   const [, addDebugLog] = useAtom(addDebugLogAtom)
+  const [, setDownloadProgress] = useAtom(downloadProgressAtom)
+  const [, setDownloadSpeed] = useAtom(downloadSpeedAtom)
+  const [, setDownloadStatus] = useAtom(downloadStatusAtom)
 
   const onShowLeftPanel = () => {
     setIsLeftPanelOpen(true)
@@ -261,6 +264,29 @@ export function EditorHeadBar() {
     
     if (nowFileInfo.remoteInfo) {
       // 远程文件重新加载
+      setDownloadProgress(0)
+      setDownloadSpeed('')
+      setDownloadStatus('正在重新连接远程服务器...')
+      
+      // 监听下载进度
+      const handleDownloadProgress = (_, data) => {
+        const { progress, status, speed } = data
+        setDownloadProgress(progress)
+        setDownloadStatus(status)
+        setDownloadSpeed(speed)
+      }
+      
+      // 监听调试日志
+      const handleDebugLog = (_, data) => {
+        const { message, type } = data
+        addDebugLog(message, type)
+      }
+      
+      ipcRenderer.on('download-progress', handleDownloadProgress)
+      ipcRenderer.on('debug-log', handleDebugLog)
+      
+      addDebugLog(`开始重新加载远程文件: ${nowFilePath}`, 'info')
+      
       ipcRenderer.invoke('read-remote-file-content', { 
         filePath: nowFilePath,
         remoteInfo: nowFileInfo.remoteInfo 
@@ -270,24 +296,41 @@ export function EditorHeadBar() {
           setTextContent(content)
           setNewTextContent(content)
           toast("远程文件内容已刷新")
+          addDebugLog(`远程文件重新加载成功: ${nowFilePath}`, 'success')
         } else {
           toast(`读取远程文件失败: ${msg || '未知错误'}`)
+          setDownloadStatus('重新加载失败')
+          addDebugLog(`远程文件重新加载失败: ${msg || '未知错误'}`, 'error')
         }
       }).catch((err) => {
         toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+        setDownloadStatus('连接失败')
+        addDebugLog(`重新加载时连接远程服务器失败: ${err.message || '未知错误'}`, 'error')
       }).finally(() => {
-        setIsReloadingFile(false)
+        // 移除监听器
+        ipcRenderer.removeListener('download-progress', handleDownloadProgress)
+        ipcRenderer.removeListener('debug-log', handleDebugLog)
+        
+        setTimeout(() => {
+          setIsReloadingFile(false)
+          setDownloadProgress(0)
+          setDownloadSpeed('')
+          setDownloadStatus('')
+        }, 1500)
       })
     } else {
       // 本地文件重新加载
+      addDebugLog(`开始重新加载本地文件: ${nowFilePath}`, 'info')
       ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
         const { content } = arg ?? {};
         if (typeof content === 'string') {
           setTextContent(content)
           setNewTextContent(content)
           toast("文件内容已刷新")
+          addDebugLog(`本地文件重新加载成功: ${nowFilePath}`, 'success')
         } else {
           toast("读取文件失败，请重试")
+          addDebugLog(`本地文件重新加载失败: ${nowFilePath}`, 'error')
         }
       }).finally(() => {
         setIsReloadingFile(false)

@@ -177,11 +177,15 @@ function createWindow(): void {
     return new Promise((resolve) => {
       const conn = new Client()
       
-      // 发送连接进度
+      // 发送连接进度和日志
       event.sender.send('download-progress', { 
         progress: 0, 
         status: '正在连接远程服务器...', 
         speed: '' 
+      })
+      event.sender.send('debug-log', {
+        message: `开始连接远程服务器 ${remoteInfo.host}:${remoteInfo.port}`,
+        type: 'info'
       })
       
       conn.on('ready', () => {
@@ -189,6 +193,10 @@ function createWindow(): void {
           progress: 30, 
           status: '连接成功，正在建立SFTP连接...', 
           speed: '' 
+        })
+        event.sender.send('debug-log', {
+          message: `SSH连接成功，正在建立SFTP连接...`,
+          type: 'success'
         })
         
         conn.sftp((err, sftp) => {
@@ -199,6 +207,10 @@ function createWindow(): void {
               status: '连接失败', 
               speed: '' 
             })
+            event.sender.send('debug-log', {
+              message: `SFTP连接失败: ${err.message}`,
+              type: 'error'
+            })
             resolve({ code: 2, msg: 'SFTP连接失败: ' + err.message })
             return
           }
@@ -207,6 +219,10 @@ function createWindow(): void {
             progress: 50, 
             status: '正在获取文件信息...', 
             speed: '' 
+          })
+          event.sender.send('debug-log', {
+            message: `SFTP连接成功，正在获取文件信息: ${filePath}`,
+            type: 'info'
           })
           
           // 首先获取文件大小
@@ -218,6 +234,10 @@ function createWindow(): void {
                 status: '正在读取文件内容...', 
                 speed: '估算中...' 
               })
+              event.sender.send('debug-log', {
+                message: `无法获取文件大小信息，直接读取文件内容`,
+                type: 'warning'
+              })
               
               const startTime = Date.now()
               sftp.readFile(filePath, 'utf8', (err, data) => {
@@ -227,6 +247,10 @@ function createWindow(): void {
                     progress: 0, 
                     status: '读取失败', 
                     speed: '' 
+                  })
+                  event.sender.send('debug-log', {
+                    message: `读取文件失败: ${err.message}`,
+                    type: 'error'
                   })
                   resolve({ code: 2, msg: '读取文件失败: ' + err.message })
                 } else {
@@ -240,6 +264,10 @@ function createWindow(): void {
                     status: '下载完成，解析中...', 
                     speed: speed 
                   })
+                  event.sender.send('debug-log', {
+                    message: `文件下载完成: ${(fileSize / 1024).toFixed(1)} KB，平均速度: ${speed}`,
+                    type: 'success'
+                  })
                   resolve({ code: 3, msg: '读取文件成功', content: data })
                 }
               })
@@ -250,6 +278,10 @@ function createWindow(): void {
                 progress: 60, 
                 status: `正在下载文件 (${(fileSize / 1024).toFixed(1)} KB)...`, 
                 speed: '' 
+              })
+              event.sender.send('debug-log', {
+                message: `文件大小: ${(fileSize / 1024).toFixed(1)} KB，开始流式下载`,
+                type: 'info'
               })
               
               const startTime = Date.now()
@@ -285,6 +317,10 @@ function createWindow(): void {
                   status: '下载完成，解析中...', 
                   speed: speed 
                 })
+                event.sender.send('debug-log', {
+                  message: `文件下载完成: ${(fileSize / 1024).toFixed(1)} KB，用时: ${duration.toFixed(1)}s，平均速度: ${speed}`,
+                  type: 'success'
+                })
                 resolve({ code: 3, msg: '读取文件成功', content: content })
               })
               
@@ -294,6 +330,10 @@ function createWindow(): void {
                   progress: 0, 
                   status: '下载失败', 
                   speed: '' 
+                })
+                event.sender.send('debug-log', {
+                  message: `文件流式下载失败: ${err.message}`,
+                  type: 'error'
                 })
                 resolve({ code: 2, msg: '读取文件失败: ' + err.message })
               })
@@ -305,6 +345,10 @@ function createWindow(): void {
           progress: 0, 
           status: '连接失败', 
           speed: '' 
+        })
+        event.sender.send('debug-log', {
+          message: `SSH连接失败: ${err.message}`,
+          type: 'error'
         })
         resolve({ code: 2, msg: '连接失败: ' + err.message })
       }).connect({
