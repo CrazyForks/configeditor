@@ -265,7 +265,7 @@ export function EditorHeadBar() {
         {!!nowFilePath && (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   onClick={onReloadFileBtnClick}
                   size="sm"
@@ -304,7 +304,7 @@ export function EditorHeadBar() {
           </Button>
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   onClick={onRefreshBtnClick}
                   size="sm"
