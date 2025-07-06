@@ -7,8 +7,7 @@ import {
     Atom,
     FileText,
     Trash2,
-    Globe,
-    GripVertical
+    Globe
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
@@ -67,6 +66,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
         <div
             ref={setNodeRef}
             style={style}
+            {...(isDragEnabled ? { ...attributes, ...listeners } : {})}
             className={`
                 group 
                 relative 
@@ -83,17 +83,9 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                     'hover:bg-gray-100'
                 }
                 ${isDragging ? 'z-50' : ''}
+                ${isDragEnabled ? 'cursor-grab hover:cursor-grabbing' : ''}
             `}
         >
-            {isDragEnabled && (
-                <div
-                    {...attributes}
-                    {...listeners}
-                    className="mr-2 cursor-grab hover:cursor-grabbing flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                >
-                    <GripVertical className="h-4 w-4 text-gray-400" />
-                </div>
-            )}
             <Button
                 variant="ghost"
                 className="flex-1 justify-start p-0 hover:bg-transparent"
