@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/tooltip"
 import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { Check, Copy, RefreshCw, Save, Settings, Loader2 } from 'lucide-react'
+import { Check, Copy, RefreshCw, Save, Settings, Loader2, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
@@ -22,8 +22,9 @@ export function EditorHeadBar() {
   const [isEditing] = useAtom(isEditingAtom);
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
+  const [isReloadingFile, setIsReloadingFile] = useState(false)
   const [, setTextContent] = useAtom(textContentAtom)
-  const [newTextContent] = useAtom(newTextContentAtom)
+  const [newTextContent, setNewTextContent] = useAtom(newTextContentAtom)
   const [, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
   const [, setSudoScenario] = useAtom(sudoScenarioAtom)
   const [isSaving, setIsSaving] = useAtom(isSavingAtom)
@@ -197,9 +198,51 @@ export function EditorHeadBar() {
         await navigator.clipboard.writeText(filePath)
         setIsPathCopied(true)
         setTimeout(() => setIsPathCopied(false), 2000)
+        toast("文件路径复制成功")
       } catch (err) {
-        alert('Failed to copy, please try again')
+        toast("路径复制失败，请重试")
       }
+    }
+  }
+
+  const onReloadFileBtnClick = () => {
+    if (!nowFilePath || !nowFileInfo || isReloadingFile) return
+
+    setIsReloadingFile(true)
+    
+    if (nowFileInfo.remoteInfo) {
+      // 远程文件重新加载
+      ipcRenderer.invoke('read-remote-file-content', { 
+        filePath: nowFilePath,
+        remoteInfo: nowFileInfo.remoteInfo 
+      }).then((arg) => {
+        const { content, code, msg } = arg ?? {};
+        if (code === 3 && typeof content === 'string') {
+          setTextContent(content)
+          setNewTextContent(content)
+          toast("远程文件内容已刷新")
+        } else {
+          toast(`读取远程文件失败: ${msg || '未知错误'}`)
+        }
+      }).catch((err) => {
+        toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
+      }).finally(() => {
+        setIsReloadingFile(false)
+      })
+    } else {
+      // 本地文件重新加载
+      ipcRenderer.invoke('read-file-content', { filePath: nowFilePath }).then((arg) => {
+        const { content } = arg ?? {};
+        if (typeof content === 'string') {
+          setTextContent(content)
+          setNewTextContent(content)
+          toast("文件内容已刷新")
+        } else {
+          toast("读取文件失败，请重试")
+        }
+      }).finally(() => {
+        setIsReloadingFile(false)
+      })
     }
   }
 
@@ -212,18 +255,36 @@ export function EditorHeadBar() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         )} */}
-        <h1 className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'}`}>
+        <h1 
+          className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'} ${nowFilePath ? 'cursor-pointer hover:underline' : ''}`}
+          onClick={nowFilePath ? () => onCopyBtnClick(nowFilePath) : undefined}
+          title={nowFilePath ? '点击复制文件路径' : undefined}
+        >
           {nowFilePath || '选择一个配置文件'}
         </h1>
         {!!nowFilePath && (
-          <Button
-            onClick={() => onCopyBtnClick(nowFilePath)}
-            size="sm"
-            variant="ghost"
-            className="text-gray-500 hover:text-gray-700"
-          >
-            {isPathCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  onClick={onReloadFileBtnClick}
+                  size="sm"
+                  variant="ghost"
+                  disabled={isReloadingFile}
+                  className="text-gray-500 hover:text-gray-700 ml-2"
+                >
+                  {isReloadingFile ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>重新读取文件内容</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
       <div className='whitespace-nowrap w-[192px] flex justify-end'>

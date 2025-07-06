@@ -41,8 +41,8 @@ export const nowFileExtAtom = atom((get) => get(nowFilePathAtom).split('.')?.pop
 export const nowFileInfoAtom = atom<FileInfo | null>((get) => get(fileInfosAtom).find(({ filePath }) => filePath === get(nowFilePathAtom)) ?? null)
 
 // 编辑器部分
-export const textContentAtom = atom('')
-export const newTextContentAtom = atom('')
+export const textContentAtom = atom('') // 原文件的内容
+export const newTextContentAtom = atom('') // 编辑后的内容，与原文件内容做对比可得知是否发生了修改
 export const isEditingAtom = atom((get) => get(textContentAtom) !== get(newTextContentAtom))
 export const isFileLoadingAtom = atom(false)
 
