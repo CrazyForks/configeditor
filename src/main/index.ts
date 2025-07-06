@@ -171,30 +171,141 @@ function createWindow(): void {
   })
 
   // 读取远程文件内容
-  ipcMain.handle('read-remote-file-content', async (_, arg) => {
+  ipcMain.handle('read-remote-file-content', async (event, arg) => {
     const { filePath, remoteInfo } = arg ?? {}
     
     return new Promise((resolve) => {
       const conn = new Client()
       
+      // 发送连接进度
+      event.sender.send('download-progress', { 
+        progress: 0, 
+        status: '正在连接远程服务器...', 
+        speed: '' 
+      })
+      
       conn.on('ready', () => {
+        event.sender.send('download-progress', { 
+          progress: 30, 
+          status: '连接成功，正在建立SFTP连接...', 
+          speed: '' 
+        })
+        
         conn.sftp((err, sftp) => {
           if (err) {
             conn.end()
+            event.sender.send('download-progress', { 
+              progress: 0, 
+              status: '连接失败', 
+              speed: '' 
+            })
             resolve({ code: 2, msg: 'SFTP连接失败: ' + err.message })
             return
           }
           
-          sftp.readFile(filePath, 'utf8', (err, data) => {
-            conn.end()
+          event.sender.send('download-progress', { 
+            progress: 50, 
+            status: '正在获取文件信息...', 
+            speed: '' 
+          })
+          
+          // 首先获取文件大小
+          sftp.stat(filePath, (err, stats) => {
             if (err) {
-              resolve({ code: 2, msg: '读取文件失败: ' + err.message })
+              // 如果获取文件信息失败，直接读取文件
+              event.sender.send('download-progress', { 
+                progress: 70, 
+                status: '正在读取文件内容...', 
+                speed: '估算中...' 
+              })
+              
+              const startTime = Date.now()
+              sftp.readFile(filePath, 'utf8', (err, data) => {
+                conn.end()
+                if (err) {
+                  event.sender.send('download-progress', { 
+                    progress: 0, 
+                    status: '读取失败', 
+                    speed: '' 
+                  })
+                  resolve({ code: 2, msg: '读取文件失败: ' + err.message })
+                } else {
+                  const endTime = Date.now()
+                  const duration = (endTime - startTime) / 1000
+                  const fileSize = data.length
+                  const speed = duration > 0 ? `${(fileSize / 1024 / duration).toFixed(1)} KB/s` : ''
+                  
+                  event.sender.send('download-progress', { 
+                    progress: 100, 
+                    status: '下载完成，解析中...', 
+                    speed: speed 
+                  })
+                  resolve({ code: 3, msg: '读取文件成功', content: data })
+                }
+              })
             } else {
-              resolve({ code: 3, msg: '读取文件成功', content: data })
+              // 获取到文件大小，可以提供更准确的进度
+              const fileSize = stats.size
+              event.sender.send('download-progress', { 
+                progress: 60, 
+                status: `正在下载文件 (${(fileSize / 1024).toFixed(1)} KB)...`, 
+                speed: '' 
+              })
+              
+              const startTime = Date.now()
+              let downloadedBytes = 0
+              
+              // 使用流式读取来跟踪进度
+              const readStream = sftp.createReadStream(filePath, { encoding: 'utf8' })
+              let content = ''
+              
+              readStream.on('data', (chunk) => {
+                content += chunk
+                downloadedBytes += Buffer.byteLength(chunk, 'utf8')
+                
+                const progress = Math.min(90, 60 + (downloadedBytes / fileSize) * 30)
+                const elapsed = (Date.now() - startTime) / 1000
+                const speed = elapsed > 0 ? `${(downloadedBytes / 1024 / elapsed).toFixed(1)} KB/s` : ''
+                
+                event.sender.send('download-progress', { 
+                  progress: Math.round(progress), 
+                  status: `正在下载文件... ${(downloadedBytes / 1024).toFixed(1)}/${(fileSize / 1024).toFixed(1)} KB`, 
+                  speed: speed 
+                })
+              })
+              
+              readStream.on('end', () => {
+                conn.end()
+                const endTime = Date.now()
+                const duration = (endTime - startTime) / 1000
+                const speed = duration > 0 ? `${(fileSize / 1024 / duration).toFixed(1)} KB/s` : ''
+                
+                event.sender.send('download-progress', { 
+                  progress: 100, 
+                  status: '下载完成，解析中...', 
+                  speed: speed 
+                })
+                resolve({ code: 3, msg: '读取文件成功', content: content })
+              })
+              
+              readStream.on('error', (err) => {
+                conn.end()
+                event.sender.send('download-progress', { 
+                  progress: 0, 
+                  status: '下载失败', 
+                  speed: '' 
+                })
+                resolve({ code: 2, msg: '读取文件失败: ' + err.message })
+              })
             }
           })
         })
       }).on('error', (err) => {
+        event.sender.send('download-progress', { 
+          progress: 0, 
+          status: '连接失败', 
+          speed: '' 
+        })
         resolve({ code: 2, msg: '连接失败: ' + err.message })
       }).connect({
         host: remoteInfo.host,

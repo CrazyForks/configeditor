@@ -1,12 +1,13 @@
 
-import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom, isFileLoadingAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, nowFileExtAtom, isFileLoadingAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
 import { WelcomeFragment } from './welcome-fragment'
 import { useEffect } from 'react'
 import { toast } from "sonner"
-import { Loader2 } from 'lucide-react'
+import { Loader2, Download } from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
 const { ipcRenderer } = window.require('electron')
 loader.config({ monaco });
 
@@ -282,6 +283,9 @@ export function MonacoEditor() {
     const [, setNewTextContent] = useAtom(newTextContentAtom);
     const [appSettings] = useAtom(appSettingsAtom);
     const [isFileLoading, setIsFileLoading] = useAtom(isFileLoadingAtom);
+    const [downloadProgress, setDownloadProgress] = useAtom(downloadProgressAtom);
+    const [downloadSpeed, setDownloadSpeed] = useAtom(downloadSpeedAtom);
+    const [downloadStatus, setDownloadStatus] = useAtom(downloadStatusAtom);
 
     // 注册自定义语言（只注册一次）
     useEffect(() => {
@@ -303,11 +307,26 @@ export function MonacoEditor() {
             if (nowFileInfo.remoteInfo) {
                 // 远程文件，使用 SSH 读取
                 setIsFileLoading(true)
+                setDownloadProgress(0)
+                setDownloadSpeed('')
+                setDownloadStatus('正在初始化连接...')
+                
+                // 监听下载进度
+                const handleDownloadProgress = (_, data) => {
+                    const { progress, status, speed } = data
+                    setDownloadProgress(progress)
+                    setDownloadStatus(status)
+                    setDownloadSpeed(speed)
+                }
+                
+                ipcRenderer.on('download-progress', handleDownloadProgress)
+                
                 ipcRenderer.invoke('read-remote-file-content', { 
                     filePath: nowFilePath,
                     remoteInfo: nowFileInfo.remoteInfo 
                 }).then((arg) => {
                     const { content, code, msg } = arg ?? {};
+                    
                     if (code === 3 && typeof content === 'string') {
                         setTextContent(content)
                         setNewTextContent(content)
@@ -315,13 +334,23 @@ export function MonacoEditor() {
                         toast(`读取远程文件失败: ${msg || '未知错误'}`)
                         setTextContent('')
                         setNewTextContent('')
+                        setDownloadStatus('读取失败')
                     }
                 }).catch((err) => {
                     toast(`连接远程服务器失败: ${err.message || '未知错误'}`)
                     setTextContent('')
                     setNewTextContent('')
+                    setDownloadStatus('连接失败')
                 }).finally(() => {
-                    setIsFileLoading(false)
+                    // 移除监听器
+                    ipcRenderer.removeListener('download-progress', handleDownloadProgress)
+                    
+                    setTimeout(() => {
+                        setIsFileLoading(false)
+                        setDownloadProgress(0)
+                        setDownloadSpeed('')
+                        setDownloadStatus('')
+                    }, 1500) // 1.5秒后清除进度显示
                 })
             } else {
                 // 本地文件
@@ -352,9 +381,26 @@ export function MonacoEditor() {
         {/* Text Editor */}
         {nowFilePath ? (
             isFileLoading ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                    <Loader2 className="h-8 w-8 animate-spin mb-4" />
-                    <p className="text-sm">正在加载文件内容...</p>
+                <div className="flex flex-col items-center justify-center h-full text-gray-500 px-8 max-w-md mx-auto">
+                    <div className="flex items-center mb-4">
+                        <Loader2 className="h-8 w-8 animate-spin mr-3" />
+                    </div>
+                    
+                    {/* 状态文本 */}
+                    <p className="text-sm mb-2 text-center">
+                        {downloadStatus || '正在加载文件内容...'}
+                    </p>
+                    
+                    {/* 只在远程文件且有进度时显示进度条 */}
+                    {nowFileInfo?.remoteInfo && downloadProgress > 0 && (
+                        <div className="w-full space-y-2">
+                            <Progress value={downloadProgress} className="w-full h-2" />
+                            <div className="flex justify-between items-center text-xs text-gray-400">
+                                <span>{Math.round(downloadProgress)}%</span>
+                                {downloadSpeed && <span>{downloadSpeed}</span>}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <Editor

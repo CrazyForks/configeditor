@@ -48,6 +48,11 @@ export const isFileLoadingAtom = atom(false)
 
 export const isLeftPanelOpenAtom = atom(true)
 
+// 文件下载进度相关状态
+export const downloadProgressAtom = atom<number>(0) // 下载进度百分比 0-100
+export const downloadSpeedAtom = atom<string>('') // 下载速度
+export const downloadStatusAtom = atom<string>('') // 下载状态描述
+
 // Debug panel 相关状态
 export type DebugLogType = 'info' | 'success' | 'error' | 'warning'
 
