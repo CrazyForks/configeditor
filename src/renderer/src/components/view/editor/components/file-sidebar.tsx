@@ -157,7 +157,7 @@ export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
-    const [, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
+    const [isDebugPanelOpen, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
     const [searchName, setSearchName] = useState<string>('')
     const showFilePaths = useShowFilePaths(searchName)
 
@@ -187,7 +187,7 @@ export function FileSidebar() {
     }
 
     const onShowDebugPanel = () => {
-        setIsDebugPanelOpen(true)
+        setIsDebugPanelOpen(!isDebugPanelOpen)
     }
 
     const onHideLeftPanel = () => {
