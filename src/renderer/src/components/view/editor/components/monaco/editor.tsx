@@ -3,11 +3,13 @@ import { appSettingsAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, 
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
-import { WelcomeFragment } from './welcome-fragment'
+import { WelcomeFragment } from '../welcome-fragment'
 import { useEffect } from 'react'
 import { toast } from "sonner"
 import { Loader2, Download } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
+import { computeDirtyDiff } from './diff'
+import { generateDecorations } from './decorations'
 const { ipcRenderer } = window.require('electron')
 loader.config({ monaco });
 

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/resizable"
 import { EditorHeadBar } from './components/editor-headbar'
 import { FileSidebar } from './components/file-sidebar'
-import { MonacoEditor } from './components/monaco-editor'
+import { MonacoEditor } from './components/monaco/editor'
 import { DebugPanel } from './components/debug-panel'
 import { useInitConfigEditor } from './hooks'
 import { useAtom } from 'jotai'
