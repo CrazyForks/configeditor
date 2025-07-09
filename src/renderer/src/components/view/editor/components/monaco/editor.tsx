@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react'
 import { WelcomeFragment } from '../welcome-fragment'
 import { getLanguageFromFilePath, registerApacheLanguage, registerNginxLanguage } from './languages'
 import { MonacoLoading } from './loading'
-import { peekViewManager } from './peekView'
+import { peekViewManager, usePeekView } from './peekView'
 import './peekview.css'
 import { useLoadFile } from './useLoadFile'
 
@@ -28,23 +28,14 @@ export function MonacoEditor() {
     
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
     useLoadFile();
+    usePeekView({
+        nowFilePath,
+        textContent,
+        editorRef
+    });
 
     // 根据文件路径和扩展名获取语言类型
     const editorLanguage = nowFilePath ? getLanguageFromFilePath(nowFilePath, nowFileExt) : 'plaintext'
-
-    // 当文件路径变化时，重新注册编辑器
-    useEffect(() => {
-        if (editorRef.current && nowFilePath && textContent) {
-            peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
-        }
-    }, [nowFilePath, textContent])
-
-    // 组件卸载时清理资源
-    useEffect(() => {
-        return () => {
-            peekViewManager.dispose()
-        }
-    }, [])
 
     // 当编辑器挂载时注册 diff 功能
     const onEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
