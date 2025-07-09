@@ -45,7 +45,6 @@ class DiffUpdater {
 
         const originalLines = this.originalContent.split('\n')
         this.changes = computeDirtyDiff(originalLines, model)
-
         const decorations = generateDecorations(this.changes)
         this.decorations = model.deltaDecorations(this.decorations, decorations)
     }

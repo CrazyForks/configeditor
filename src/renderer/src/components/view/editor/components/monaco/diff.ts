@@ -14,7 +14,7 @@ export const computeDirtyDiff = (originalLines, modifiedModel) => {
     shouldMakePrettyDiff: true,            // 调整 diff 更符合直觉
     maxComputationTimeMs: 5000, // 最大计算时间，单位毫秒
   });
-  return diffComputer.computeDiff();
+  return (diffComputer.computeDiff().changes || []);
 };
 // 结果举例：
 // [
