@@ -340,14 +340,14 @@ export function EditorHeadBar() {
 
   return <>
     {/* Top Management Bar */}
-    <div className="w-full max-w-full bg-background shadow-apple-sm p-4 pr-2 flex justify-between items-center border-b border-border glass-effect">
+    <div className="w-full max-w-full bg-background shadow-heroui-sm p-4 pr-2 flex justify-between items-center border-b border-border glass-effect">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
         {!isLeftPanelOpen && (
           <Button 
             onClick={onShowLeftPanel} 
             size="icon" 
             variant="ghost" 
-            className="mr-2 h-8 w-8 hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition"
+            className="mr-2 h-8 w-8 hover:bg-content2 dark:hover:bg-content3 heroui-transition"
             title="显示侧边栏"
           >
             <ChevronRight className="h-4 w-4" />

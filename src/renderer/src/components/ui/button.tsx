@@ -5,17 +5,17 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium apple-transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium heroui-transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-apple-blue text-white shadow-apple-sm hover:bg-apple-blue/90 active:scale-95',
-        destructive: 'bg-apple-red text-white shadow-apple-sm hover:bg-apple-red/90 active:scale-95',
+        default: 'bg-primary text-primary-foreground shadow-heroui-sm hover:bg-primary/90 active:scale-95',
+        destructive: 'bg-danger text-danger-foreground shadow-heroui-sm hover:bg-danger/90 active:scale-95',
         outline:
-          'border border-apple-gray-5 bg-background shadow-apple-sm hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 hover:border-apple-blue active:scale-95',
-        secondary: 'bg-apple-gray-2 dark:bg-apple-gray-4 text-foreground shadow-apple-sm hover:bg-apple-gray-3 dark:hover:bg-apple-gray-5 active:scale-95',
-        ghost: 'hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 hover:text-foreground active:scale-95',
-        link: 'text-apple-blue underline-offset-4 hover:underline active:scale-95'
+          'border border-divider bg-background shadow-heroui-sm hover:bg-content2 dark:hover:bg-content3 hover:border-primary active:scale-95',
+        secondary: 'bg-content2 dark:bg-content3 text-foreground shadow-heroui-sm hover:bg-content3 dark:hover:bg-content4 active:scale-95',
+        ghost: 'hover:bg-content2 dark:hover:bg-content3 hover:text-foreground active:scale-95',
+        link: 'text-primary underline-offset-4 hover:underline active:scale-95'
       },
       size: {
         default: 'h-9 px-4 py-2',

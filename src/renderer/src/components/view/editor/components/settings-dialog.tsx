@@ -62,29 +62,29 @@ export default function SettingsDialog(props: {
 
   return (
     <Dialog open={isSettingDialogOpen} onOpenChange={setIsSettingDialogOpen}>
-      <DialogContent className="sm:max-w-[625px] apple-card apple-card-hover glass-effect">
+      <DialogContent className="sm:max-w-[625px] heroui-card heroui-card-hover glass-effect">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">设置</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue={nowFilePath ? "file" : "general"} className="w-full">
-          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'} bg-apple-gray-2 dark:bg-apple-gray-4 p-1 rounded-lg`}>
+          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'} bg-content2 dark:bg-content3 p-1 rounded-lg`}>
             {!!nowFilePath && (
               <TabsTrigger 
                 value="file" 
-                className="rounded-md apple-transition data-[state=active]:bg-background data-[state=active]:shadow-apple-sm"
+                className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
               >
                 文件
               </TabsTrigger>
             )}
             <TabsTrigger 
               value="general" 
-              className="rounded-md apple-transition data-[state=active]:bg-background data-[state=active]:shadow-apple-sm"
+              className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
             >
               通用
             </TabsTrigger>
             <TabsTrigger 
               value="editor" 
-              className="rounded-md apple-transition data-[state=active]:bg-background data-[state=active]:shadow-apple-sm"
+              className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
             >
               编辑
             </TabsTrigger>
@@ -97,18 +97,18 @@ export default function SettingsDialog(props: {
                   id="current-file-path"
                   value={nowFilePath}
                   readOnly
-                  className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition"
+                  className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="permissions" className="text-sm font-medium text-foreground">文件权限</Label>
                 <Select disabled value={newPermission} onValueChange={setNewPermission}>
-                  <SelectTrigger className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
                     <SelectValue placeholder="选择文件权限" />
                   </SelectTrigger>
-                  <SelectContent className="apple-card">
-                    <SelectItem value="read" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">Read</SelectItem>
-                    <SelectItem value="write" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">Write</SelectItem>
+                  <SelectContent className="heroui-card">
+                    <SelectItem value="read" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">Read</SelectItem>
+                    <SelectItem value="write" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">Write</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -119,7 +119,7 @@ export default function SettingsDialog(props: {
                   placeholder="Enter command..." 
                   value={newRefreshCmd} 
                   onChange={e => setNewRefreshCmd(e.target.value)}
-                  className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition"
+                  className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
                 />
               </div>
             </div>
@@ -129,23 +129,23 @@ export default function SettingsDialog(props: {
               <div className="space-y-2">
                 <Label htmlFor="theme" className="text-sm font-medium text-foreground">主题模式</Label>
                 <Select value={currentTheme} onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}>
-                  <SelectTrigger className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
                     <SelectValue placeholder="选择主题模式" />
                   </SelectTrigger>
-                  <SelectContent className="apple-card">
-                    <SelectItem value="light" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">
+                  <SelectContent className="heroui-card">
+                    <SelectItem value="light" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">
                       <div className="flex items-center">
                         <Sun className="mr-2 h-4 w-4" />
                         浅色模式
                       </div>
                     </SelectItem>
-                    <SelectItem value="dark" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">
+                    <SelectItem value="dark" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">
                       <div className="flex items-center">
                         <Moon className="mr-2 h-4 w-4" />
                         深色模式
                       </div>
                     </SelectItem>
-                    <SelectItem value="system" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">
+                    <SelectItem value="system" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">
                       <div className="flex items-center">
                         <Monitor className="mr-2 h-4 w-4" />
                         跟随系统
@@ -159,7 +159,7 @@ export default function SettingsDialog(props: {
                 <Label className="text-sm font-medium text-foreground">关于</Label>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start apple-button-secondary border-apple-gray-5 hover:border-apple-blue"
+                  className="w-full justify-start heroui-button-secondary border-divider hover:border-primary"
                 >
                   <Info className="mr-2 h-4 w-4" /> 关于我们
                 </Button>
@@ -172,12 +172,12 @@ export default function SettingsDialog(props: {
               <div className="space-y-2">
                 <Label htmlFor="font-size" className="text-sm font-medium text-foreground">字体大小</Label>
                 <Select value={String(newFontSize)} onValueChange={v => {console.log('zws', v); setNewFontSize(parseInt(v, 10))}}>
-                  <SelectTrigger className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="apple-card">
-                    <SelectItem value="12" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">12px</SelectItem>
-                    <SelectItem value="14" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">14px</SelectItem>
+                  <SelectContent className="heroui-card">
+                    <SelectItem value="12" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">12px</SelectItem>
+                    <SelectItem value="14" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">14px</SelectItem>
                     <SelectItem value="16" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">16px</SelectItem>
                     <SelectItem value="18" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">18px</SelectItem>
                     <SelectItem value="20" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">20px</SelectItem>

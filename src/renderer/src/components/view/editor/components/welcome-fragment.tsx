@@ -2,27 +2,27 @@ import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 
 export function WelcomeFragment() {
-    return <div className="w-full h-[100%] p-8 bg-apple-gray-1 dark:bg-apple-gray-2 flex flex-col items-center apple-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
+    return <div className="w-full h-[100%] p-8 bg-content1 dark:bg-content2 flex flex-col items-center heroui-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
         <div className="flex flex-col max-w-4xl w-full">
             <h2 className="text-3xl font-bold mb-8 text-foreground text-center">欢迎使用配置文件管理器</h2>
 
-            <div className="apple-card apple-card-hover p-6 mb-6 apple-transition">
+            <div className="heroui-card heroui-card-hover p-6 mb-6 heroui-transition">
                 <h3 className="text-xl font-semibold mb-4 text-foreground flex items-center">
-                    <span className="w-2 h-2 bg-apple-blue rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
                     快速入门
                 </h3>
                 <ol className="list-decimal list-inside space-y-3 text-muted-foreground">
-                    <li>在左侧面板中，点击 <span className="font-medium text-apple-blue px-2 py-1 bg-apple-blue/10 rounded-md">+</span> 按钮引用新的配置文件</li>
+                    <li>在左侧面板中，点击 <span className="font-medium text-primary px-2 py-1 bg-primary/10 rounded-md">+</span> 按钮引用新的配置文件</li>
                     <li>点击文件名以选择并编辑配置文件</li>
-                    <li>使用顶部工具栏中的 <span className="font-medium text-apple-green px-2 py-1 bg-apple-green/10 rounded-md">保存</span> 按钮保存更改（可能需要权限）</li>
-                    <li>使用 <span className="font-medium text-apple-orange px-2 py-1 bg-apple-orange/10 rounded-md">刷新</span> 按钮重新加载配置文件（可自定义刷新命令）</li>
+                    <li>使用顶部工具栏中的 <span className="font-medium text-success px-2 py-1 bg-success/10 rounded-md">保存</span> 按钮保存更改（可能需要权限）</li>
+                    <li>使用 <span className="font-medium text-warning px-2 py-1 bg-warning/10 rounded-md">刷新</span> 按钮重新加载配置文件（可自定义刷新命令）</li>
                     <li>悬停在文件上可以看到移除按钮，点击即可移除文件</li>
                 </ol>
             </div>
 
-            <div className="apple-card apple-card-hover p-6 mb-6 apple-transition">
+            <div className="heroui-card heroui-card-hover p-6 mb-6 heroui-transition">
                 <h3 className="text-xl font-semibold mb-4 text-foreground flex items-center">
-                    <span className="w-2 h-2 bg-apple-green rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-success rounded-full mr-3"></span>
                     功能亮点
                 </h3>
                 <ul className="list-disc list-inside space-y-3 text-muted-foreground">

@@ -51,23 +51,42 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
-        // Apple Design System colors
-        apple: {
-          gray: {
-            1: 'hsl(var(--apple-gray-1))',
-            2: 'hsl(var(--apple-gray-2))',
-            3: 'hsl(var(--apple-gray-3))',
-            4: 'hsl(var(--apple-gray-4))',
-            5: 'hsl(var(--apple-gray-5))',
-            6: 'hsl(var(--apple-gray-6))',
-          },
-          blue: 'hsl(var(--apple-blue))',
-          green: 'hsl(var(--apple-green))',
-          red: 'hsl(var(--apple-red))',
-          orange: 'hsl(var(--apple-orange))',
-          yellow: 'hsl(var(--apple-yellow))',
-          purple: 'hsl(var(--apple-purple))',
-        }
+        // HeroUI Design System colors
+        default: {
+          DEFAULT: 'hsl(var(--default))',
+          foreground: 'hsl(var(--default-foreground))'
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))'
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))'
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--danger))',
+          foreground: 'hsl(var(--danger-foreground))'
+        },
+        content1: {
+          DEFAULT: 'hsl(var(--content1))',
+          foreground: 'hsl(var(--content1-foreground))'
+        },
+        content2: {
+          DEFAULT: 'hsl(var(--content2))',
+          foreground: 'hsl(var(--content2-foreground))'
+        },
+        content3: {
+          DEFAULT: 'hsl(var(--content3))',
+          foreground: 'hsl(var(--content3-foreground))'
+        },
+        content4: {
+          DEFAULT: 'hsl(var(--content4))',
+          foreground: 'hsl(var(--content4-foreground))'
+        },
+        focus: 'hsl(var(--focus))',
+        overlay: 'hsl(var(--overlay))',
+        divider: 'hsl(var(--divider))'
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -75,15 +94,15 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)'
       },
       boxShadow: {
-        'apple-sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'apple-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'apple-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'apple-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        'apple-2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        'apple-inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'heroui-sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'heroui-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'heroui-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'heroui-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'heroui-2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'heroui-inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       },
       backdropBlur: {
-        'apple': '20px',
+        'heroui': '20px',
       },
       keyframes: {
         'accordion-down': {

@@ -51,12 +51,12 @@ function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
 
     return (
         <div
-            className="fixed z-50 bg-background border border-border rounded-lg shadow-apple-lg py-1 min-w-32 glass-effect"
+            className="fixed z-50 bg-background border border-border rounded-lg shadow-heroui-lg py-1 min-w-32 glass-effect"
             style={{ left: x, top: y }}
             onMouseLeave={onClose}
         >
             <button
-                className="w-full px-3 py-2 text-left text-sm text-apple-red hover:bg-apple-red/10 flex items-center apple-transition rounded-md mx-1"
+                className="w-full px-3 py-2 text-left text-sm text-danger hover:bg-danger/10 flex items-center heroui-transition rounded-md mx-1"
                 onClick={handleDelete}
             >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -110,10 +110,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 px-2
                 text-sm 
                 text-foreground
-                apple-transition 
+                heroui-transition 
                 ${isSelected ?
-                    'bg-apple-blue/10 hover:bg-apple-blue/15' :
-                    'hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4'
+                    'bg-primary/10 hover:bg-primary/15' :
+                    'hover:bg-content2 dark:hover:bg-content3'
                 }
                 ${isDragging ? 'z-50' : ''}
             `}
@@ -124,10 +124,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 <div
                     {...attributes}
                     {...listeners}
-                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-apple-gray-6 apple-transition"
+                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-default heroui-transition"
                     title="拖动排序"
                 >
-                    <GripVertical className="h-4 w-4 text-apple-gray-6" />
+                    <GripVertical className="h-4 w-4 text-default" />
                 </div>
             )}
             
@@ -144,7 +144,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                                     <div className="font-medium text-foreground truncate flex items-center">
                                         {isRemoteFile && (
                                             <div title="远程文件" className="flex-shrink-0">
-                                                <Globe className="mr-1 h-3 w-3 text-apple-blue" />
+                                                <Globe className="mr-1 h-3 w-3 text-primary" />
                                             </div>
                                         )}
                                         <span className="truncate">
@@ -249,18 +249,18 @@ export function FileSidebar() {
     const isDragEnabled = searchName.trim() === '';
 
     return (
-        <div className="w-full h-full bg-background flex flex-col shadow-apple-sm border-r border-border" onClick={onCloseContextMenu}>
+        <div className="w-full h-full bg-background flex flex-col shadow-heroui-sm border-r border-border" onClick={onCloseContextMenu}>
             <div className="p-4 border-b border-border">
                 <div className='flex justify-between items-center mb-3'>
                     <h2 className="text-lg font-semibold flex items-center text-foreground">
-                        <Atom className="mr-2 h-5 w-5 apple-transition hover:text-apple-blue cursor-pointer" onClick={onShowDebugPanel} />
-                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:text-apple-blue apple-transition select-none">配置文件管理器</span>
+                        <Atom className="mr-2 h-5 w-5 heroui-transition hover:text-primary cursor-pointer" onClick={onShowDebugPanel} />
+                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:text-primary heroui-transition select-none">配置文件管理器</span>
                     </h2>
                     <Button
                         onClick={onHideLeftPanel}
                         size="sm"
                         variant="ghost"
-                        className="text-muted-foreground hover:text-foreground hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition"
+                        className="text-muted-foreground hover:text-foreground hover:bg-content2 dark:hover:bg-content3 heroui-transition"
                         title="隐藏侧边栏"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -271,7 +271,7 @@ export function FileSidebar() {
                         placeholder="搜索文件"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="mr-1 h-8 text-sm bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition"
+                        className="mr-1 h-8 text-sm bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
                     />
                     <AddFileButton />
                 </div>
@@ -282,7 +282,7 @@ export function FileSidebar() {
                         <div className="text-center">
                             <div className="text-4xl mb-2">📁</div>
                             <p>空空如也</p>
-                            <p className="text-sm text-apple-gray-6">点击上方 + 按钮添加文件</p>
+                            <p className="text-sm text-default">点击上方 + 按钮添加文件</p>
                         </div>
                     </div>
                 ) : (

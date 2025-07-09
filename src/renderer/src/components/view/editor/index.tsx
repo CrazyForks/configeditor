@@ -45,12 +45,12 @@ export default function ConfigEditor() {
       >
         <FileSidebar />
       </ResizablePanel>
-      <ResizableHandle className="w-px bg-border hover:bg-apple-gray-6 apple-transition" />
+      <ResizableHandle className="w-px bg-border hover:bg-default heroui-transition" />
       <ResizablePanel 
         defaultSize={70}
         minSize={10}
       >
-        <div className='w-full h-full bg-apple-gray-1 dark:bg-apple-gray-2 flex flex-col'>
+        <div className='w-full h-full bg-content1 dark:bg-content2 flex flex-col'>
           <EditorHeadBar />
           <MonacoEditor />
         </div>

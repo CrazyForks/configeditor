@@ -26,7 +26,7 @@ function App(): JSX.Element {
       <Toaster 
         position="top-right"
         toastOptions={{
-          className: 'apple-card shadow-apple-lg',
+          className: 'heroui-card shadow-heroui-lg',
           style: {
             background: 'hsl(var(--background))',
             color: 'hsl(var(--foreground))',
