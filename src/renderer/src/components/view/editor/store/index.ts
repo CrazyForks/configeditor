@@ -32,6 +32,42 @@ export const defaultAppSettings: AppSettings = {
   lineNumbers: true,
 }
 
+// 主题相关的原子状态
+export const themeAtom = atom<'light' | 'dark' | 'system'>('system')
+
+// 初始化主题从 localStorage 读取
+export const initThemeAtom = atom(
+  null,
+  (_get, set) => {
+    const storedTheme = localStorage.getItem('configeditor-theme') as 'light' | 'dark' | 'system'
+    if (storedTheme) {
+      set(themeAtom, storedTheme)
+    }
+  }
+)
+
+// 设置主题并保存到 localStorage
+export const setThemeAtom = atom(
+  null,
+  (_get, set, theme: 'light' | 'dark' | 'system') => {
+    set(themeAtom, theme)
+    localStorage.setItem('configeditor-theme', theme)
+    
+    // 应用主题到 document
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+      root.classList.add(systemTheme)
+    } else {
+      root.classList.add(theme)
+    }
+  }
+)
+
 export const fileInfosAtom = atom<FileInfo[]>([])
 export const filePathsAtom = atom<string[]>((get) => get(fileInfosAtom).map(({ filePath }) => (filePath ?? '')))
 

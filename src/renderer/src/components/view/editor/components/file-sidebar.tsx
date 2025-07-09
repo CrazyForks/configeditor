@@ -51,12 +51,12 @@ function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
 
     return (
         <div
-            className="fixed z-50 bg-white border border-gray-200 rounded-md shadow-lg py-1 min-w-32"
+            className="fixed z-50 bg-background border border-border rounded-lg shadow-apple-lg py-1 min-w-32 glass-effect"
             style={{ left: x, top: y }}
             onMouseLeave={onClose}
         >
             <button
-                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center"
+                className="w-full px-3 py-2 text-left text-sm text-apple-red hover:bg-apple-red/10 flex items-center apple-transition rounded-md mx-1"
                 onClick={handleDelete}
             >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -109,11 +109,11 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 py-3 
                 px-2
                 text-sm 
-                text-gray-700
-                transition-colors 
+                text-foreground
+                apple-transition 
                 ${isSelected ?
-                    'bg-blue-100 hover:bg-blue-100' :
-                    'hover:bg-gray-100'
+                    'bg-apple-blue/10 hover:bg-apple-blue/15' :
+                    'hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4'
                 }
                 ${isDragging ? 'z-50' : ''}
             `}
@@ -124,10 +124,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 <div
                     {...attributes}
                     {...listeners}
-                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-gray-600 transition-colors"
+                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-apple-gray-6 apple-transition"
                     title="拖动排序"
                 >
-                    <GripVertical className="h-4 w-4 text-gray-400" />
+                    <GripVertical className="h-4 w-4 text-apple-gray-6" />
                 </div>
             )}
             
@@ -141,10 +141,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                         >
                             <div className="flex items-center w-full py-1">
                                 <div className="flex-1 text-left min-w-0">
-                                    <div className="font-medium text-gray-900 truncate flex items-center">
+                                    <div className="font-medium text-foreground truncate flex items-center">
                                         {isRemoteFile && (
                                             <div title="远程文件" className="flex-shrink-0">
-                                                <Globe className="mr-1 h-3 w-3 text-blue-500" />
+                                                <Globe className="mr-1 h-3 w-3 text-apple-blue" />
                                             </div>
                                         )}
                                         <span className="truncate">
@@ -249,18 +249,18 @@ export function FileSidebar() {
     const isDragEnabled = searchName.trim() === '';
 
     return (
-        <div className="w-full h-full bg-white flex flex-col shadow-sm" onClick={onCloseContextMenu}>
-            <div className="p-4 border-b border-gray-200">
+        <div className="w-full h-full bg-background flex flex-col shadow-apple-sm border-r border-border" onClick={onCloseContextMenu}>
+            <div className="p-4 border-b border-border">
                 <div className='flex justify-between items-center mb-3'>
-                    <h2 className="text-lg font-semibold flex items-center text-gray-700">
-                        <Atom className="mr-2 h-5 w-5" onClick={onShowDebugPanel} />
-                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:underline select-none">配置文件管理器</span>
+                    <h2 className="text-lg font-semibold flex items-center text-foreground">
+                        <Atom className="mr-2 h-5 w-5 apple-transition hover:text-apple-blue cursor-pointer" onClick={onShowDebugPanel} />
+                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:text-apple-blue apple-transition select-none">配置文件管理器</span>
                     </h2>
                     <Button
                         onClick={onHideLeftPanel}
                         size="sm"
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-muted-foreground hover:text-foreground hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition"
                         title="隐藏侧边栏"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -271,14 +271,20 @@ export function FileSidebar() {
                         placeholder="搜索文件"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="mr-1 h-8 text-sm bg-gray-100 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="mr-1 h-8 text-sm bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition"
                     />
                     <AddFileButton />
                 </div>
             </div>
             <ScrollArea className="flex-grow">
                 {!showFilePaths.length ? (
-                    <div className="flex items-center justify-center h-full text-gray-500">空空如也</div>
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="text-center">
+                            <div className="text-4xl mb-2">📁</div>
+                            <p>空空如也</p>
+                            <p className="text-sm text-apple-gray-6">点击上方 + 按钮添加文件</p>
+                        </div>
+                    </div>
                 ) : (
                     <DndContext
                         sensors={sensors}

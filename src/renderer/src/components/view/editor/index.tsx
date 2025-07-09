@@ -34,7 +34,7 @@ export default function ConfigEditor() {
   return <>
     <ResizablePanelGroup
       direction="horizontal"
-      className="w-screen h-screen bg-gray-100 text-gray-800 text-sm font-sans"
+      className="w-screen h-screen bg-background text-foreground text-sm font-sans"
     >
       <ResizablePanel
         ref={resizablePanelRef}
@@ -45,12 +45,12 @@ export default function ConfigEditor() {
       >
         <FileSidebar />
       </ResizablePanel>
-      <ResizableHandle />
+      <ResizableHandle className="w-px bg-border hover:bg-apple-gray-6 apple-transition" />
       <ResizablePanel 
         defaultSize={70}
         minSize={10}
       >
-        <div className='w-full h-full bg-gray-50 flex flex-col'>
+        <div className='w-full h-full bg-apple-gray-1 dark:bg-apple-gray-2 flex flex-col'>
           <EditorHeadBar />
           <MonacoEditor />
         </div>

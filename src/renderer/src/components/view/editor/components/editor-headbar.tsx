@@ -340,21 +340,21 @@ export function EditorHeadBar() {
 
   return <>
     {/* Top Management Bar */}
-    <div className="w-full max-w-full bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
+    <div className="w-full max-w-full bg-background shadow-apple-sm p-4 pr-2 flex justify-between items-center border-b border-border glass-effect">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
         {!isLeftPanelOpen && (
           <Button 
             onClick={onShowLeftPanel} 
             size="icon" 
             variant="ghost" 
-            className="mr-2 h-8 w-8"
+            className="mr-2 h-8 w-8 hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition"
             title="显示侧边栏"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         )}
         <h1 
-          className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'} ${nowFilePath ? 'cursor-pointer hover:underline' : ''}`}
+          className={`text-lg font-semibold truncate ${isEditing ? 'text-apple-red' : 'text-foreground'} ${nowFilePath ? 'cursor-pointer hover:text-apple-blue apple-transition' : ''}`}
           onClick={nowFilePath ? () => onCopyBtnClick(nowFilePath) : undefined}
           title={nowFilePath ? '点击复制文件路径' : undefined}
         >
@@ -369,7 +369,7 @@ export function EditorHeadBar() {
                   size="sm"
                   variant="ghost"
                   disabled={isReloadingFile}
-                  className="text-gray-500 hover:text-gray-700 ml-1"
+                  className="text-muted-foreground hover:text-foreground hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition ml-1"
                 >
                   {isReloadingFile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -378,7 +378,7 @@ export function EditorHeadBar() {
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="apple-card">
                 <p>重新读取文件内容</p>
               </TooltipContent>
             </Tooltip>
@@ -391,7 +391,7 @@ export function EditorHeadBar() {
             onClick={onSaveBtnClick}
             size="sm"
             disabled={isSaving || !isEditing}
-            className="mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mr-2 apple-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -407,7 +407,7 @@ export function EditorHeadBar() {
                   onClick={onRefreshBtnClick}
                   size="sm"
                   disabled={isRefreshing}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="apple-button-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRefreshing ? (
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -417,13 +417,18 @@ export function EditorHeadBar() {
                   {isRefreshing ? '刷新中...' : '刷新'}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="apple-card">
                 <p>{nowFileInfo?.refreshCmd}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </>}
-        <Button onClick={() => setIsSettingDialogOpen(true)} size="sm" variant="ghost" className="text-gray-500 hover:text-gray-700 ml-2">
+        <Button 
+          onClick={() => setIsSettingDialogOpen(true)} 
+          size="sm" 
+          variant="ghost" 
+          className="text-muted-foreground hover:text-foreground hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4 apple-transition ml-2"
+        >
           <Settings className="h-4 w-4" />
         </Button>
       </div>
