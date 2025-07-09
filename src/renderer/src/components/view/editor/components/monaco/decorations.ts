@@ -35,6 +35,9 @@ function getChangeType(change) {
 }
 // 根据上面的 diffChanges 进行转换
 export const generateDecorations = (changes) => {
+  if (!changes || changes.length === 0) {
+    return [];
+  }
   const decorations = changes.map((change) => {
     const changeType = getChangeType(change);
     const startLineNumber = change.modifiedStartLineNumber;

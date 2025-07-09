@@ -1,8 +1,5 @@
-// 因为我们引入的是 amd 规范的 monaco-editor，这里能直接用 require 引入内部的组件（如果是 webpack 需要单独 import 打包）
-const diffComputer = require('monaco-editor/esm/vs/editor/common/diff/diffComputer.js');
+import { DiffComputer } from 'monaco-editor/esm/vs/editor/common/diff/legacyLinesDiffComputer';
 
-// 具体的计算逻辑
-const DiffComputer = diffComputer.DiffComputer;
 // 计算函数
 export const computeDirtyDiff = (originalLines, modifiedModel) => {
   // 边界条件处理
@@ -11,10 +8,11 @@ export const computeDirtyDiff = (originalLines, modifiedModel) => {
   let modifiedLines = modifiedModel.getLinesContent();
   // 利用内置的计算能力进行输出
   let diffComputer = new DiffComputer(originalLines, modifiedLines, {
-        shouldComputeCharChanges: false,  // 不需要字符级别的差异（行级别和字符级别）
+    shouldComputeCharChanges: false,  // 不需要字符级别的差异（行级别和字符级别）
     shouldPostProcessCharChanges: false,  // 后置处理字符差异
     shouldIgnoreTrimWhitespace: false,    // 是否忽略首尾空格差异
-    shouldMakePrettyDiff: true            // 调整 diff 更符合直觉
+    shouldMakePrettyDiff: true,            // 调整 diff 更符合直觉
+    maxComputationTimeMs: 5000, // 最大计算时间，单位毫秒
   });
   return diffComputer.computeDiff();
 };
