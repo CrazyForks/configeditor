@@ -32,7 +32,8 @@ export function MonacoEditor() {
     usePeekView({
         nowFilePath,
         textContent,
-        editorRef
+        editorRef,
+        currentTheme
     });
 
     // 根据系统主题自动选择 Monaco Editor 主题

@@ -29,33 +29,33 @@
     display: none;
 }
 
-/* 修改行样式 */
-.monaco-editor .dirty-diff-modified {
-    border-left: 3px solid #0c7d9d !important;
-    pointer-events: all;
-    cursor: pointer;
-    position: relative;
-}
-
-.monaco-editor .dirty-diff-modified:before {
-    background: #0c7d9d;
-    pointer-events: all;
-}
-
-/* 新增行样式 */
+/* 新增行样式 - 绿色实线长条 */
 .monaco-editor .dirty-diff-added {
-    border-left: 3px solid #587c0c !important;
+    border-left: 3px solid #28a745 !important;
     pointer-events: all;
     cursor: pointer;
     position: relative;
 }
 
 .monaco-editor .dirty-diff-added:before {
-    background: #587c0c;
+    background: #28a745;
     pointer-events: all;
 }
 
-/* 删除行样式 */
+/* 修改行样式 - 蓝色虚线长条 */
+.monaco-editor .dirty-diff-modified {
+    border-left: 3px dashed #007acc !important;
+    pointer-events: all;
+    cursor: pointer;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-modified:before {
+    background: #007acc;
+    pointer-events: all;
+}
+
+/* 删除行样式 - 红色三角 */
 .monaco-editor .dirty-diff-deleted {
     position: relative;
     pointer-events: all;
@@ -63,84 +63,127 @@
 }
 
 .monaco-editor .dirty-diff-deleted:after {
-    border-left: 4px solid #94151b;
     content: "";
     position: absolute;
-    bottom: -4px;
-    box-sizing: border-box;
-    width: 4px;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
     height: 0;
-    z-index: 9;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
-    transition: border-top-width 80ms linear, border-bottom-width 80ms linear, bottom 80ms linear;
+    border-left: 6px solid #dc3545;
+    z-index: 9;
     pointer-events: all;
+    transition: all 80ms linear;
 }
 
 .monaco-editor .dirty-diff-deleted:before {
-    background: #94151b;
-    margin-left: 3px;
-    height: 0;
-    bottom: 0;
-    transition: height 80ms linear;
+    background: transparent;
     pointer-events: all;
 }
 
 .monaco-editor .margin-view-overlays>div:hover>.dirty-diff-deleted:after {
-    bottom: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
+    border-left-width: 8px;
+    left: -8px;
 }
 
 /* peekview */
 .ubug-overlay {
-    border-top: 1px solid #00BCD4;
-    border-bottom: 1px solid #00BCD4;
     display: flex;
     flex-direction: column;
-    background: #1e1e1e;
     position: absolute;
     z-index: 10;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 浅色主题 */
+.ubug-overlay[data-theme="light"] {
+    background: #ffffff;
+    border: 1px solid #e1e1e1;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-title {
+    background: #f8f8f8;
+    color: #333333;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-name {
+    color: #333333;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-btn {
+    color: #666666;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-btn:hover {
+    color: #333333;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* 深色主题 */
+.ubug-overlay[data-theme="dark"] {
+    background: #1e1e1e;
+    border: 1px solid #3c3c3c;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-title {
+    background: #2d2d30;
+    color: #cccccc;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-name {
+    color: #cccccc;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-btn {
+    color: #cccccc;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .ubug-overlay-name {
     font-weight: bold;
-    color: #fff;
 }
 
 .ubug-overlay-title {
-    background: #3b4448;
-    color: #fff;
     display: flex;
-    line-height: 20px;
-    height: 20px;
-    padding: 0 10px;
+    line-height: 22px;
+    height: 22px;
+    padding: 0 8px;
     justify-content: space-between;
-    border-bottom: 1px solid #00bcd4;
+    font-size: 12px;
 }
 
-.ubug-overlay-type-0 {
-    border-color: #0c7d9d;
+/* 不同变更类型的边框颜色 */
+.ubug-overlay-type-0[data-theme="light"] {
+    border-top: 2px solid #007acc;
 }
 
-.ubug-overlay-type-0 .ubug-overlay-title {
-    border-bottom-color: #0c7d9d;
+.ubug-overlay-type-0[data-theme="dark"] {
+    border-top: 2px solid #007acc;
 }
 
-.ubug-overlay-type-1 {
-    border-color: #587c0c;
+.ubug-overlay-type-1[data-theme="light"] {
+    border-top: 2px solid #28a745;
 }
 
-.ubug-overlay-type-1 .ubug-overlay-title {
-    border-bottom-color: #587c0c;
+.ubug-overlay-type-1[data-theme="dark"] {
+    border-top: 2px solid #28a745;
 }
 
-.ubug-overlay-type-2 {
-    border-color: #94151b;
+.ubug-overlay-type-2[data-theme="light"] {
+    border-top: 2px solid #dc3545;
 }
 
-.ubug-overlay-type-2 .ubug-overlay-title {
-    border-bottom-color: #94151b;
+.ubug-overlay-type-2[data-theme="dark"] {
+    border-top: 2px solid #dc3545;
 }
 
 .ubug-overlay-editor {
@@ -150,18 +193,45 @@
 
 .ubug-overlay-btns {
     display: flex;
+    gap: 2px;
 }
 
 .ubug-overlay-btn {
-    font-size: 16px;
-    line-height: 18px;
-    opacity: 0.6;
-    width: 20px;
+    font-size: 14px;
+    line-height: 20px;
+    width: 22px;
+    height: 22px;
     text-align: center;
     cursor: pointer;
     user-select: none;
+    border-radius: 3px;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.ubug-overlay-btn:hover {
-    opacity: 1;
+/* 按钮图标 */
+.ubug-overlay-btn-prev::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 6px solid currentColor;
+}
+
+.ubug-overlay-btn-next::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid currentColor;
+}
+
+.ubug-overlay-btn-close::before {
+    content: "×";
+    font-size: 16px;
+    font-weight: bold;
 }

@@ -1,7 +1,7 @@
+import { useEffect } from 'react'
 import * as monaco from "monaco-editor"
 import { computeDirtyDiff } from './diff'
 import { generateDecorations } from './decorations'
-import { useEffect } from "react"
 
 interface PeekViewInfo {
     path: string
@@ -241,33 +241,37 @@ export class PeekViewManager {
     private createOverlayWidget(index: number, changesNum: number, changeType: number): HTMLElement {
         const overlay = document.createElement('div')
         overlay.className = `ubug-overlay ubug-overlay-type-${changeType}`
+        
+        // 获取当前主题
+        const currentTheme = this.getCurrentTheme()
+        overlay.setAttribute('data-theme', currentTheme)
 
         const title = document.createElement('div')
         title.className = 'ubug-overlay-title'
 
         const nameSpan = document.createElement('span')
         nameSpan.className = 'ubug-overlay-name'
-        nameSpan.textContent = `${index + 1}/${changesNum}` // 显示当前变更索引和总变更数
+        nameSpan.textContent = `${index + 1} of ${changesNum}` // 显示当前变更索引和总变更数
 
         const btns = document.createElement('div')
         btns.className = 'ubug-overlay-btns'
 
-        // 上一个按钮
+        // 上一个按钮 - 向上箭头图标
         const prevBtn = document.createElement('div')
-        prevBtn.className = 'ubug-overlay-btn'
-        prevBtn.textContent = '↑'
+        prevBtn.className = 'ubug-overlay-btn ubug-overlay-btn-prev'
+        prevBtn.title = 'Previous Change'
         prevBtn.onclick = () => this.showPrevChange()
 
-        // 下一个按钮
+        // 下一个按钮 - 向下箭头图标
         const nextBtn = document.createElement('div')
-        nextBtn.className = 'ubug-overlay-btn'
-        nextBtn.textContent = '↓'
+        nextBtn.className = 'ubug-overlay-btn ubug-overlay-btn-next'
+        nextBtn.title = 'Next Change'
         nextBtn.onclick = () => this.showNextChange()
 
-        // 关闭按钮
+        // 关闭按钮 - X图标
         const closeBtn = document.createElement('div')
-        closeBtn.className = 'ubug-overlay-btn'
-        closeBtn.textContent = '×'
+        closeBtn.className = 'ubug-overlay-btn ubug-overlay-btn-close'
+        closeBtn.title = 'Close'
         closeBtn.onclick = () => this.cleanOverlay()
 
         btns.appendChild(prevBtn)
@@ -284,6 +288,28 @@ export class PeekViewManager {
         overlay.appendChild(editorContainer)
 
         return overlay
+    }
+
+    // 获取当前主题
+    private getCurrentTheme(): 'light' | 'dark' {
+        // 检查document.documentElement的data-theme属性
+        const documentTheme = document.documentElement.getAttribute('data-theme')
+        if (documentTheme === 'dark' || documentTheme === 'light') {
+            return documentTheme
+        }
+
+        // 检查body的class
+        const bodyClasses = document.body.className
+        if (bodyClasses.includes('dark')) {
+            return 'dark'
+        }
+        if (bodyClasses.includes('light')) {
+            return 'light'
+        }
+
+        // 检查系统主题偏好
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+        return isDarkMode ? 'dark' : 'light'
     }
 
     // 修正 overlay 宽度
@@ -307,6 +333,10 @@ export class PeekViewManager {
         const { originalLines, modifiedLines } = changeContent
 
         try {
+            // 获取当前主题
+            const currentTheme = this.getCurrentTheme()
+            const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'vs'
+
             // 创建 diff 编辑器
             const diffEditor = monaco.editor.createDiffEditor(editorContainer, {
                 enableSplitViewResizing: false, // 禁用分割视图调整大小
@@ -324,7 +354,11 @@ export class PeekViewManager {
                     horizontal: 'auto'
                 },
                 originalEditable: false, // 禁止编辑原始内容
-                automaticLayout: true // 自动布局
+                automaticLayout: true, // 自动布局
+                theme: monacoTheme, // 应用主题
+                renderOverviewRuler: false, // 隐藏概览标尺
+                hideCursorInOverviewRuler: true, // 隐藏光标在概览标尺中的显示
+                overviewRulerBorder: false, // 隐藏概览标尺边框
             })
 
             // 创建模型
@@ -410,6 +444,27 @@ export class PeekViewManager {
         }
     }
 
+    // 更新主题
+    updateTheme() {
+        this.overlays.forEach(({ diffEditor }) => {
+            if (diffEditor) {
+                const currentTheme = this.getCurrentTheme()
+                const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'vs'
+                // 更新diff编辑器主题
+                monaco.editor.setTheme(monacoTheme)
+            }
+        })
+        
+        // 更新overlay的主题属性
+        this.overlays.forEach(({ overlayWidget }) => {
+            const overlayDom = overlayWidget.getDomNode()
+            if (overlayDom) {
+                const currentTheme = this.getCurrentTheme()
+                overlayDom.setAttribute('data-theme', currentTheme)
+            }
+        })
+    }
+
 }
 
 // 创建全局实例
@@ -418,11 +473,13 @@ export const peekViewManager = new PeekViewManager()
 export function usePeekView({
     nowFilePath,
     textContent,
-    editorRef
+    editorRef,
+    currentTheme
 }: {
     nowFilePath: string,
     textContent: string,
-    editorRef: React.RefObject<monaco.editor.IStandaloneCodeEditor | null>
+    editorRef: React.RefObject<monaco.editor.IStandaloneCodeEditor | null>,
+    currentTheme?: 'light' | 'dark' | 'system'
 }) {
     useEffect(() => {
         if (editorRef.current && nowFilePath) {
@@ -431,6 +488,13 @@ export function usePeekView({
             peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
         }
     }, [nowFilePath, textContent])
+
+    // 监听主题变化并更新peekview主题
+    useEffect(() => {
+        if (currentTheme) {
+            peekViewManager.updateTheme()
+        }
+    }, [currentTheme])
 
     // 组件卸载时清理所有资源
     useEffect(() => {

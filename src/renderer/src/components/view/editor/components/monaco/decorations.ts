@@ -21,7 +21,7 @@ const modifiedOptions: monaco.editor.IModelDecorationOptions = {
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-modified',
   glyphMarginClassName: 'dirty-diff-glyph dirty-diff-modified',
   overviewRuler: {
-    color: 'RGBA(12, 125, 157, 0.6)',
+    color: 'RGBA(0, 122, 204, 0.6)',
     position: OverviewRulerLane.Left,
   }
 };
@@ -31,7 +31,7 @@ const addedOptions: monaco.editor.IModelDecorationOptions = {
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-added',
   glyphMarginClassName: 'dirty-diff-glyph dirty-diff-added',
   overviewRuler: {
-    color: 'RGBA(88, 124, 12, 0.6)',
+    color: 'RGBA(40, 167, 69, 0.6)',
     position: OverviewRulerLane.Left,
   }
 };
@@ -41,7 +41,7 @@ const deletedOptions: monaco.editor.IModelDecorationOptions = {
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-deleted',
   glyphMarginClassName: 'dirty-diff-glyph dirty-diff-deleted',
   overviewRuler: {
-    color: 'RGBA(148, 21, 27, 0.6)',
+    color: 'RGBA(220, 53, 69, 0.6)',
     position: OverviewRulerLane.Left,
   }
 };
