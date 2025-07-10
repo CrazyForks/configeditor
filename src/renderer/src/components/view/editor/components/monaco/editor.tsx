@@ -37,11 +37,6 @@ export function MonacoEditor() {
 
     // 根据系统主题自动选择 Monaco Editor 主题
     const monacoTheme = useMemo(() => {
-        // 如果用户在设置中明确选择了编辑器主题，优先使用用户设置
-        if (appSettings.editorTheme && appSettings.editorTheme !== 'auto') {
-            return appSettings.editorTheme;
-        }
-        
         // 否则根据系统主题自动选择
         if (currentTheme === 'dark') {
             return 'vs-dark';
@@ -54,7 +49,7 @@ export function MonacoEditor() {
         }
         
         return 'vs'; // 默认浅色主题
-    }, [currentTheme, appSettings.editorTheme]);
+    }, [currentTheme]);
 
     // 根据文件路径和扩展名获取语言类型
     const editorLanguage = nowFilePath ? getLanguageFromFilePath(nowFilePath, nowFileExt) : 'plaintext'

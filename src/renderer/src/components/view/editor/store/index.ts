@@ -17,14 +17,12 @@ export type AppSettings = {
   theme: 'light' | 'dark' | 'system' | '',
   lineNumber: boolean,
   fontSize: number,
-  editorTheme: string,
   language: string,
   wordWrap: boolean,
   lineNumbers: boolean,
 }
 export const defaultAppSettings: AppSettings = {
   theme: 'system',
-  editorTheme: 'auto',
   lineNumber: true,
   fontSize: 14,
   language: 'en',

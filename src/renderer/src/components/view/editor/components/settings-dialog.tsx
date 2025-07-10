@@ -26,7 +26,6 @@ export default function SettingsDialog(props: {
   
   const [newPermission, setNewPermission] = useState('read')
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
-  const [newEditorTheme, setNewEditorTheme] = useState('vs')
   const [newFontSize, setNewFontSize] = useState(14)
 
   useEffect(() => {
@@ -34,7 +33,6 @@ export default function SettingsDialog(props: {
       setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
     setNewFontSize(appSettings.fontSize)
-    setNewEditorTheme(appSettings.editorTheme)
   }, [isSettingDialogOpen, nowFileInfo, appSettings])
 
   const onSaveBtnClick = () => {
@@ -48,7 +46,7 @@ export default function SettingsDialog(props: {
       saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
     }
-    const newAppSettings: AppSettings = {...appSettings, fontSize: newFontSize, editorTheme: newEditorTheme};
+    const newAppSettings: AppSettings = {...appSettings, fontSize: newFontSize};
     setAppSettings(newAppSettings);
     saveAppSettings(newAppSettings);
     alert('保存成功')
@@ -181,20 +179,6 @@ export default function SettingsDialog(props: {
                     <SelectItem value="16" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">16px</SelectItem>
                     <SelectItem value="18" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">18px</SelectItem>
                     <SelectItem value="20" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">20px</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="theme" className="text-sm font-medium text-foreground">编辑器主题</Label>
-                <Select value={newEditorTheme} onValueChange={setNewEditorTheme}>
-                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
-                    <SelectValue placeholder="选择主题" />
-                  </SelectTrigger>
-                  <SelectContent className="heroui-card">
-                    <SelectItem value="auto" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">跟随系统</SelectItem>
-                    <SelectItem value="vs" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">浅色</SelectItem>
-                    <SelectItem value="vs-dark" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">深色</SelectItem>
-                    <SelectItem value="hc-black" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">高对比度</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
