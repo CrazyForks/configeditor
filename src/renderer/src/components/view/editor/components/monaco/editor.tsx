@@ -75,7 +75,7 @@ export function MonacoEditor() {
         setNewTextContent(newContent)
         // 更新 diff 显示
         if (nowFilePath && editorRef.current) {
-            peekViewManager.updateDiff(nowFilePath)
+            peekViewManager.updateDiff()
         }
     }
 

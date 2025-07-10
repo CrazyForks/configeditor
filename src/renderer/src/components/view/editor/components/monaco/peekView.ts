@@ -141,33 +141,37 @@ class DiffUpdater {
 }
 
 export class PeekViewManager {
-    private updaters: { [path: string]: DiffUpdater } = {}
+    private filePath: string | null = null
+    private updater: DiffUpdater | null = null
     private overlays: OverlayInfo[] = []
     private peekViewIndex: PeekViewInfo | null = null
-    private mouseListeners: { [path: string]: monaco.IDisposable } = {}
+    private mouseListener: monaco.IDisposable | null = null
 
     // 注册编辑器的 diff 更新器
     registerEditor(editor: monaco.editor.IStandaloneCodeEditor, originalContent: string, filePath: string) {
-        // 如果已经注册过，先清理旧的
-        if (this.updaters[filePath]) {
-            this.updaters[filePath].dispose()
+        if (this.filePath) {
+            this.filePath = null
         }
-        if (this.mouseListeners[filePath]) {
-            this.mouseListeners[filePath].dispose()
+        if (this.updater) {
+            this.updater.dispose()
+            this.updater = null
         }
-
-        this.updaters[filePath] = new DiffUpdater(editor, originalContent)
-
-        // 添加鼠标点击监听
-        this.mouseListeners[filePath] = editor.onMouseDown((e) => {
+        if (this.mouseListener) {
+            this.mouseListener.dispose()
+            this.mouseListener = null
+        }
+    
+        this.filePath = filePath;
+        this.updater = new DiffUpdater(editor, originalContent);
+        this.mouseListener = editor.onMouseDown((e) => {
             const isValidTarget = (e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS);
             const isDirtyDiffElement = /dirty-diff/.test(e.target.element?.className || '')
-            
             if (isValidTarget && isDirtyDiffElement) {
                 const lineNumber = e.target.position?.lineNumber
-                if (lineNumber && this.updaters[filePath]) {
-                    const changeIndex = this.updaters[filePath].getChangeIndex(lineNumber)
+                if (lineNumber && this.updater) {
+                    const changeIndex = this.updater.getChangeIndex(lineNumber)
                     if (changeIndex !== -1) {
+                        // 展示 peek view
                         this.renderOverlay(editor, changeIndex, filePath)
                     }
                 }
@@ -176,16 +180,16 @@ export class PeekViewManager {
     }
 
     // 更新 diff
-    updateDiff(filePath: string) {
-        if (this.updaters[filePath]) {
-            this.updaters[filePath].update()
+    updateDiff() {
+        if (this.updater) {
+            this.updater.update()
         }
     }
 
     // 更新原始内容
-    updateOriginalContent(filePath: string, originalContent: string) {
-        if (this.updaters[filePath]) {
-            this.updaters[filePath].updateOriginalContent(originalContent)
+    updateOriginalContent(originalContent: string) {
+        if (this.updater) {
+            this.updater.updateOriginalContent(originalContent)
         }
     }
 
@@ -195,15 +199,11 @@ export class PeekViewManager {
         const model = editor.getModel()
         if (!model) return
 
-        console.log('zws 渲染peekview1')
-        const updater = this.updaters[filePath]
-        if (!updater) return
+        if (!this.updater) return
 
-        console.log('zws 渲染peekview2')
-        const changeInfo = updater.getChangeInfo(ind)
+        const changeInfo = this.updater.getChangeInfo(ind)
         if (!changeInfo) return
 
-        console.log('zws 渲染peekview3')
         const { endLineNum, linesNum, changesNum, index, changeType } = changeInfo
         let lineHeight = linesNum * 2 + 3 * 2
         lineHeight = lineHeight > 14 ? 14 : (lineHeight < 8 ? 8 : lineHeight)
@@ -315,14 +315,12 @@ export class PeekViewManager {
         const model = editor.getModel()
         if (!model) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
 
-        const filePath = model.uri.toString()
-        const updater = this.updaters[filePath]
-        if (!updater) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
+        if (!this.updater) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
 
         const editorContainer = overlayDom.querySelector('.ubug-overlay-editor') as HTMLElement
         if (!editorContainer) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
 
-        const changeContent = updater.getChangeContent(changeIndex)
+        const changeContent = this.updater.getChangeContent(changeIndex)
         const { originalLines, modifiedLines } = changeContent
 
         try {
@@ -419,102 +417,20 @@ export class PeekViewManager {
     // 清理所有资源
     dispose() {
         this.cleanOverlay()
-        Object.values(this.updaters).forEach(updater => updater.dispose())
-        Object.values(this.mouseListeners).forEach(listener => listener.dispose())
-        this.updaters = {}
-        this.mouseListeners = {}
-    }
-
-    // 手动触发 peek view (用于调试)
-    showPeekViewForLine(filePath: string, lineNumber: number) {
-        const updater = this.updaters[filePath]
-        if (!updater) {
-            console.log('zws No updater found for path:', filePath)
-            return
+        if (this.updater) {
+            this.updater.dispose()
+            this.updater = null
         }
-        
-        const changeIndex = updater.getChangeIndex(lineNumber)
-        console.log('zws Manual trigger - Change index for line', lineNumber, ':', changeIndex)
-        
-        if (changeIndex !== -1) {
-            // 找到对应的编辑器
-            const editorEntry = Object.entries(this.mouseListeners).find(([path]) => path === filePath)
-            if (editorEntry) {
-                // 这里我们需要找到编辑器实例，但我们没有直接的引用
-                // 所以我们需要修改架构来支持这个功能
-                console.log('zws Found editor for manual trigger')
-            }
+        if (this.mouseListener) {
+            this.mouseListener.dispose()
+            this.mouseListener = null
         }
     }
 
-    // 调试函数：强制更新 diff
-    debugRefreshDiff(filePath: string) {
-        console.log('zws[debugRefreshDiff] Refreshing diff for:', filePath)
-        const updater = this.updaters[filePath]
-        if (updater) {
-            updater.update()
-            console.log('zws[debugRefreshDiff] Diff refreshed, changes:', updater.getChanges())
-        } else {
-            console.log('zws[debugRefreshDiff] No updater found for:', filePath)
-        }
-    }
-
-    // 调试函数：获取当前所有注册的文件
-    debugGetRegisteredFiles() {
-        const files = Object.keys(this.updaters)
-        console.log('zws[debugGetRegisteredFiles] Registered files:', files)
-        return files
-    }
-
-    // 调试函数：获取文件的装饰器信息
-    debugGetDecorations(filePath: string) {
-        const updater = this.updaters[filePath]
-        if (updater) {
-            const changes = updater.getChanges()
-            console.log('zws[debugGetDecorations] Changes for', filePath, ':', changes)
-            return changes
-        }
-        return null
-    }
-
-    // 获取文件的所有变更信息 (用于调试)
-    getFileChanges(filePath: string) {
-        const updater = this.updaters[filePath]
-        if (!updater) return []
-        
-        return updater.getChanges().map((change: any, index: number) => ({
-            index,
-            change,
-            changeInfo: updater.getChangeInfo(index)
-        }))
-    }
-
-    // 清理特定文件的资源
-    disposeFile(filePath: string) {
-        if (this.updaters[filePath]) {
-            this.updaters[filePath].dispose()
-            delete this.updaters[filePath]
-        }
-        if (this.mouseListeners[filePath]) {
-            this.mouseListeners[filePath].dispose()
-            delete this.mouseListeners[filePath]
-        }
-    }
 }
 
 // 创建全局实例
 export const peekViewManager = new PeekViewManager()
-
-// 将调试函数暴露到全局作用域 (仅开发环境)
-if (typeof window !== 'undefined') {
-    (window as any).peekViewManager = peekViewManager;
-    (window as any).debugDirtyDiff = {
-        refresh: (filePath: string) => peekViewManager.debugRefreshDiff(filePath),
-        getFiles: () => peekViewManager.debugGetRegisteredFiles(),
-        getDecorations: (filePath: string) => peekViewManager.debugGetDecorations(filePath),
-        getFileChanges: (filePath: string) => peekViewManager.getFileChanges(filePath)
-    };
-}
 
 export function usePeekView({
     nowFilePath,
