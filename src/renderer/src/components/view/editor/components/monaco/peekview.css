@@ -65,7 +65,7 @@
 .monaco-editor .dirty-diff-deleted:after {
     content: "";
     position: absolute;
-    left: -6px;
+    left: 0px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
@@ -85,7 +85,7 @@
 
 .monaco-editor .margin-view-overlays>div:hover>.dirty-diff-deleted:after {
     border-left-width: 8px;
-    left: -8px;
+    left: -2px;
 }
 
 /* peekview - VSCode风格 */
@@ -218,13 +218,14 @@
 /* 按钮图标 - 使用Unicode字符 */
 .ubug-overlay-btn-prev::before {
     content: "⌃";
-    transform: rotate(180deg);
+    transform: translateY(-2px) rotate(180deg);
     font-size: 14px;
     line-height: 1;
 }
 
 .ubug-overlay-btn-next::before {
     content: "⌃";
+    transform:  translateY(2px);
     font-size: 14px;
     line-height: 1;
 }
