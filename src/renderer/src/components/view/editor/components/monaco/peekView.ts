@@ -60,11 +60,6 @@ class DiffUpdater {
         }
     }
 
-    updateOriginalContent(newContent: string) {
-        this.originalContent = newContent
-        this.update()
-    }
-
     getChangeIndex(lineNumber: number): number {
         return this.changes.findIndex(change => {
             const start = change.modifiedStartLineNumber
@@ -127,11 +122,6 @@ class DiffUpdater {
         return 0 // Modify
     }
 
-    // 获取所有变更 (公共方法)
-    getChanges() {
-        return this.changes
-    }
-
     dispose() {
         const model = this.editor.getModel()
         if (model) {
@@ -169,7 +159,7 @@ export class PeekViewManager {
             if (isValidTarget && isDirtyDiffElement) {
                 const lineNumber = e.target.position?.lineNumber
                 if (lineNumber && this.updater) {
-                    const changeIndex = this.updater.getChangeIndex(lineNumber)
+                    const changeIndex = this.updater.getChangeIndex(lineNumber) // 获取变更索引
                     if (changeIndex !== -1) {
                         // 展示 peek view
                         this.renderOverlay(editor, changeIndex, filePath)
@@ -186,13 +176,6 @@ export class PeekViewManager {
         }
     }
 
-    // 更新原始内容
-    updateOriginalContent(originalContent: string) {
-        if (this.updater) {
-            this.updater.updateOriginalContent(originalContent)
-        }
-    }
-
     // 渲染 peek view
     renderOverlay(editor: monaco.editor.IStandaloneCodeEditor, ind: number, filePath: string) {
         this.cleanOverlay()
@@ -205,8 +188,8 @@ export class PeekViewManager {
         if (!changeInfo) return
 
         const { endLineNum, linesNum, changesNum, index, changeType } = changeInfo
-        let lineHeight = linesNum * 2 + 3 * 2
-        lineHeight = lineHeight > 14 ? 14 : (lineHeight < 8 ? 8 : lineHeight)
+        let lineHeight = linesNum * 2 + 3 * 2 // lineHeight为什么是lineNum * 2 + 3 * 2？因为每行大概占用2个字符的高度，加上上下各3个像素的padding
+        lineHeight = lineHeight > 14 ? 14 : (lineHeight < 8 ? 8 : lineHeight) // 限制最小和最大高度
 
         this.peekViewIndex = { path: filePath, ind, changesNum }
 
@@ -228,19 +211,19 @@ export class PeekViewManager {
 
         editor.changeViewZones((changeAccessor) => {
             const viewZoneId = changeAccessor.addZone({
-                afterLineNumber: endLineNum,
-                suppressMouseDown: true,
-                heightInLines: lineHeight + 1,
+                afterLineNumber: endLineNum, // 在变更结束行后添加
+                suppressMouseDown: true, // 禁止鼠标事件
+                heightInLines: lineHeight + 1, // 增加1行高度以适应按钮
                 domNode: zoneNode,
-                onDomNodeTop: (top) => {
+                onDomNodeTop: (top) => { // 设置 overlay DOM 的位置
                     overlayDom.style.top = top + "px"
                 },
-                onComputedHeight: (height) => {
+                onComputedHeight: (height) => { // 设置 overlay DOM 的高度
                     overlayDom.style.height = height + "px"
                 }
             })
 
-            editor.revealLineInCenter(endLineNum)
+            editor.revealLineInCenter(endLineNum) // 确保变更行在视图中心
             const overlayData = this.renderDiffEditorAtDom(editor, ind, overlayDom)
             this.overlays.push({ 
                 zone: viewZoneId, 
@@ -264,7 +247,7 @@ export class PeekViewManager {
 
         const nameSpan = document.createElement('span')
         nameSpan.className = 'ubug-overlay-name'
-        nameSpan.textContent = `${index + 1}/${changesNum}`
+        nameSpan.textContent = `${index + 1}/${changesNum}` // 显示当前变更索引和总变更数
 
         const btns = document.createElement('div')
         btns.className = 'ubug-overlay-btns'
@@ -326,22 +309,22 @@ export class PeekViewManager {
         try {
             // 创建 diff 编辑器
             const diffEditor = monaco.editor.createDiffEditor(editorContainer, {
-                enableSplitViewResizing: false,
-                renderSideBySide: false,
-                readOnly: true,
-                scrollBeyondLastLine: false,
+                enableSplitViewResizing: false, // 禁用分割视图调整大小
+                renderSideBySide: false, // 以单列模式显示差异
+                readOnly: true, // 设置为只读模式
+                scrollBeyondLastLine: false, // 禁止滚动超出最后一行
                 minimap: { enabled: false },
                 lineNumbers: 'on',
-                glyphMargin: false,
-                folding: false,
-                lineDecorationsWidth: 0,
-                lineNumbersMinChars: 3,
+                glyphMargin: false, // 禁用字形边距
+                folding: false, // 禁用折叠
+                lineDecorationsWidth: 0, // 禁用行装饰宽度
+                lineNumbersMinChars: 3, // 确保行号有足够空间
                 scrollbar: {
                     vertical: 'auto',
                     horizontal: 'auto'
                 },
-                originalEditable: false,
-                automaticLayout: true
+                originalEditable: false, // 禁止编辑原始内容
+                automaticLayout: true // 自动布局
             })
 
             // 创建模型
@@ -374,7 +357,7 @@ export class PeekViewManager {
 
         const editor = this.overlays[0]?.editor
         if (editor) {
-            // this.renderOverlay(editor, newIndex)
+            this.renderOverlay(editor, newIndex, this.filePath || '')
         }
     }
 
@@ -387,7 +370,7 @@ export class PeekViewManager {
 
         const editor = this.overlays[0]?.editor
         if (editor) {
-            // this.renderOverlay(editor, newIndex)
+            this.renderOverlay(editor, newIndex, this.filePath || '')
         }
     }
 
