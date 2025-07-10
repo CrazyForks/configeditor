@@ -382,8 +382,8 @@ export class PeekViewManager {
                 lineNumbers: 'on',
                 glyphMargin: false, // 禁用字形边距
                 folding: false, // 禁用折叠
-                lineDecorationsWidth: 0, // 禁用行装饰宽度
-                lineNumbersMinChars: 3, // 确保行号有足够空间
+                lineDecorationsWidth: 10, // 增加行装饰宽度，给行号和内容更多间距
+                lineNumbersMinChars: 3, // 增加行号最小字符数，确保有足够空间
                 scrollbar: {
                     vertical: 'auto',
                     horizontal: 'auto',

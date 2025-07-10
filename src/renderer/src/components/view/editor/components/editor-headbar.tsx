@@ -407,8 +407,9 @@ export function EditorHeadBar() {
                 <Button
                   onClick={onRefreshBtnClick}
                   size="sm"
+                  variant="ghost"
                   disabled={isRefreshing}
-                  className="heroui-button heroui-button-secondary border-0 rounded-lg shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition border-0 rounded-lg shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRefreshing ? (
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />
