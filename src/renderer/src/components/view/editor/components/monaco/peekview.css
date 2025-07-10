@@ -161,6 +161,7 @@
     align-items: center;
     height: 35px;
     padding: 0 12px;
+    padding-right: 6px;
     justify-content: space-between;
     font-size: 13px;
     flex-shrink: 0;
