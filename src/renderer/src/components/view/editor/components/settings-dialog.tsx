@@ -166,7 +166,7 @@ export default function SettingsDialog(props: {
               <div className="space-y-2">
                 <Label htmlFor="theme" className="text-sm font-medium text-foreground">主题模式</Label>
                 <Select value={currentTheme} onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}>
-                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition shadow-none">
                     <SelectValue placeholder="选择主题模式" />
                   </SelectTrigger>
                   <SelectContent className="heroui-card">
@@ -196,7 +196,7 @@ export default function SettingsDialog(props: {
                 <Label className="text-sm font-medium text-foreground">关于</Label>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start heroui-button-secondary border-divider hover:border-primary"
+                  className="w-full justify-start heroui-button-secondary border-divider hover:border-primary shadow-none"
                 >
                   <Info className="mr-2 h-4 w-4" /> 关于我们
                 </Button>
@@ -209,7 +209,7 @@ export default function SettingsDialog(props: {
               <div className="space-y-2">
                 <Label htmlFor="font-size" className="text-sm font-medium text-foreground">字体大小</Label>
                 <Select value={String(newFontSize)} onValueChange={v => {console.log('zws', v); setNewFontSize(parseInt(v, 10))}}>
-                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition shadow-none">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="heroui-card">
@@ -250,7 +250,7 @@ export default function SettingsDialog(props: {
                     setNewAIModel('deepseek-chat')
                   }
                 }}>
-                  <SelectTrigger className="bg-content2 border-divider focus:border-primary heroui-transition">
+                  <SelectTrigger className="bg-content2 border-divider focus:border-primary heroui-transition shadow-none">
                     <SelectValue placeholder="选择AI提供商" />
                   </SelectTrigger>
                   <SelectContent className="heroui-card">
@@ -278,7 +278,7 @@ export default function SettingsDialog(props: {
                   value={newAIApiKey}
                   onChange={(e) => setNewAIApiKey(e.target.value)}
                   placeholder="输入您的API Key"
-                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition shadow-none"
                 />
               </div>
 
@@ -289,7 +289,7 @@ export default function SettingsDialog(props: {
                   value={newAIBaseUrl}
                   onChange={(e) => setNewAIBaseUrl(e.target.value)}
                   placeholder="API端点地址"
-                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition shadow-none"
                 />
               </div>
 
@@ -300,7 +300,7 @@ export default function SettingsDialog(props: {
                   value={newAIModel}
                   onChange={(e) => setNewAIModel(e.target.value)}
                   placeholder="模型名称"
-                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition shadow-none"
                 />
               </div>
 
