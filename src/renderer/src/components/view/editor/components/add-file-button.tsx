@@ -199,7 +199,7 @@ export function AddFileButton() {
                         <CollapsibleTrigger asChild>
                             <Button 
                                 variant="link" 
-                                className="flex items-center space-x-2 p-0 h-auto text-sm heroui-button-flat rounded-lg shadow-none"
+                                className="flex items-center space-x-2 p-0 h-auto text-sm rounded-lg shadow-none"
                             >
                                 {isAdvancedOpen ? (
                                     <ChevronDown className="h-4 w-4" />
