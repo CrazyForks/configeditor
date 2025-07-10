@@ -126,7 +126,7 @@ class DiffUpdater {
 
 
 
-    
+
 }
 
 export class PeekViewManager {
@@ -194,16 +194,10 @@ export class PeekViewManager {
 
         const { endLineNum, changesNum, index, changeType } = changeInfo
         
-        // 计算合适的高度 - VSCode风格的peekView高度
+        // 计算合适的高度 - 强制设置为11行
         const editorLineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight)
         const titleHeight = 35 // 标题栏高度（更新为新的高度）
-        const minContentHeight = 15 * editorLineHeight // 最小15行
-        const maxContentHeight = Math.min(window.innerHeight * 0.6, 50 * editorLineHeight) // 最大50行或屏幕高度的60%
-        
-        // 获取文件总行数来计算更合适的高度
-        const totalLines = model.getLineCount()
-        const idealContentHeight = Math.min(totalLines * editorLineHeight * 0.8, maxContentHeight)
-        let contentHeight = Math.max(minContentHeight, idealContentHeight)
+        const contentHeight = 11 * editorLineHeight // 强制设置为11行
         
         // 总高度 = 标题高度 + 内容高度
         const totalHeight = titleHeight + contentHeight
