@@ -146,46 +146,61 @@ export function AddFileButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="px-2 h-8 bg-blue-500 hover:bg-blue-600 rounded-md">
-                    <Plus className="h-4 w-4 text-white" />
+                <Button 
+                    size="sm" 
+                    className="px-2 h-8 heroui-button heroui-button-primary border-0 rounded-lg shadow-none"
+                >
+                    <Plus className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md border border-divider rounded-2xl shadow-none bg-content1">
                 <DialogHeader>
-                    <DialogTitle>添加配置文件</DialogTitle>
-                    <DialogDescription>请添加配置文件的绝对路径</DialogDescription>
+                    <DialogTitle className="text-foreground font-semibold">添加配置文件</DialogTitle>
+                    <DialogDescription className="text-default-500">请添加配置文件的绝对路径</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div className="flex items-center space-x-2">
                         <div className="grid flex-1 gap-2">
-                            <Label htmlFor="filePath">文件路径</Label>
+                            <Label htmlFor="filePath" className="text-sm font-medium text-foreground">文件路径</Label>
                             <Input 
                                 id="filePath"
                                 value={filePath} 
                                 onChange={(e) => setFilePath(e.target.value)} 
                                 placeholder="请输入文件的绝对路径"
+                                className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                             />
                         </div>
-                        <Button type="button" variant="secondary" className="px-3 mt-6" onClick={onSearchBtnClick}>
+                        <Button 
+                            type="button" 
+                            variant="secondary" 
+                            className="px-3 mt-6 heroui-button heroui-button-secondary border-0 rounded-lg shadow-none" 
+                            onClick={onSearchBtnClick}
+                        >
                             <span className="sr-only">Search</span>
                             <FolderSearch className="h-4 w-4" />
                         </Button>
                     </div>
                     
                     <div className="grid gap-2">
-                        <Label htmlFor="description">描述 <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                            描述 <span className="text-danger">*</span>
+                        </Label>
                         <Input 
                             id="description"
                             value={description} 
                             onChange={(e) => setDescription(e.target.value)} 
                             placeholder="请输入文件描述"
+                            className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                         />
                     </div>
                     
                     {/* 高级设置 - 可折叠 */}
                     <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" className="flex items-center space-x-2 p-0 h-auto text-sm">
+                            <Button 
+                                variant="link" 
+                                className="flex items-center space-x-2 p-0 h-auto text-sm heroui-button-flat rounded-lg shadow-none"
+                            >
                                 {isAdvancedOpen ? (
                                     <ChevronDown className="h-4 w-4" />
                                 ) : (
@@ -195,48 +210,52 @@ export function AddFileButton() {
                             </Button>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="space-y-3 mt-3">
-                            <div className="text-sm text-muted-foreground mb-2">
+                            <div className="text-sm text-default-500 mb-2">
                                 配置远程连接信息
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <Label htmlFor="host">主机地址</Label>
+                                    <Label htmlFor="host" className="text-sm font-medium text-foreground">主机地址</Label>
                                     <Input
                                         id="host"
                                         value={host}
                                         onChange={(e) => setHost(e.target.value)}
                                         placeholder="192.168.1.100"
+                                        className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="port">端口</Label>
+                                    <Label htmlFor="port" className="text-sm font-medium text-foreground">端口</Label>
                                     <Input
                                         id="port"
                                         value={port}
                                         onChange={(e) => setPort(e.target.value)}
                                         placeholder="22"
                                         type="number"
+                                        className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <Label htmlFor="username">用户名</Label>
+                                    <Label htmlFor="username" className="text-sm font-medium text-foreground">用户名</Label>
                                     <Input
                                         id="username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         placeholder="root"
+                                        className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="password">密码</Label>
+                                    <Label htmlFor="password" className="text-sm font-medium text-foreground">密码</Label>
                                     <Input
                                         id="password"
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="请输入密码"
+                                        className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                                     />
                                 </div>
                             </div>
@@ -246,9 +265,8 @@ export function AddFileButton() {
                 <DialogFooter className="sm:justify-end">
                     <Button
                         type="button"
-                        variant="secondary"
                         onClick={onOk}
-                        className=" bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                        className="heroui-button heroui-button-primary border-0 rounded-lg shadow-none"
                     >
                         确定
                     </Button>

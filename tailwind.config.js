@@ -50,12 +50,59 @@ module.exports = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
-        }
+        },
+        // HeroUI Design System colors
+        default: {
+          DEFAULT: 'hsl(var(--default))',
+          foreground: 'hsl(var(--default-foreground))'
+        },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))'
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          foreground: 'hsl(var(--warning-foreground))'
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--danger))',
+          foreground: 'hsl(var(--danger-foreground))'
+        },
+        content1: {
+          DEFAULT: 'hsl(var(--content1))',
+          foreground: 'hsl(var(--content1-foreground))'
+        },
+        content2: {
+          DEFAULT: 'hsl(var(--content2))',
+          foreground: 'hsl(var(--content2-foreground))'
+        },
+        content3: {
+          DEFAULT: 'hsl(var(--content3))',
+          foreground: 'hsl(var(--content3-foreground))'
+        },
+        content4: {
+          DEFAULT: 'hsl(var(--content4))',
+          foreground: 'hsl(var(--content4-foreground))'
+        },
+        focus: 'hsl(var(--focus))',
+        overlay: 'hsl(var(--overlay))',
+        divider: 'hsl(var(--divider))'
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'
+      },
+      boxShadow: {
+        'heroui-sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'heroui-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'heroui-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'heroui-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'heroui-2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'heroui-inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+      },
+      backdropBlur: {
+        'heroui': '20px',
       },
       keyframes: {
         'accordion-down': {

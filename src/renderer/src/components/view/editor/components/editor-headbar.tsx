@@ -7,9 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom, isAIPanelOpenAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight } from 'lucide-react'
+import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight, Bot } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
@@ -21,6 +21,7 @@ export function EditorHeadBar() {
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [isEditing] = useAtom(isEditingAtom);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
+  const [isAIPanelOpen, setIsAIPanelOpen] = useAtom(isAIPanelOpenAtom)
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
   const [isReloadingFile, setIsReloadingFile] = useState(false)
@@ -71,15 +72,15 @@ export function EditorHeadBar() {
       if (isEditing && !isSaving) {
         setIsSaving(true)
         addDebugLog(`开始保存文件: ${nowFilePath}`, 'info')
-        
+
         // 文件已编辑过
         if (nowFileInfo?.remoteInfo) {
           // 远程文件保存
           addDebugLog(`执行远程文件保存: ${nowFileInfo.remoteInfo.host}:${nowFileInfo.remoteInfo.port}`, 'info')
-          ipcRenderer.invoke('write-remote-file', { 
-            filePath: nowFilePath, 
+          ipcRenderer.invoke('write-remote-file', {
+            filePath: nowFilePath,
             content: newTextContent,
-            remoteInfo: nowFileInfo.remoteInfo 
+            remoteInfo: nowFileInfo.remoteInfo
           }).then((arg) => {
             const { code, msg } = arg ?? {}
             if (code === 3) {
@@ -152,13 +153,13 @@ export function EditorHeadBar() {
     }
 
     addDebugLog(`执行刷新命令: ${nowFileInfo.refreshCmd}`, 'info')
-    
+
     if (nowFileInfo.remoteInfo) {
       // 远程命令执行
       addDebugLog(`在远程服务器执行: ${nowFileInfo.remoteInfo.host}:${nowFileInfo.remoteInfo.port}`, 'info')
-      ipcRenderer.invoke('exec-remote-refresh', { 
+      ipcRenderer.invoke('exec-remote-refresh', {
         refreshCmd: nowFileInfo.refreshCmd,
-        remoteInfo: nowFileInfo.remoteInfo 
+        remoteInfo: nowFileInfo.remoteInfo
       }).then((res) => {
         const { code, msg, output } = res ?? {}
         switch (code) {
@@ -217,10 +218,10 @@ export function EditorHeadBar() {
 
   const onRefreshBtnClick = () => {
     if (isRefreshing) return
-    
+
     setIsRefreshing(true)
     addDebugLog(`开始刷新操作: ${nowFileInfo?.refreshCmd}`, 'info')
-    
+
     // 检查文件是否有更新
     if (isEditing) {
       // 文件有更新，先保存再刷新
@@ -261,13 +262,13 @@ export function EditorHeadBar() {
     if (!nowFilePath || !nowFileInfo || isReloadingFile) return
 
     setIsReloadingFile(true)
-    
+
     if (nowFileInfo.remoteInfo) {
       // 远程文件重新加载
       setDownloadProgress(0)
       setDownloadSpeed('')
       setDownloadStatus('正在重新连接远程服务器...')
-      
+
       // 监听下载进度
       const handleDownloadProgress = (_, data) => {
         const { progress, status, speed } = data
@@ -275,21 +276,21 @@ export function EditorHeadBar() {
         setDownloadStatus(status)
         setDownloadSpeed(speed)
       }
-      
+
       // 监听调试日志
       const handleDebugLog = (_, data) => {
         const { message, type } = data
         addDebugLog(message, type)
       }
-      
+
       ipcRenderer.on('download-progress', handleDownloadProgress)
       ipcRenderer.on('debug-log', handleDebugLog)
-      
+
       addDebugLog(`开始重新加载远程文件: ${nowFilePath}`, 'info')
-      
-      ipcRenderer.invoke('read-remote-file-content', { 
+
+      ipcRenderer.invoke('read-remote-file-content', {
         filePath: nowFilePath,
-        remoteInfo: nowFileInfo.remoteInfo 
+        remoteInfo: nowFileInfo.remoteInfo
       }).then((arg) => {
         const { content, code, msg } = arg ?? {};
         if (code === 3 && typeof content === 'string') {
@@ -310,7 +311,7 @@ export function EditorHeadBar() {
         // 移除监听器
         ipcRenderer.removeListener('download-progress', handleDownloadProgress)
         ipcRenderer.removeListener('debug-log', handleDebugLog)
-        
+
         setTimeout(() => {
           setIsReloadingFile(false)
           setDownloadProgress(0)
@@ -340,21 +341,21 @@ export function EditorHeadBar() {
 
   return <>
     {/* Top Management Bar */}
-    <div className="w-full max-w-full bg-white shadow-sm p-4 pr-2 flex justify-between items-center border-b border-gray-200">
+    <div className="w-full max-w-full bg-content1 p-4 pr-2 flex justify-between items-center border-b border-divider">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
         {!isLeftPanelOpen && (
-          <Button 
-            onClick={onShowLeftPanel} 
-            size="icon" 
-            variant="ghost" 
-            className="mr-2 h-8 w-8"
+          <Button
+            onClick={onShowLeftPanel}
+            size="icon"
+            variant="ghost"
+            className="mr-2 h-8 w-8 hover:bg-content2 heroui-transition rounded-lg shadow-none"
             title="显示侧边栏"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         )}
-        <h1 
-          className={`text-lg font-semibold truncate ${isEditing ? 'text-red-700' : 'text-gray-700'} ${nowFilePath ? 'cursor-pointer hover:underline' : ''}`}
+        <h1
+          className={`text-lg font-semibold truncate ${isEditing ? 'text-danger' : 'text-foreground'} ${nowFilePath ? 'cursor-pointer hover:text-primary heroui-transition' : ''}`}
           onClick={nowFilePath ? () => onCopyBtnClick(nowFilePath) : undefined}
           title={nowFilePath ? '点击复制文件路径' : undefined}
         >
@@ -369,7 +370,7 @@ export function EditorHeadBar() {
                   size="sm"
                   variant="ghost"
                   disabled={isReloadingFile}
-                  className="text-gray-500 hover:text-gray-700 ml-1"
+                  className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition ml-1 rounded-lg shadow-none"
                 >
                   {isReloadingFile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -378,7 +379,7 @@ export function EditorHeadBar() {
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="border border-divider rounded-lg bg-content1 shadow-none">
                 <p>重新读取文件内容</p>
               </TooltipContent>
             </Tooltip>
@@ -391,7 +392,7 @@ export function EditorHeadBar() {
             onClick={onSaveBtnClick}
             size="sm"
             disabled={isSaving || !isEditing}
-            className="mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mr-2 heroui-button heroui-button-primary border-0 rounded-lg shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -400,14 +401,16 @@ export function EditorHeadBar() {
             )}
             {isSaving ? '保存中...' : '保存'}
           </Button>
+          
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   onClick={onRefreshBtnClick}
                   size="sm"
+                  variant="ghost"
                   disabled={isRefreshing}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition border-0 rounded-lg shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRefreshing ? (
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />
@@ -417,14 +420,28 @@ export function EditorHeadBar() {
                   {isRefreshing ? '刷新中...' : '刷新'}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="border border-divider rounded-lg bg-content1 shadow-none">
                 <p>{nowFileInfo?.refreshCmd}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </>}
-        <Button onClick={() => setIsSettingDialogOpen(true)} size="sm" variant="ghost" className="text-gray-500 hover:text-gray-700 ml-2">
+        <Button
+          onClick={() => setIsSettingDialogOpen(true)}
+          size="sm"
+          variant="ghost"
+          className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition ml-2 rounded-lg shadow-none"
+        >
           <Settings className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={() => setIsAIPanelOpen(!isAIPanelOpen)}
+          size="sm"
+          variant="ghost"
+          className={`text-default-500 hover:text-foreground hover:bg-content2 heroui-transition ml-2 rounded-lg shadow-none ${isAIPanelOpen ? 'bg-content2 text-foreground' : ''}`}
+          title="AI助手"
+        >
+          <Bot className="h-4 w-4" />
         </Button>
       </div>
     </div>

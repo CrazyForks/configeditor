@@ -1,0 +1,238 @@
+/* Monaco Editor Dirty Diff 样式 */
+.monaco-editor .dirty-diff-glyph {
+    margin-left: 5px;
+    cursor: pointer;
+    z-index: 5;
+    pointer-events: all;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-glyph:before {
+    position: absolute;
+    content: "";
+    height: 100%;
+    width: 0;
+    left: -2px;
+    transition: width 80ms linear, left 80ms linear;
+    pointer-events: all;
+}
+
+.monaco-editor .margin-view-overlays>div:hover>.dirty-diff-glyph:before {
+    position: absolute;
+    content: "";
+    height: 100%;
+    width: 9px;
+    left: -6px;
+}
+
+.monaco-diff-editor .dirty-diff-glyph {
+    display: none;
+}
+
+/* 新增行样式 - 绿色实线长条 */
+.monaco-editor .dirty-diff-added {
+    border-left: 3px solid #28a745 !important;
+    pointer-events: all;
+    cursor: pointer;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-added:before {
+    background: #28a745;
+    pointer-events: all;
+}
+
+/* 修改行样式 - 蓝色虚线长条 */
+.monaco-editor .dirty-diff-modified {
+    border-left: 3px dashed #007acc !important;
+    pointer-events: all;
+    cursor: pointer;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-modified:before {
+    background: #007acc;
+    pointer-events: all;
+}
+
+/* 删除行样式 - 红色三角 */
+.monaco-editor .dirty-diff-deleted {
+    position: relative;
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.monaco-editor .dirty-diff-deleted:after {
+    content: "";
+    position: absolute;
+    left: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid #dc3545;
+    z-index: 9;
+    pointer-events: all;
+    transition: all 80ms linear;
+}
+
+.monaco-editor .dirty-diff-deleted:before {
+    background: transparent;
+    pointer-events: all;
+}
+
+.monaco-editor .margin-view-overlays>div:hover>.dirty-diff-deleted:after {
+    border-left-width: 8px;
+    left: -2px;
+}
+
+/* peekview - VSCode风格 */
+.ubug-overlay {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 10;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid;
+    min-height: 200px;
+}
+
+/* 浅色主题 */
+.ubug-overlay[data-theme="light"] {
+    background: #ffffff;
+    border-color: #cccccc;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-title {
+    background: #f3f3f3;
+    color: #333333;
+    border-bottom: 1px solid #cccccc;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-name {
+    color: #333333;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-btn {
+    color: #666666;
+}
+
+.ubug-overlay[data-theme="light"] .ubug-overlay-btn:hover {
+    color: #333333;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题 */
+.ubug-overlay[data-theme="dark"] {
+    background: #252526;
+    border-color: #454545;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-title {
+    background: #2d2d30;
+    color: #cccccc;
+    border-bottom: 1px solid #454545;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-name {
+    color: #cccccc;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-btn {
+    color: #cccccc;
+}
+
+.ubug-overlay[data-theme="dark"] .ubug-overlay-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ubug-overlay-name {
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.ubug-overlay-title {
+    display: flex;
+    align-items: center;
+    height: 35px;
+    padding: 0 12px;
+    padding-right: 6px;
+    justify-content: space-between;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+/* 不同变更类型的边框颜色 - VSCode风格 */
+.ubug-overlay-type-0[data-theme="light"] {
+    border-top: 3px solid #0078d4;
+}
+
+.ubug-overlay-type-0[data-theme="dark"] {
+    border-top: 3px solid #0078d4;
+}
+
+.ubug-overlay-type-1[data-theme="light"] {
+    border-top: 3px solid #107c10;
+}
+
+.ubug-overlay-type-1[data-theme="dark"] {
+    border-top: 3px solid #107c10;
+}
+
+.ubug-overlay-type-2[data-theme="light"] {
+    border-top: 3px solid #d13438;
+}
+
+.ubug-overlay-type-2[data-theme="dark"] {
+    border-top: 3px solid #d13438;
+}
+
+.ubug-overlay-editor {
+    flex: 1;
+    min-height: 160px;
+    overflow: hidden;
+}
+
+.ubug-overlay-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.ubug-overlay-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 4px;
+    transition: all 0.1s ease;
+    font-size: 14px;
+}
+
+/* 按钮图标 - 使用Unicode字符 */
+.ubug-overlay-btn-prev::before {
+    content: "⌃";
+    transform: translateY(-2px) rotate(180deg);
+    font-size: 14px;
+    line-height: 1;
+}
+
+.ubug-overlay-btn-next::before {
+    content: "⌃";
+    transform:  translateY(2px);
+    font-size: 14px;
+    line-height: 1;
+}
+
+.ubug-overlay-btn-close::before {
+    content: "✕";
+    font-size: 14px;
+    line-height: 1;
+}

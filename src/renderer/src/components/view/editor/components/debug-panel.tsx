@@ -30,28 +30,28 @@ export function DebugPanel() {
         switch (type) {
             case 'success':
                 return {
-                    bgColor: 'bg-green-50 border-green-200 hover:bg-green-100',
-                    textColor: 'text-green-800',
-                    icon: <CheckCircle className="h-3 w-3 text-green-500" />
+                    bgColor: 'bg-success/10 border-success/20 hover:bg-success/15',
+                    textColor: 'text-success',
+                    icon: <CheckCircle className="h-3 w-3 text-success" />
                 }
             case 'error':
                 return {
-                    bgColor: 'bg-red-50 border-red-200 hover:bg-red-100',
-                    textColor: 'text-red-800',
-                    icon: <XCircle className="h-3 w-3 text-red-500" />
+                    bgColor: 'bg-danger/10 border-danger/20 hover:bg-danger/15',
+                    textColor: 'text-danger',
+                    icon: <XCircle className="h-3 w-3 text-danger" />
                 }
             case 'warning':
                 return {
-                    bgColor: 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100',
-                    textColor: 'text-yellow-800',
-                    icon: <AlertCircle className="h-3 w-3 text-yellow-500" />
+                    bgColor: 'bg-warning/10 border-warning/20 hover:bg-warning/15',
+                    textColor: 'text-warning',
+                    icon: <AlertCircle className="h-3 w-3 text-warning" />
                 }
             case 'info':
             default:
                 return {
-                    bgColor: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
-                    textColor: 'text-gray-700',
-                    icon: <Info className="h-3 w-3 text-gray-500" />
+                    bgColor: 'bg-content2 border-divider hover:bg-content3',
+                    textColor: 'text-foreground',
+                    icon: <Info className="h-3 w-3 text-primary" />
                 }
         }
     }
@@ -103,22 +103,22 @@ export function DebugPanel() {
 
     return (
         <div 
-            className={`fixed bottom-0 left-0 right-0 bg-white text-gray-900 border-t border-gray-200 shadow-2xl transition-all duration-300 z-50 rounded-t-xl ${
+            className={`fixed bottom-0 left-0 right-0 bg-content1 text-foreground border-t border-divider heroui-transition z-50 rounded-t-2xl ${
                 isDragging ? 'transition-none' : ''
             }`}
             style={{ height: isMinimized ? '48px' : `${panelHeight}px` }}
         >
             {/* Header */}
             <div 
-                className={`flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-xl cursor-ns-resize select-none ${
-                    isDragging ? 'bg-gray-100' : ''
+                className={`flex items-center justify-between px-4 py-3 bg-content2 border-b border-divider rounded-t-2xl cursor-ns-resize select-none heroui-transition ${
+                    isDragging ? 'bg-content3' : ''
                 }`}
                 onMouseDown={handleMouseDown}
             >
                 <div className="flex items-center space-x-3 pointer-events-none">
-                    <Terminal className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-medium text-gray-900">输出</span>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <Terminal className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">调试输出</span>
+                    <span className="text-xs text-default-500 bg-content3 px-2 py-1 rounded-full">
                         {debugLogs.length} 条消息
                     </span>
                 </div>
@@ -127,7 +127,7 @@ export function DebugPanel() {
                         onClick={onToggleMinimize}
                         size="sm"
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8 p-0 rounded-lg transition-colors"
+                        className="text-default-500 hover:text-foreground hover:bg-content3 h-8 w-8 p-0 heroui-transition rounded-lg shadow-none"
                         title={isMinimized ? "展开" : "最小化"}
                     >
                         {isMinimized ? (
@@ -140,7 +140,7 @@ export function DebugPanel() {
                         onClick={onClear}
                         size="sm"
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8 p-0 rounded-lg transition-colors"
+                        className="text-default-500 hover:text-foreground hover:bg-content3 h-8 w-8 p-0 heroui-transition rounded-lg shadow-none"
                         title="清空日志"
                     >
                         <Trash2 className="h-4 w-4" />
@@ -149,7 +149,7 @@ export function DebugPanel() {
                         onClick={onClose}
                         size="sm"
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8 p-0 rounded-lg transition-colors"
+                        className="text-default-500 hover:text-foreground hover:bg-content3 h-8 w-8 p-0 heroui-transition rounded-lg shadow-none"
                         title="关闭"
                     >
                         <X className="h-4 w-4" />
@@ -161,8 +161,11 @@ export function DebugPanel() {
             {!isMinimized && (
                 <ScrollArea style={{ height: `${panelHeight - 48}px` }} className="p-4">
                     {debugLogs.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                            暂无日志输出
+                        <div className="flex items-center justify-center h-full text-default-500 text-sm">
+                            <div className="text-center">
+                                <Terminal className="h-8 w-8 mx-auto mb-2 text-default-400" />
+                                <p>暂无日志输出</p>
+                            </div>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -171,7 +174,7 @@ export function DebugPanel() {
                                 return (
                                     <div
                                         key={log.id}
-                                        className={`text-xs font-mono px-3 py-2 rounded-lg border transition-colors flex items-start gap-2 ${style.bgColor} ${style.textColor}`}
+                                        className={`text-xs font-mono px-3 py-2 rounded-lg border heroui-transition flex items-start gap-2 ${style.bgColor} ${style.textColor}`}
                                     >
                                         <div className="flex-shrink-0 mt-0.5">
                                             {style.icon}

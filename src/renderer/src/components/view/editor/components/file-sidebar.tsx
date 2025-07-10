@@ -35,6 +35,37 @@ import {
     CSS,
 } from '@dnd-kit/utilities'
 
+interface ContextMenuProps {
+    x: number;
+    y: number;
+    filePath: string;
+    onClose: () => void;
+    onDelete: (filePath: string) => void;
+}
+
+function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
+    const handleDelete = () => {
+        onDelete(filePath);
+        onClose();
+    };
+
+    return (
+        <div
+            className="fixed z-50 bg-content1 border border-divider rounded-lg py-1 min-w-32"
+            style={{ left: x, top: y }}
+            onMouseLeave={onClose}
+        >
+            <button
+                className="w-full px-3 py-2 text-left text-sm text-danger hover:bg-danger/10 flex items-center heroui-transition rounded-md mx-1"
+                onClick={handleDelete}
+            >
+                <Trash2 className="h-4 w-4 mr-2" />
+                移除
+            </button>
+        </div>
+    );
+}
+
 interface SortableFileItemProps {
     filePath: string;
     fileInfo: any;
@@ -42,10 +73,11 @@ interface SortableFileItemProps {
     isSelected: boolean;
     isDragEnabled: boolean;
     onSelect: (filePath: string) => void;
-    onDelete: (filePath: string, e: any) => void;
+    onDelete: (filePath: string) => void;
+    onContextMenu: (e: React.MouseEvent, filePath: string) => void;
 }
 
-function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDragEnabled, onSelect, onDelete }: SortableFileItemProps) {
+function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDragEnabled, onSelect, onDelete, onContextMenu }: SortableFileItemProps) {
     const {
         attributes,
         listeners,
@@ -76,26 +108,26 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 w-full 
                 py-3 
                 px-2
-                pr-0
                 text-sm 
-                text-gray-700
-                transition-colors 
+                text-foreground
+                heroui-transition 
                 ${isSelected ?
-                    'bg-blue-100 hover:bg-blue-100' :
-                    'hover:bg-gray-100'
+                    'bg-primary/10 hover:bg-primary/15' :
+                    'hover:bg-content2'
                 }
                 ${isDragging ? 'z-50' : ''}
             `}
+            onContextMenu={(e) => onContextMenu(e, filePath)}
         >
             {/* 拖动图标 */}
             {isDragEnabled && (
                 <div
                     {...attributes}
                     {...listeners}
-                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-gray-600 transition-colors"
+                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-default heroui-transition"
                     title="拖动排序"
                 >
-                    <GripVertical className="h-4 w-4 text-gray-400" />
+                    <GripVertical className="h-4 w-4 text-default" />
                 </div>
             )}
             
@@ -109,10 +141,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                         >
                             <div className="flex items-center w-full py-1">
                                 <div className="flex-1 text-left min-w-0">
-                                    <div className="font-medium text-gray-900 truncate flex items-center">
+                                    <div className="font-medium text-foreground truncate flex items-center">
                                         {isRemoteFile && (
                                             <div title="远程文件" className="flex-shrink-0">
-                                                <Globe className="mr-1 h-3 w-3 text-blue-500" />
+                                                <Globe className="mr-1 h-3 w-3 text-primary" />
                                             </div>
                                         )}
                                         <span className="truncate">
@@ -141,14 +173,6 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <Button
-                variant="ghost"
-                size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-red-500"
-                onClick={(e) => onDelete(filePath, e)}
-            >
-                <Trash2 className="h-4 w-4" />
-            </Button>
         </div>
     );
 }
@@ -157,8 +181,9 @@ export function FileSidebar() {
     const [fileInfos, setFileInfos] = useAtom(fileInfosAtom)
     const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
-    const [, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
+    const [isDebugPanelOpen, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
     const [searchName, setSearchName] = useState<string>('')
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; filePath: string } | null>(null)
     const showFilePaths = useShowFilePaths(searchName)
 
     const sensors = useSensors(
@@ -172,8 +197,7 @@ export function FileSidebar() {
         setNowFilePath(filePath)
     }
 
-    const onDelete = (filePath: string, e: any) => {
-        e.stopPropagation()
+    const onDelete = (filePath: string) => {
         const newFileInfos = fileInfos.filter((file) => file.filePath !== filePath)
         setFileInfos(newFileInfos)
         saveFileInfos(newFileInfos)
@@ -182,12 +206,25 @@ export function FileSidebar() {
         }
     }
 
+    const onContextMenu = (e: React.MouseEvent, filePath: string) => {
+        e.preventDefault()
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            filePath
+        })
+    }
+
+    const onCloseContextMenu = () => {
+        setContextMenu(null)
+    }
+
     const onAppTitleClick = () => {
         setNowFilePath('')
     }
 
     const onShowDebugPanel = () => {
-        setIsDebugPanelOpen(true)
+        setIsDebugPanelOpen(!isDebugPanelOpen)
     }
 
     const onHideLeftPanel = () => {
@@ -212,18 +249,18 @@ export function FileSidebar() {
     const isDragEnabled = searchName.trim() === '';
 
     return (
-        <div className="w-full h-full bg-white flex flex-col shadow-sm">
-            <div className="p-4 border-b border-gray-200">
+        <div className="w-full h-full bg-content1 flex flex-col border-r border-divider" onClick={onCloseContextMenu}>
+            <div className="p-4 border-b border-divider">
                 <div className='flex justify-between items-center mb-3'>
-                    <h2 className="text-lg font-semibold flex items-center text-gray-700">
-                        <Atom className="mr-2 h-5 w-5" onClick={onShowDebugPanel} />
-                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:underline">配置文件管理器</span>
+                    <h2 className="text-lg font-semibold flex items-center text-foreground">
+                        <Atom className="mr-2 h-5 w-5 heroui-transition hover:text-primary cursor-pointer" onClick={onShowDebugPanel} />
+                        <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:text-primary heroui-transition select-none">配置文件管理器</span>
                     </h2>
                     <Button
                         onClick={onHideLeftPanel}
                         size="sm"
                         variant="ghost"
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition rounded-lg shadow-none"
                         title="隐藏侧边栏"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -234,14 +271,20 @@ export function FileSidebar() {
                         placeholder="搜索文件"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="mr-1 h-8 text-sm bg-gray-100 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="mr-1 h-8 text-sm bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none"
                     />
                     <AddFileButton />
                 </div>
             </div>
             <ScrollArea className="flex-grow">
                 {!showFilePaths.length ? (
-                    <div className="flex items-center justify-center h-full text-gray-500">空空如也</div>
+                    <div className="flex items-center justify-center h-full text-default-500">
+                        <div className="text-center">
+                            <div className="text-4xl mb-2">📁</div>
+                            <p>空空如也</p>
+                            <p className="text-sm text-default-400">点击上方 + 按钮添加文件</p>
+                        </div>
+                    </div>
                 ) : (
                     <DndContext
                         sensors={sensors}
@@ -263,6 +306,7 @@ export function FileSidebar() {
                                         isDragEnabled={isDragEnabled}
                                         onSelect={onSelect}
                                         onDelete={onDelete}
+                                        onContextMenu={onContextMenu}
                                     />
                                 )
                             })}
@@ -270,6 +314,15 @@ export function FileSidebar() {
                     </DndContext>
                 )}
             </ScrollArea>
+            {contextMenu && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    filePath={contextMenu.filePath}
+                    onClose={onCloseContextMenu}
+                    onDelete={onDelete}
+                />
+            )}
         </div>
     )
 }

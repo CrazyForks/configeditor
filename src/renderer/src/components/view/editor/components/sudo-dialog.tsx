@@ -162,10 +162,10 @@ export function SudoDialog() {
             }
             setIsSudoDialogOpen(open)
         }}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md border border-divider rounded-2xl bg-content1 shadow-none">
                 <DialogHeader>
-                    <DialogTitle>{sudoScenario.description}</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-foreground">{sudoScenario.description}</DialogTitle>
+                    <DialogDescription className="text-default-500">
                         {sudoScenario.type === 'root' 
                             ? '需要输入root用户的密码以执行此操作' 
                             : '也就是 sudo 密码，命令的执行需要权限'
@@ -180,6 +180,7 @@ export function SudoDialog() {
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={isLoading}
+                            className="border border-divider rounded-lg bg-content2 focus:border-primary shadow-none heroui-transition"
                         />
                     </div>
                 </div>
@@ -189,16 +190,15 @@ export function SudoDialog() {
                         variant="secondary"
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="rounded-md"
+                        className="heroui-button heroui-button-secondary border-0 rounded-lg shadow-none"
                     >
                         取消
                     </Button>
                     <Button
                         type="button"
-                        variant="secondary"
                         onClick={onOk}
                         disabled={isLoading}
-                        className=" bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="heroui-button heroui-button-primary border-0 rounded-lg shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? '处理中...' : '确定'}
                     </Button>

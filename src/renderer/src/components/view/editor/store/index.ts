@@ -13,24 +13,85 @@ export type FileInfo = {
     password: string;
   }
 }
+
+// AI相关类型定义
+export type AIProvider = 'openai' | 'deepseek'
+
+export type AISettings = {
+  provider: AIProvider
+  apiKey: string
+  baseUrl: string
+  model: string
+  enabled: boolean
+}
+
+export type ChatMessage = {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+}
+
 export type AppSettings = {
   theme: 'light' | 'dark' | 'system' | '',
   lineNumber: boolean,
   fontSize: number,
-  editorTheme: string,
   language: string,
   wordWrap: boolean,
   lineNumbers: boolean,
+  ai: AISettings
 }
 export const defaultAppSettings: AppSettings = {
   theme: 'system',
-  editorTheme: 'github',
   lineNumber: true,
   fontSize: 14,
   language: 'en',
   wordWrap: false,
   lineNumbers: true,
+  ai: {
+    provider: 'openai',
+    apiKey: '',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-3.5-turbo',
+    enabled: false
+  }
 }
+
+// 主题相关的原子状态
+export const themeAtom = atom<'light' | 'dark' | 'system'>('system')
+
+// 初始化主题从 localStorage 读取
+export const initThemeAtom = atom(
+  null,
+  (_get, set) => {
+    const storedTheme = localStorage.getItem('configeditor-theme') as 'light' | 'dark' | 'system'
+    if (storedTheme) {
+      set(themeAtom, storedTheme)
+    }
+  }
+)
+
+// 设置主题并保存到 localStorage
+export const setThemeAtom = atom(
+  null,
+  (_get, set, theme: 'light' | 'dark' | 'system') => {
+    set(themeAtom, theme)
+    localStorage.setItem('configeditor-theme', theme)
+    
+    // 应用主题到 document
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+      root.classList.add(systemTheme)
+    } else {
+      root.classList.add(theme)
+    }
+  }
+)
 
 export const fileInfosAtom = atom<FileInfo[]>([])
 export const filePathsAtom = atom<string[]>((get) => get(fileInfosAtom).map(({ filePath }) => (filePath ?? '')))
@@ -109,3 +170,31 @@ export const sudoScenarioAtom = atom<SudoScenario>({
 })
 
 export const appSettingsAtom = atom<AppSettings>(defaultAppSettings)
+
+// AI相关状态
+export const isAIPanelOpenAtom = atom(false)
+export const chatMessagesAtom = atom<ChatMessage[]>([])
+export const isAIResponseLoadingAtom = atom(false)
+
+// 添加聊天消息的action
+export const addChatMessageAtom = atom(
+  null,
+  (get, set, message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
+    const currentMessages = get(chatMessagesAtom);
+    const timestamp = new Date().toLocaleTimeString();
+    const newMessage: ChatMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp,
+      ...message
+    };
+    set(chatMessagesAtom, [...currentMessages, newMessage]);
+  }
+)
+
+// 清空聊天记录的action
+export const clearChatMessagesAtom = atom(
+  null,
+  (_get, set) => {
+    set(chatMessagesAtom, []);
+  }
+)

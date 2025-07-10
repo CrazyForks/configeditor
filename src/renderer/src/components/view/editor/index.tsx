@@ -7,18 +7,21 @@ import {
 } from "@/components/ui/resizable"
 import { EditorHeadBar } from './components/editor-headbar'
 import { FileSidebar } from './components/file-sidebar'
-import { MonacoEditor } from './components/monaco-editor'
+import { MonacoEditor } from './components/monaco/editor'
 import { DebugPanel } from './components/debug-panel'
+import { AIFragment } from './components/ai-fragment'
 import { useInitConfigEditor } from './hooks'
 import { useAtom } from 'jotai'
-import { isLeftPanelOpenAtom } from './store'
+import { isLeftPanelOpenAtom, isAIPanelOpenAtom } from './store'
 import { useEffect, useRef } from "react"
 import { ImperativePanelHandle } from "react-resizable-panels"
 
 export default function ConfigEditor() {
   useInitConfigEditor();
   const [isLeftPanelOpen] = useAtom(isLeftPanelOpenAtom);
+  const [isAIPanelOpen, setIsAIPanelOpen] = useAtom(isAIPanelOpenAtom);
   const resizablePanelRef = useRef<ImperativePanelHandle>(null);
+  const aiPanelRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
     if (resizablePanelRef.current) {
@@ -31,10 +34,20 @@ export default function ConfigEditor() {
     }
   }, [isLeftPanelOpen]);
 
+  useEffect(() => {
+    if (aiPanelRef.current) {
+      if (isAIPanelOpen) {
+        aiPanelRef.current.expand();
+      } else {
+        aiPanelRef.current.collapse();
+      }
+    }
+  }, [isAIPanelOpen]);
+
   return <>
     <ResizablePanelGroup
       direction="horizontal"
-      className="w-screen h-screen bg-gray-100 text-gray-800 text-sm font-sans"
+      className="w-screen h-screen bg-background text-foreground text-sm font-sans"
     >
       <ResizablePanel
         ref={resizablePanelRef}
@@ -45,16 +58,31 @@ export default function ConfigEditor() {
       >
         <FileSidebar />
       </ResizablePanel>
-      <ResizableHandle />
+      <ResizableHandle className="w-px bg-border hover:bg-default heroui-transition" />
       <ResizablePanel 
-        defaultSize={70}
-        minSize={10}
+        defaultSize={isAIPanelOpen ? 45 : 70}
+        minSize={20}
       >
-        <div className='w-full h-full bg-gray-50 flex flex-col'>
+        <div className='w-full h-full bg-content1 dark:bg-content2 flex flex-col'>
           <EditorHeadBar />
           <MonacoEditor />
         </div>
       </ResizablePanel>
+      {isAIPanelOpen && (
+        <>
+          <ResizableHandle className="w-px bg-border hover:bg-default heroui-transition" />
+          <ResizablePanel
+            ref={aiPanelRef}
+            defaultSize={25}
+            collapsedSize={0}
+            collapsible={true}
+            minSize={20}
+            maxSize={50}
+          >
+            <AIFragment onClose={() => setIsAIPanelOpen(false)} />
+          </ResizablePanel>
+        </>
+      )}
     </ResizablePanelGroup>
     <DebugPanel />
   </>

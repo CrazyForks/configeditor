@@ -6,7 +6,7 @@ import { ThemeProvider } from './components/ui/theme-provider'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="configeditor-theme">
       <App />
     </ThemeProvider>
   </React.StrictMode>
