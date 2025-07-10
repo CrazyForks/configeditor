@@ -187,13 +187,14 @@ export default function SettingsDialog(props: {
               <div className="space-y-2">
                 <Label htmlFor="theme" className="text-sm font-medium text-foreground">编辑器主题</Label>
                 <Select value={newEditorTheme} onValueChange={setNewEditorTheme}>
-                  <SelectTrigger className="bg-apple-gray-2 dark:bg-apple-gray-4 border-apple-gray-5 focus:border-apple-blue apple-transition">
+                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
                     <SelectValue placeholder="选择主题" />
                   </SelectTrigger>
-                  <SelectContent className="apple-card">
-                    <SelectItem value="vs" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">浅色</SelectItem>
-                    <SelectItem value="vs-dark" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">深色</SelectItem>
-                    <SelectItem value="hc-black" className="apple-transition hover:bg-apple-gray-2 dark:hover:bg-apple-gray-4">高对比度</SelectItem>
+                  <SelectContent className="heroui-card">
+                    <SelectItem value="auto" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">跟随系统</SelectItem>
+                    <SelectItem value="vs" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">浅色</SelectItem>
+                    <SelectItem value="vs-dark" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">深色</SelectItem>
+                    <SelectItem value="hc-black" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">高对比度</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

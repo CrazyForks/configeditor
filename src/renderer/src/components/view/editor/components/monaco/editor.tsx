@@ -1,8 +1,8 @@
-import { appSettingsAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom, isFileLoadingAtom, newTextContentAtom, nowFileExtAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom } from '@/components/view/editor/store'
+import { appSettingsAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom, isFileLoadingAtom, newTextContentAtom, nowFileExtAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, themeAtom } from '@/components/view/editor/store'
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { WelcomeFragment } from '../welcome-fragment'
 import { getLanguageFromFilePath, registerApacheLanguage, registerNginxLanguage } from './languages'
 import { MonacoLoading } from './loading'
@@ -25,6 +25,7 @@ export function MonacoEditor() {
     const [downloadProgress] = useAtom(downloadProgressAtom);
     const [downloadSpeed] = useAtom(downloadSpeedAtom);
     const [downloadStatus] = useAtom(downloadStatusAtom);
+    const [currentTheme] = useAtom(themeAtom);
     
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
     useLoadFile();
@@ -33,6 +34,27 @@ export function MonacoEditor() {
         textContent,
         editorRef
     });
+
+    // 根据系统主题自动选择 Monaco Editor 主题
+    const monacoTheme = useMemo(() => {
+        // 如果用户在设置中明确选择了编辑器主题，优先使用用户设置
+        if (appSettings.editorTheme && appSettings.editorTheme !== 'auto') {
+            return appSettings.editorTheme;
+        }
+        
+        // 否则根据系统主题自动选择
+        if (currentTheme === 'dark') {
+            return 'vs-dark';
+        } else if (currentTheme === 'light') {
+            return 'vs';
+        } else if (currentTheme === 'system') {
+            // 检测系统主题偏好
+            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return isDarkMode ? 'vs-dark' : 'vs';
+        }
+        
+        return 'vs'; // 默认浅色主题
+    }, [currentTheme, appSettings.editorTheme]);
 
     // 根据文件路径和扩展名获取语言类型
     const editorLanguage = nowFilePath ? getLanguageFromFilePath(nowFilePath, nowFileExt) : 'plaintext'
@@ -75,12 +97,12 @@ export function MonacoEditor() {
                     onChange={onEditorChange}
                     onMount={onEditorMount}
                     language={editorLanguage}
+                    theme={monacoTheme}
                     options={{
                         fontSize: appSettings.fontSize,
                         automaticLayout: true,
                         wordWrap: appSettings.wordWrap ? 'on' : 'off',
                         lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
-                        theme: appSettings.theme,
                         minimap: { enabled: true },
                         // glyphMargin: true, // 启用字形边距以显示 diff 装饰器 但这个在行号左边
                         // lineDecorationsWidth: 20, // 为 line decorations 预留空间，这是什么？

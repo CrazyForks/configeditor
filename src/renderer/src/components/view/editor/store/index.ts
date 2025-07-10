@@ -24,7 +24,7 @@ export type AppSettings = {
 }
 export const defaultAppSettings: AppSettings = {
   theme: 'system',
-  editorTheme: 'github',
+  editorTheme: 'auto',
   lineNumber: true,
   fontSize: 14,
   language: 'en',
