@@ -7,9 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom } from '@/components/view/editor/store'
+import { isEditingAtom, isSudoDialogOpenAtom, newTextContentAtom, nowFileInfoAtom, nowFilePathAtom, textContentAtom, sudoScenarioAtom, isSavingAtom, isRefreshingAtom, isLeftPanelOpenAtom, addDebugLogAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatusAtom, isAIPanelOpenAtom } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight } from 'lucide-react'
+import { RefreshCw, Save, Settings, Loader2, RotateCcw, ChevronRight, Bot } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
@@ -21,6 +21,7 @@ export function EditorHeadBar() {
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [isEditing] = useAtom(isEditingAtom);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
+  const [isAIPanelOpen, setIsAIPanelOpen] = useAtom(isAIPanelOpenAtom)
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
   const [isReloadingFile, setIsReloadingFile] = useState(false)
@@ -423,6 +424,15 @@ export function EditorHeadBar() {
             </Tooltip>
           </TooltipProvider>
         </>}
+        <Button 
+          onClick={() => setIsAIPanelOpen(!isAIPanelOpen)} 
+          size="sm" 
+          variant="ghost" 
+          className={`text-default-500 hover:text-foreground hover:bg-content2 heroui-transition ml-2 rounded-lg shadow-none ${isAIPanelOpen ? 'bg-content2 text-foreground' : ''}`}
+          title="AI助手"
+        >
+          <Bot className="h-4 w-4" />
+        </Button>
         <Button 
           onClick={() => setIsSettingDialogOpen(true)} 
           size="sm" 

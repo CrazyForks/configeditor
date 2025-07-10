@@ -13,6 +13,25 @@ export type FileInfo = {
     password: string;
   }
 }
+
+// AI相关类型定义
+export type AIProvider = 'openai' | 'deepseek'
+
+export type AISettings = {
+  provider: AIProvider
+  apiKey: string
+  baseUrl: string
+  model: string
+  enabled: boolean
+}
+
+export type ChatMessage = {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+}
+
 export type AppSettings = {
   theme: 'light' | 'dark' | 'system' | '',
   lineNumber: boolean,
@@ -20,6 +39,7 @@ export type AppSettings = {
   language: string,
   wordWrap: boolean,
   lineNumbers: boolean,
+  ai: AISettings
 }
 export const defaultAppSettings: AppSettings = {
   theme: 'system',
@@ -28,6 +48,13 @@ export const defaultAppSettings: AppSettings = {
   language: 'en',
   wordWrap: false,
   lineNumbers: true,
+  ai: {
+    provider: 'openai',
+    apiKey: '',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-3.5-turbo',
+    enabled: false
+  }
 }
 
 // 主题相关的原子状态
@@ -143,3 +170,31 @@ export const sudoScenarioAtom = atom<SudoScenario>({
 })
 
 export const appSettingsAtom = atom<AppSettings>(defaultAppSettings)
+
+// AI相关状态
+export const isAIPanelOpenAtom = atom(false)
+export const chatMessagesAtom = atom<ChatMessage[]>([])
+export const isAIResponseLoadingAtom = atom(false)
+
+// 添加聊天消息的action
+export const addChatMessageAtom = atom(
+  null,
+  (get, set, message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
+    const currentMessages = get(chatMessagesAtom);
+    const timestamp = new Date().toLocaleTimeString();
+    const newMessage: ChatMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp,
+      ...message
+    };
+    set(chatMessagesAtom, [...currentMessages, newMessage]);
+  }
+)
+
+// 清空聊天记录的action
+export const clearChatMessagesAtom = atom(
+  null,
+  (_get, set) => {
+    set(chatMessagesAtom, []);
+  }
+)

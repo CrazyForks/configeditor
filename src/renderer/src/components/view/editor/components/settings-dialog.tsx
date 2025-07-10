@@ -3,10 +3,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AppSettings, appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom, themeAtom, setThemeAtom } from '@/components/view/editor/store'
+import { AppSettings, appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom, themeAtom, setThemeAtom, AIProvider } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { HardDrive, Info, Moon, RefreshCw, Sun, Monitor } from 'lucide-react'
+import { HardDrive, Info, Moon, RefreshCw, Sun, Monitor, Bot } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import _ from 'lodash'
 import { saveAppSettings, saveFileInfos } from "../utils"
@@ -27,12 +28,26 @@ export default function SettingsDialog(props: {
   const [newPermission, setNewPermission] = useState('read')
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
   const [newFontSize, setNewFontSize] = useState(14)
+  
+  // AI设置相关状态
+  const [newAIProvider, setNewAIProvider] = useState<AIProvider>('openai')
+  const [newAIApiKey, setNewAIApiKey] = useState('')
+  const [newAIBaseUrl, setNewAIBaseUrl] = useState('')
+  const [newAIModel, setNewAIModel] = useState('')
+  const [newAIEnabled, setNewAIEnabled] = useState(false)
 
   useEffect(() => {
     if (nowFileInfo && isSettingDialogOpen) {
       setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
     setNewFontSize(appSettings.fontSize)
+    
+    // 初始化AI设置
+    setNewAIProvider(appSettings.ai.provider)
+    setNewAIApiKey(appSettings.ai.apiKey)
+    setNewAIBaseUrl(appSettings.ai.baseUrl)
+    setNewAIModel(appSettings.ai.model)
+    setNewAIEnabled(appSettings.ai.enabled)
   }, [isSettingDialogOpen, nowFileInfo, appSettings])
 
   const onSaveBtnClick = () => {
@@ -46,7 +61,17 @@ export default function SettingsDialog(props: {
       saveFileInfos(newFileInfos)
       setFileInfos(newFileInfos)
     }
-    const newAppSettings: AppSettings = {...appSettings, fontSize: newFontSize};
+    const newAppSettings: AppSettings = {
+      ...appSettings, 
+      fontSize: newFontSize,
+      ai: {
+        provider: newAIProvider,
+        apiKey: newAIApiKey,
+        baseUrl: newAIBaseUrl,
+        model: newAIModel,
+        enabled: newAIEnabled
+      }
+    };
     setAppSettings(newAppSettings);
     saveAppSettings(newAppSettings);
     alert('保存成功')
@@ -56,6 +81,14 @@ export default function SettingsDialog(props: {
     if (nowFileInfo) {
       setNewRefreshCmd(nowFileInfo.refreshCmd)
     }
+    setNewFontSize(appSettings.fontSize)
+    
+    // 还原AI设置
+    setNewAIProvider(appSettings.ai.provider)
+    setNewAIApiKey(appSettings.ai.apiKey)
+    setNewAIBaseUrl(appSettings.ai.baseUrl)
+    setNewAIModel(appSettings.ai.model)
+    setNewAIEnabled(appSettings.ai.enabled)
   }
 
   return (
@@ -65,7 +98,7 @@ export default function SettingsDialog(props: {
           <DialogTitle className="text-lg font-semibold text-foreground">设置</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue={nowFilePath ? "file" : "general"} className="w-full">
-          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'} bg-content2 p-1 rounded-lg`}>
+          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-4' : 'grid-cols-3'} bg-content2 p-1 rounded-lg`}>
             {!!nowFilePath && (
               <TabsTrigger 
                 value="file" 
@@ -85,6 +118,12 @@ export default function SettingsDialog(props: {
               className="rounded-md heroui-transition data-[state=active]:bg-content1 data-[state=active]:shadow-none"
             >
               编辑
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ai" 
+              className="rounded-md heroui-transition data-[state=active]:bg-content1 data-[state=active]:shadow-none"
+            >
+              AI
             </TabsTrigger>
           </TabsList>
           <TabsContent value="file">
@@ -182,6 +221,104 @@ export default function SettingsDialog(props: {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <div className="space-y-4 py-2 pb-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="ai-enabled" className="text-sm font-medium text-foreground">启用AI助手</Label>
+                  <Switch
+                    id="ai-enabled"
+                    checked={newAIEnabled}
+                    onCheckedChange={setNewAIEnabled}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ai-provider" className="text-sm font-medium text-foreground">AI提供商</Label>
+                <Select value={newAIProvider} onValueChange={(value: AIProvider) => {
+                  setNewAIProvider(value)
+                  // 自动设置默认配置
+                  if (value === 'openai') {
+                    setNewAIBaseUrl('https://api.openai.com/v1')
+                    setNewAIModel('gpt-3.5-turbo')
+                  } else if (value === 'deepseek') {
+                    setNewAIBaseUrl('https://api.deepseek.com/v1')
+                    setNewAIModel('deepseek-chat')
+                  }
+                }}>
+                  <SelectTrigger className="bg-content2 border-divider focus:border-primary heroui-transition">
+                    <SelectValue placeholder="选择AI提供商" />
+                  </SelectTrigger>
+                  <SelectContent className="heroui-card">
+                    <SelectItem value="openai" className="heroui-transition hover:bg-content2">
+                      <div className="flex items-center">
+                        <Bot className="mr-2 h-4 w-4" />
+                        OpenAI
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="deepseek" className="heroui-transition hover:bg-content2">
+                      <div className="flex items-center">
+                        <Bot className="mr-2 h-4 w-4" />
+                        DeepSeek
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ai-api-key" className="text-sm font-medium text-foreground">API Key</Label>
+                <Input
+                  id="ai-api-key"
+                  type="password"
+                  value={newAIApiKey}
+                  onChange={(e) => setNewAIApiKey(e.target.value)}
+                  placeholder="输入您的API Key"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ai-base-url" className="text-sm font-medium text-foreground">API Base URL</Label>
+                <Input
+                  id="ai-base-url"
+                  value={newAIBaseUrl}
+                  onChange={(e) => setNewAIBaseUrl(e.target.value)}
+                  placeholder="API端点地址"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ai-model" className="text-sm font-medium text-foreground">模型</Label>
+                <Input
+                  id="ai-model"
+                  value={newAIModel}
+                  onChange={(e) => setNewAIModel(e.target.value)}
+                  placeholder="模型名称"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition"
+                />
+              </div>
+
+              {newAIProvider === 'openai' && (
+                <div className="text-xs text-default-500 bg-content2 p-3 rounded-lg">
+                  <p className="font-medium mb-1">OpenAI 配置说明：</p>
+                  <p>• 推荐模型：gpt-3.5-turbo, gpt-4</p>
+                  <p>• 需要有效的OpenAI API Key</p>
+                </div>
+              )}
+
+              {newAIProvider === 'deepseek' && (
+                <div className="text-xs text-default-500 bg-content2 p-3 rounded-lg">
+                  <p className="font-medium mb-1">DeepSeek 配置说明：</p>
+                  <p>• 推荐模型：deepseek-chat, deepseek-coder</p>
+                  <p>• 需要有效的DeepSeek API Key</p>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
