@@ -148,8 +148,6 @@ export class PeekViewManager {
 
     // 注册编辑器的 diff 更新器
     registerEditor(editor: monaco.editor.IStandaloneCodeEditor, originalContent: string, filePath: string) {
-        console.log('zws[registerEditor] Registering editor for:', filePath, 'with content length:', originalContent.length)
-        
         // 如果已经注册过，先清理旧的
         if (this.updaters[filePath]) {
             this.updaters[filePath].dispose()
@@ -162,37 +160,19 @@ export class PeekViewManager {
 
         // 添加鼠标点击监听
         this.mouseListeners[filePath] = editor.onMouseDown((e) => {
-            console.log('zws[Mousedown]event:', {
-                targetType: e.target.type,
-                targetTypeName: monaco.editor.MouseTargetType[e.target.type],
-                className: e.target.element?.className,
-                lineNumber: e.target.position?.lineNumber,
-                isDirtyDiff: /dirty-diff/.test(e.target.element?.className || ''),
-                element: e.target.element
-            })
-            
-            // 检查是否点击了 glyph margin 或 line decorations
-            const isValidTarget = (
-                e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS ||
-                e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
-            );
-            
+            const isValidTarget = (e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS);
             const isDirtyDiffElement = /dirty-diff/.test(e.target.element?.className || '')
-            console.log('zws [isValidTarget]:', isValidTarget, 'isDirtyDiffElement:', isDirtyDiffElement, 'element:', e.target.element)
             
             if (isValidTarget && isDirtyDiffElement) {
                 const lineNumber = e.target.position?.lineNumber
                 if (lineNumber && this.updaters[filePath]) {
                     const changeIndex = this.updaters[filePath].getChangeIndex(lineNumber)
-                    console.log('zws Change index for line', lineNumber, ':', changeIndex)
                     if (changeIndex !== -1) {
-                        this.renderOverlay(editor, changeIndex)
+                        this.renderOverlay(editor, changeIndex, filePath)
                     }
                 }
             }
         })
-        
-        console.log('zws[registerEditor] Registration complete')
     }
 
     // 更新 diff
@@ -210,18 +190,20 @@ export class PeekViewManager {
     }
 
     // 渲染 peek view
-    renderOverlay(editor: monaco.editor.IStandaloneCodeEditor, ind: number) {
+    renderOverlay(editor: monaco.editor.IStandaloneCodeEditor, ind: number, filePath: string) {
         this.cleanOverlay()
         const model = editor.getModel()
         if (!model) return
 
-        const filePath = model.uri.toString()
+        console.log('zws 渲染peekview1')
         const updater = this.updaters[filePath]
         if (!updater) return
 
+        console.log('zws 渲染peekview2')
         const changeInfo = updater.getChangeInfo(ind)
         if (!changeInfo) return
 
+        console.log('zws 渲染peekview3')
         const { endLineNum, linesNum, changesNum, index, changeType } = changeInfo
         let lineHeight = linesNum * 2 + 3 * 2
         lineHeight = lineHeight > 14 ? 14 : (lineHeight < 8 ? 8 : lineHeight)
@@ -394,7 +376,7 @@ export class PeekViewManager {
 
         const editor = this.overlays[0]?.editor
         if (editor) {
-            this.renderOverlay(editor, newIndex)
+            // this.renderOverlay(editor, newIndex)
         }
     }
 
@@ -407,7 +389,7 @@ export class PeekViewManager {
 
         const editor = this.overlays[0]?.editor
         if (editor) {
-            this.renderOverlay(editor, newIndex)
+            // this.renderOverlay(editor, newIndex)
         }
     }
 
