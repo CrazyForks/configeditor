@@ -2,6 +2,7 @@
     margin-left: 5px;
     cursor: pointer;
     z-index: 5;
+    pointer-events: all;
 }
 
 .monaco-editor .dirty-diff-glyph:before {
@@ -11,6 +12,7 @@
     width: 0;
     left: -2px;
     transition: width 80ms linear, left 80ms linear;
+    pointer-events: all;
 }
 
 .monaco-editor .margin-view-overlays>div:hover>.dirty-diff-glyph:before {
@@ -38,7 +40,7 @@
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
     transition: border-top-width 80ms linear, border-bottom-width 80ms linear, bottom 80ms linear;
-    pointer-events: none;
+    pointer-events: all;
 }
 
 .monaco-editor .dirty-diff-deleted:before {
@@ -47,6 +49,7 @@
     height: 0;
     bottom: 0;
     transition: height 80ms linear;
+    pointer-events: all;
 }
 
 .monaco-editor .margin-view-overlays>div:hover>.dirty-diff-deleted:after {
@@ -58,18 +61,24 @@
 /* add modify */
 .monaco-editor .dirty-diff-modified {
     border-left: 3px solid #0c7d9d;
+    pointer-events: all;
+    cursor: pointer;
 }
 
 .monaco-editor .dirty-diff-added {
     border-left: 3px solid #587c0c;
+    pointer-events: all;
+    cursor: pointer;
 }
 
 .monaco-editor .dirty-diff-modified:before {
     background: #0c7d9d;
+    pointer-events: all;
 }
 
 .monaco-editor .dirty-diff-added:before {
     background: #587c0c;
+    pointer-events: all;
 }
 
 /* peekview */

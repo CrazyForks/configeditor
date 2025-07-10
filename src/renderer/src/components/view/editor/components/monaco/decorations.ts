@@ -7,7 +7,7 @@ const ChangeType = { Modify: 0, Add: 1, Delete: 2 };
 // decorations 的配置，定义标记应该在的位置
 const baseOptions = {
   isWholeLine: true,
-  position: OverviewRulerLane.Left + 2,
+  linesDecorationsClassName: 'dirty-diff-glyph',
   overviewRuler: {
     color: 'RGBA(0, 122, 204, 0.6)',
     position: OverviewRulerLane.Left,
@@ -16,12 +16,24 @@ const baseOptions = {
 // 不同的 decorations 有不同的 class name，以便 css 定义样式
 const modifiedOptions = Object.assign({
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-modified',
+  overviewRuler: {
+    color: 'RGBA(12, 125, 157, 0.6)',
+    position: OverviewRulerLane.Left,
+  }
 }, baseOptions);
 const addedOptions = Object.assign({
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-added',
+  overviewRuler: {
+    color: 'RGBA(88, 124, 12, 0.6)',
+    position: OverviewRulerLane.Left,
+  }
 }, baseOptions);
 const deletedOptions = Object.assign({
   linesDecorationsClassName: 'dirty-diff-glyph dirty-diff-deleted',
+  overviewRuler: {
+    color: 'RGBA(148, 21, 27, 0.6)',
+    position: OverviewRulerLane.Left,
+  }
 }, baseOptions);
 // 根据不同的数据，能解析为不同的修改类型
 function getChangeType(change) {
@@ -58,6 +70,7 @@ export const generateDecorations = (changes) => {
           options: deletedOptions
         };
       case ChangeType.Modify:
+      default:
         return {
           range: {
             startLineNumber: startLineNumber, startColumn: 1,

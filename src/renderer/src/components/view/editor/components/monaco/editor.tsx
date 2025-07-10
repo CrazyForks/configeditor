@@ -2,7 +2,7 @@ import { appSettingsAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatu
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { WelcomeFragment } from '../welcome-fragment'
 import { getLanguageFromFilePath, registerApacheLanguage, registerNginxLanguage } from './languages'
 import { MonacoLoading } from './loading'
@@ -41,10 +41,60 @@ export function MonacoEditor() {
     const onEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor
         
-        // 注册 diff 功能
-        if (nowFilePath && textContent) {
-            peekViewManager.registerEditor(editor, textContent, nowFilePath)
+        // 添加调试功能到全局对象
+        ;(window as any).debugEditor = {
+            getFileChanges: () => {
+                if (nowFilePath) {
+                    return peekViewManager.getFileChanges(nowFilePath)
+                }
+                return []
+            },
+            getCurrentDecorations: () => {
+                const model = editor.getModel()
+                if (model) {
+                    return model.getAllDecorations().filter(d => 
+                        d.options.linesDecorationsClassName?.includes('dirty-diff')
+                    )
+                }
+                return []
+            },
+            triggerUpdate: () => {
+                if (nowFilePath) {
+                    peekViewManager.updateDiff(nowFilePath)
+                }
+            },
+            createTestDiff: () => {
+                // 在编辑器中添加一行来创建测试差异
+                const model = editor.getModel()
+                if (model) {
+                    const currentContent = model.getValue()
+                    const lines = currentContent.split('\n')
+                    lines.splice(1, 0, '// This is a test line added for dirty diff testing')
+                    const newContent = lines.join('\n')
+                    model.setValue(newContent)
+                    console.log('zws Test line added, triggering diff update')
+                    
+                    // 手动触发更新
+                    setTimeout(() => {
+                        if (nowFilePath) {
+                            peekViewManager.updateDiff(nowFilePath)
+                        }
+                    }, 100)
+                }
+            },
+            getEditorInfo: () => {
+                const model = editor.getModel()
+                return {
+                    hasModel: !!model,
+                    modelUri: model?.uri.toString(),
+                    contentLength: model?.getValue().length,
+                    glyphMarginEnabled: editor.getOption(monaco.editor.EditorOption.glyphMargin),
+                    currentFilePath: nowFilePath
+                }
+            }
         }
+        
+        console.log('zws Editor mounted, debug functions available on window.debugEditor')
     }
 
     // 当内容变化时更新 diff
