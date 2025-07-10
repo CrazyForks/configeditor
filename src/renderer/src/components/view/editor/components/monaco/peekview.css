@@ -1,8 +1,10 @@
+/* Monaco Editor Dirty Diff 样式 */
 .monaco-editor .dirty-diff-glyph {
     margin-left: 5px;
     cursor: pointer;
     z-index: 5;
     pointer-events: all;
+    position: relative;
 }
 
 .monaco-editor .dirty-diff-glyph:before {
@@ -27,7 +29,39 @@
     display: none;
 }
 
-/** delete **/
+/* 修改行样式 */
+.monaco-editor .dirty-diff-modified {
+    border-left: 3px solid #0c7d9d !important;
+    pointer-events: all;
+    cursor: pointer;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-modified:before {
+    background: #0c7d9d;
+    pointer-events: all;
+}
+
+/* 新增行样式 */
+.monaco-editor .dirty-diff-added {
+    border-left: 3px solid #587c0c !important;
+    pointer-events: all;
+    cursor: pointer;
+    position: relative;
+}
+
+.monaco-editor .dirty-diff-added:before {
+    background: #587c0c;
+    pointer-events: all;
+}
+
+/* 删除行样式 */
+.monaco-editor .dirty-diff-deleted {
+    position: relative;
+    pointer-events: all;
+    cursor: pointer;
+}
+
 .monaco-editor .dirty-diff-deleted:after {
     border-left: 4px solid #94151b;
     content: "";
@@ -56,29 +90,6 @@
     bottom: 0;
     border-top-width: 0;
     border-bottom-width: 0;
-}
-
-/* add modify */
-.monaco-editor .dirty-diff-modified {
-    border-left: 3px solid #0c7d9d;
-    pointer-events: all;
-    cursor: pointer;
-}
-
-.monaco-editor .dirty-diff-added {
-    border-left: 3px solid #587c0c;
-    pointer-events: all;
-    cursor: pointer;
-}
-
-.monaco-editor .dirty-diff-modified:before {
-    background: #0c7d9d;
-    pointer-events: all;
-}
-
-.monaco-editor .dirty-diff-added:before {
-    background: #587c0c;
-    pointer-events: all;
 }
 
 /* peekview */

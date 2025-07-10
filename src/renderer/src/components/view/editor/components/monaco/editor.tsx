@@ -82,6 +82,12 @@ export function MonacoEditor() {
                         lineNumbers: appSettings.lineNumbers ? 'on' : 'off',
                         theme: appSettings.theme,
                         glyphMargin: true, // 启用字形边距以显示 diff 装饰器
+                        lineDecorationsWidth: 20, // 为 line decorations 预留空间
+                        lineNumbersMinChars: 3, // 确保行号有足够空间
+                        revealHorizontalRightPadding: 30, // 右侧留白
+                        scrollBeyondLastLine: false,
+                        minimap: { enabled: true },
+                        overviewRulerLanes: 3, // 启用概览标尺
                     }}
                 />
             )

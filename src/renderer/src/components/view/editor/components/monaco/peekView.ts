@@ -56,7 +56,7 @@ class DiffUpdater {
         } else {
             // 如果没有变更，清除所有装饰器
             this.decorations = model.deltaDecorations(this.decorations, [])
-            console.log('zws[update]如果没有变更，清除所有装饰器')
+            console.log('zws[update] 如果没有变更，清除所有装饰器')
         }
     }
 
@@ -148,6 +148,8 @@ export class PeekViewManager {
 
     // 注册编辑器的 diff 更新器
     registerEditor(editor: monaco.editor.IStandaloneCodeEditor, originalContent: string, filePath: string) {
+        console.log('zws[registerEditor] Registering editor for:', filePath, 'with content length:', originalContent.length)
+        
         // 如果已经注册过，先清理旧的
         if (this.updaters[filePath]) {
             this.updaters[filePath].dispose()
@@ -169,10 +171,15 @@ export class PeekViewManager {
                 element: e.target.element
             })
             
-            const isValidTarget = (e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS);
+            // 检查是否点击了 glyph margin 或 line decorations
+            const isValidTarget = (
+                e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS ||
+                e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
+            );
             
             const isDirtyDiffElement = /dirty-diff/.test(e.target.element?.className || '')
             console.log('zws [isValidTarget]:', isValidTarget, 'isDirtyDiffElement:', isDirtyDiffElement, 'element:', e.target.element)
+            
             if (isValidTarget && isDirtyDiffElement) {
                 const lineNumber = e.target.position?.lineNumber
                 if (lineNumber && this.updaters[filePath]) {
@@ -184,6 +191,8 @@ export class PeekViewManager {
                 }
             }
         })
+        
+        console.log('zws[registerEditor] Registration complete')
     }
 
     // 更新 diff
@@ -456,6 +465,36 @@ export class PeekViewManager {
         }
     }
 
+    // 调试函数：强制更新 diff
+    debugRefreshDiff(filePath: string) {
+        console.log('zws[debugRefreshDiff] Refreshing diff for:', filePath)
+        const updater = this.updaters[filePath]
+        if (updater) {
+            updater.update()
+            console.log('zws[debugRefreshDiff] Diff refreshed, changes:', updater.getChanges())
+        } else {
+            console.log('zws[debugRefreshDiff] No updater found for:', filePath)
+        }
+    }
+
+    // 调试函数：获取当前所有注册的文件
+    debugGetRegisteredFiles() {
+        const files = Object.keys(this.updaters)
+        console.log('zws[debugGetRegisteredFiles] Registered files:', files)
+        return files
+    }
+
+    // 调试函数：获取文件的装饰器信息
+    debugGetDecorations(filePath: string) {
+        const updater = this.updaters[filePath]
+        if (updater) {
+            const changes = updater.getChanges()
+            console.log('zws[debugGetDecorations] Changes for', filePath, ':', changes)
+            return changes
+        }
+        return null
+    }
+
     // 获取文件的所有变更信息 (用于调试)
     getFileChanges(filePath: string) {
         const updater = this.updaters[filePath]
@@ -483,6 +522,17 @@ export class PeekViewManager {
 
 // 创建全局实例
 export const peekViewManager = new PeekViewManager()
+
+// 将调试函数暴露到全局作用域 (仅开发环境)
+if (typeof window !== 'undefined') {
+    (window as any).peekViewManager = peekViewManager;
+    (window as any).debugDirtyDiff = {
+        refresh: (filePath: string) => peekViewManager.debugRefreshDiff(filePath),
+        getFiles: () => peekViewManager.debugGetRegisteredFiles(),
+        getDecorations: (filePath: string) => peekViewManager.debugGetDecorations(filePath),
+        getFileChanges: (filePath: string) => peekViewManager.getFileChanges(filePath)
+    };
+}
 
 export function usePeekView({
     nowFilePath,
