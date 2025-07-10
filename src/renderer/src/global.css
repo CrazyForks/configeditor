@@ -149,11 +149,10 @@
     background: hsl(var(--default) / 0.8);
   }
   
-  /* HeroUI Design glass morphism effect */
+  /* HeroUI Design glass morphism effect - 移除阴影和模糊效果 */
   .glass-effect {
-    backdrop-filter: blur(20px) saturate(180%);
-    background-color: hsl(var(--background) / 0.8);
-    border: 1px solid hsl(var(--border) / 0.3);
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
   }
   
   /* HeroUI Design focus styles */
@@ -187,12 +186,11 @@
     }
   }
   
-  /* HeroUI Design card styles */
+  /* HeroUI Design card styles - 扁平化无阴影 */
   .heroui-card {
     background-color: hsl(var(--content1));
     border: 1px solid hsl(var(--divider));
     border-radius: calc(var(--radius) * 1.5);
-    box-shadow: 0 1px 3px 0 hsl(var(--default) / 0.1);
   }
   
   .heroui-card-hover {
@@ -200,7 +198,7 @@
   }
   
   .heroui-card-hover:hover {
-    box-shadow: 0 4px 12px 0 hsl(var(--default) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
   }
   
   /* HeroUI Design button styles */
@@ -251,16 +249,6 @@
   }
   
   .heroui-button-ghost:hover {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-  }
-  
-  /* HeroUI Design shadow variant */
-  .heroui-button-shadow {
-    box-shadow: 0 4px 14px 0 hsl(var(--primary) / 0.4);
-  }
-  
-  .heroui-button-shadow:hover {
-    box-shadow: 0 6px 20px 0 hsl(var(--primary) / 0.5);
+    background-color: hsl(var(--primary) / 0.1);
   }
 }

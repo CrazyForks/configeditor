@@ -62,29 +62,29 @@ export default function SettingsDialog(props: {
 
   return (
     <Dialog open={isSettingDialogOpen} onOpenChange={setIsSettingDialogOpen}>
-      <DialogContent className="sm:max-w-[625px] heroui-card heroui-card-hover glass-effect">
+      <DialogContent className="sm:max-w-[625px] border border-divider rounded-2xl bg-content1 shadow-none">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">设置</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue={nowFilePath ? "file" : "general"} className="w-full">
-          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'} bg-content2 dark:bg-content3 p-1 rounded-lg`}>
+          <TabsList className={`grid w-full ${nowFilePath ? 'grid-cols-3' : 'grid-cols-2'} bg-content2 p-1 rounded-lg`}>
             {!!nowFilePath && (
               <TabsTrigger 
                 value="file" 
-                className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
+                className="rounded-md heroui-transition data-[state=active]:bg-content1 data-[state=active]:shadow-none"
               >
                 文件
               </TabsTrigger>
             )}
             <TabsTrigger 
               value="general" 
-              className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
+              className="rounded-md heroui-transition data-[state=active]:bg-content1 data-[state=active]:shadow-none"
             >
               通用
             </TabsTrigger>
             <TabsTrigger 
               value="editor" 
-              className="rounded-md heroui-transition data-[state=active]:bg-background data-[state=active]:shadow-heroui-sm"
+              className="rounded-md heroui-transition data-[state=active]:bg-content1 data-[state=active]:shadow-none"
             >
               编辑
             </TabsTrigger>
@@ -97,18 +97,18 @@ export default function SettingsDialog(props: {
                   id="current-file-path"
                   value={nowFilePath}
                   readOnly
-                  className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="permissions" className="text-sm font-medium text-foreground">文件权限</Label>
                 <Select disabled value={newPermission} onValueChange={setNewPermission}>
-                  <SelectTrigger className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition">
+                  <SelectTrigger className="bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none">
                     <SelectValue placeholder="选择文件权限" />
                   </SelectTrigger>
-                  <SelectContent className="heroui-card">
-                    <SelectItem value="read" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">Read</SelectItem>
-                    <SelectItem value="write" className="heroui-transition hover:bg-content2 dark:hover:bg-content3">Write</SelectItem>
+                  <SelectContent className="border border-divider rounded-lg bg-content1 shadow-none">
+                    <SelectItem value="read" className="heroui-transition hover:bg-content2">Read</SelectItem>
+                    <SelectItem value="write" className="heroui-transition hover:bg-content2">Write</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -119,7 +119,7 @@ export default function SettingsDialog(props: {
                   placeholder="Enter command..." 
                   value={newRefreshCmd} 
                   onChange={e => setNewRefreshCmd(e.target.value)}
-                  className="bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
+                  className="bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none"
                 />
               </div>
             </div>
@@ -205,13 +205,13 @@ export default function SettingsDialog(props: {
             <Button 
               onClick={onRevertBtnClick} 
               variant="outline"
-              className="apple-button-secondary border-apple-gray-5 hover:border-apple-blue"
+              className="heroui-button heroui-button-secondary border border-divider hover:border-primary rounded-lg shadow-none"
             >
               <RefreshCw className="mr-2 h-4 w-4" />还原设置
             </Button>
             <Button 
               onClick={onSaveBtnClick}
-              className="apple-button-primary"
+              className="heroui-button heroui-button-primary border-0 rounded-lg shadow-none"
             >
               <HardDrive className="mr-2 h-4 w-4" />存储设置
             </Button>

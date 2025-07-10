@@ -2,16 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 
 export function WelcomeFragment() {
-    return <div className="w-full h-[100%] p-8 bg-content1 dark:bg-content2 flex flex-col items-center heroui-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
+    return <div className="w-full h-[100%] p-8 bg-content1 flex flex-col items-center heroui-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
         <div className="flex flex-col max-w-4xl w-full">
             <h2 className="text-3xl font-bold mb-8 text-foreground text-center">欢迎使用配置文件管理器</h2>
 
-            <div className="heroui-card heroui-card-hover p-6 mb-6 heroui-transition">
+            <div className="border border-divider rounded-2xl p-6 mb-6 bg-content2 heroui-transition">
                 <h3 className="text-xl font-semibold mb-4 text-foreground flex items-center">
                     <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
                     快速入门
                 </h3>
-                <ol className="list-decimal list-inside space-y-3 text-muted-foreground">
+                <ol className="list-decimal list-inside space-y-3 text-default-500">
                     <li>在左侧面板中，点击 <span className="font-medium text-primary px-2 py-1 bg-primary/10 rounded-md">+</span> 按钮引用新的配置文件</li>
                     <li>点击文件名以选择并编辑配置文件</li>
                     <li>使用顶部工具栏中的 <span className="font-medium text-success px-2 py-1 bg-success/10 rounded-md">保存</span> 按钮保存更改（可能需要权限）</li>
@@ -20,12 +20,12 @@ export function WelcomeFragment() {
                 </ol>
             </div>
 
-            <div className="heroui-card heroui-card-hover p-6 mb-6 heroui-transition">
+            <div className="border border-divider rounded-2xl p-6 mb-6 bg-content2 heroui-transition">
                 <h3 className="text-xl font-semibold mb-4 text-foreground flex items-center">
                     <span className="w-2 h-2 bg-success rounded-full mr-3"></span>
                     功能亮点
                 </h3>
-                <ul className="list-disc list-inside space-y-3 text-muted-foreground">
+                <ul className="list-disc list-inside space-y-3 text-default-500">
                     <li>简洁直观的用户界面，支持浅色/深色主题</li>
                     <li>快速管理和刷新多个配置文件</li>
                     <li>文件路径一键复制</li>
@@ -34,15 +34,15 @@ export function WelcomeFragment() {
                 </ul>
             </div>
 
-            <div className="apple-card apple-card-hover p-6 apple-transition">
+            <div className="border border-divider rounded-2xl p-6 bg-content2 heroui-transition">
                 <h3 className="text-xl font-semibold mb-4 text-foreground flex items-center">
-                    <span className="w-2 h-2 bg-apple-purple rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-secondary rounded-full mr-3"></span>
                     了解更多
                 </h3>
-                <p className="mb-4 text-muted-foreground">访问我们的 GitHub 仓库，获取详细文档、报告问题或贡献代码：</p>
+                <p className="mb-4 text-default-500">访问我们的 GitHub 仓库，获取详细文档、报告问题或贡献代码：</p>
                 <Button 
                     variant="outline" 
-                    className="flex items-center apple-button-secondary border-apple-gray-5 hover:border-apple-blue hover:bg-apple-blue/5 apple-transition" 
+                    className="flex items-center heroui-button heroui-button-ghost border border-divider hover:border-primary hover:bg-primary/5 heroui-transition rounded-lg shadow-none" 
                     onClick={() => window.open('https://github.com/heroisuseless/configeditor', '_blank')}
                 >
                     <Github className="mr-2 h-4 w-4" />

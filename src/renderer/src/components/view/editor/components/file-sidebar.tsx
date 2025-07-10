@@ -51,7 +51,7 @@ function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
 
     return (
         <div
-            className="fixed z-50 bg-background border border-border rounded-lg shadow-heroui-lg py-1 min-w-32 glass-effect"
+            className="fixed z-50 bg-content1 border border-divider rounded-lg py-1 min-w-32"
             style={{ left: x, top: y }}
             onMouseLeave={onClose}
         >
@@ -113,7 +113,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 heroui-transition 
                 ${isSelected ?
                     'bg-primary/10 hover:bg-primary/15' :
-                    'hover:bg-content2 dark:hover:bg-content3'
+                    'hover:bg-content2'
                 }
                 ${isDragging ? 'z-50' : ''}
             `}
@@ -249,8 +249,8 @@ export function FileSidebar() {
     const isDragEnabled = searchName.trim() === '';
 
     return (
-        <div className="w-full h-full bg-background flex flex-col shadow-heroui-sm border-r border-border" onClick={onCloseContextMenu}>
-            <div className="p-4 border-b border-border">
+        <div className="w-full h-full bg-content1 flex flex-col border-r border-divider" onClick={onCloseContextMenu}>
+            <div className="p-4 border-b border-divider">
                 <div className='flex justify-between items-center mb-3'>
                     <h2 className="text-lg font-semibold flex items-center text-foreground">
                         <Atom className="mr-2 h-5 w-5 heroui-transition hover:text-primary cursor-pointer" onClick={onShowDebugPanel} />
@@ -260,7 +260,7 @@ export function FileSidebar() {
                         onClick={onHideLeftPanel}
                         size="sm"
                         variant="ghost"
-                        className="text-muted-foreground hover:text-foreground hover:bg-content2 dark:hover:bg-content3 heroui-transition"
+                        className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition rounded-lg shadow-none"
                         title="隐藏侧边栏"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -271,18 +271,18 @@ export function FileSidebar() {
                         placeholder="搜索文件"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="mr-1 h-8 text-sm bg-content2 dark:bg-content3 border-divider focus:border-primary heroui-transition"
+                        className="mr-1 h-8 text-sm bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none"
                     />
                     <AddFileButton />
                 </div>
             </div>
             <ScrollArea className="flex-grow">
                 {!showFilePaths.length ? (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <div className="flex items-center justify-center h-full text-default-500">
                         <div className="text-center">
                             <div className="text-4xl mb-2">📁</div>
                             <p>空空如也</p>
-                            <p className="text-sm text-default">点击上方 + 按钮添加文件</p>
+                            <p className="text-sm text-default-400">点击上方 + 按钮添加文件</p>
                         </div>
                     </div>
                 ) : (
