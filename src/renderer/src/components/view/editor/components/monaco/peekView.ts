@@ -62,9 +62,18 @@ class DiffUpdater {
 
     getChangeIndex(lineNumber: number): number {
         return this.changes.findIndex(change => {
-            const start = change.modifiedStartLineNumber
-            const end = change.modifiedEndLineNumber || start
-            return lineNumber >= start && lineNumber <= end
+            const changeType = this.getChangeType(change);
+            
+            if (changeType === 2) { // Delete
+                // 对于删除行，检查点击的是否是删除标记所在的行
+                const deleteMarkLine = Math.max(1, change.modifiedStartLineNumber);
+                return lineNumber === deleteMarkLine;
+            } else {
+                // 对于新增和修改，检查行号范围
+                const start = change.modifiedStartLineNumber;
+                const end = change.modifiedEndLineNumber || start;
+                return lineNumber >= start && lineNumber <= end;
+            }
         })
     }
 
@@ -105,6 +114,17 @@ class DiffUpdater {
     }
 
     private getChangeType(change: any): number {
+        // 使用新的changeType字段，如果没有则回退到原逻辑
+        if (change.changeType) {
+            switch (change.changeType) {
+                case 'insert': return 1; // Add
+                case 'delete': return 2; // Delete
+                case 'modify': return 0; // Modify
+                default: return 0;
+            }
+        }
+        
+        // 回退到原来的逻辑
         if (change.originalEndLineNumber === 0) return 1 // Add
         if (change.modifiedEndLineNumber === 0) return 2 // Delete
         return 0 // Modify
@@ -361,7 +381,7 @@ export class PeekViewManager {
         const { originalLines, modifiedLines } = changeContent
 
         try {
-            // 创建 diff 编辑器 - diff editor会自动继承当前的全局Monaco主题
+            // 创建 diff 编辑器 - 使用更符合VSCode的配置
             const diffEditor = monaco.editor.createDiffEditor(editorContainer, {
                 enableSplitViewResizing: true, // 启用分割视图调整大小
                 renderSideBySide: true, // 并排显示差异 (VSCode风格)
@@ -371,8 +391,7 @@ export class PeekViewManager {
                 lineNumbers: 'on',
                 glyphMargin: false, // 禁用字形边距
                 folding: false, // 禁用折叠
-                lineDecorationsWidth: 10, // 增加行装饰宽度，给行号和内容更多间距
-                lineNumbersMinChars: 3, // 增加行号最小字符数，确保有足够空间
+                selectOnLineNumbers: false, // 禁用行号选择
                 scrollbar: {
                     vertical: 'auto',
                     horizontal: 'auto',
@@ -382,36 +401,33 @@ export class PeekViewManager {
                 originalEditable: false, // 禁止编辑原始内容
                 automaticLayout: true, // 自动布局
                 renderOverviewRuler: false, // 隐藏概览标尺
+                lineDecorationsWidth: 10, // 增加行装饰宽度
+                lineNumbersMinChars: 3, // 增加行号最小字符数
                 hideCursorInOverviewRuler: true, // 隐藏光标在概览标尺中的显示
                 overviewRulerBorder: false, // 隐藏概览标尺边框
                 renderWhitespace: 'selection', // 只在选择时显示空白字符
                 diffCodeLens: false, // 禁用diff code lens
-                ignoreTrimWhitespace: true, // 忽略修剪空白的差异
+                ignoreTrimWhitespace: true, // 忽略修剪空白的差异，与计算保持一致
                 originalAriaLabel: 'Original', // 原始内容的aria标签
                 modifiedAriaLabel: 'Modified', // 修改内容的aria标签
                 fontSize: editor.getOption(monaco.editor.EditorOption.fontSize), // 使用主编辑器的字体大小
                 fontFamily: editor.getOption(monaco.editor.EditorOption.fontFamily), // 使用主编辑器的字体
-                // 设置固定高度以支持滚动
                 scrollBeyondLastColumn: 0,
+                // VSCode风格的diff样式
+                renderIndicators: true, // 显示变更指示器
+                diffWordWrap: 'off', // 禁用diff编辑器的自动换行
             })
 
             // 创建模型
             const originalModel = monaco.editor.createModel(originalLines.join('\n'), model.getLanguageId())
             const modifiedModel = monaco.editor.createModel(modifiedLines.join('\n'), model.getLanguageId())
 
-            // 设置起始行号
-            originalModel.setValue(originalLines.join('\n'))
-            modifiedModel.setValue(modifiedLines.join('\n'))
-
+            // 设置模型
             diffEditor.setModel({
                 original: originalModel,
                 modified: modifiedModel
             })
 
-            // 确保diff editor使用正确的主题
-            // diff editor会自动继承当前的全局Monaco主题
-            // 我们不应该改变全局主题，因为这会影响主编辑器
-            
             // 自动调整高度和布局，延迟执行确保DOM已渲染
             setTimeout(() => {
                 diffEditor.layout()
@@ -422,13 +438,25 @@ export class PeekViewManager {
                 // 获取当前变更的行号
                 const change = this.updater?.getChange(changeIndex)
                 if (change && modifiedEditor && originalEditor) {
-                    const changeLineNumber = change.modifiedStartLineNumber
-                    // 在两个编辑器中都滚动到变更位置
-                    modifiedEditor.revealLineInCenter(changeLineNumber)
+                    let targetLine: number;
                     
-                    // 如果原始文件中也有对应的行，也滚动到相应位置
-                    if (change.originalStartLineNumber > 0) {
-                        originalEditor.revealLineInCenter(change.originalStartLineNumber)
+                    // 根据变更类型确定目标行号
+                    if (change.changeType === 'delete') {
+                        // 删除操作：滚动到删除位置前后的上下文
+                        targetLine = Math.max(1, change.originalStartLineNumber);
+                        originalEditor.revealLineInCenter(targetLine)
+                        // 修改编辑器滚动到相应位置
+                        const modifiedTargetLine = Math.max(1, change.modifiedStartLineNumber);
+                        modifiedEditor.revealLineInCenter(modifiedTargetLine)
+                    } else {
+                        // 新增和修改操作
+                        targetLine = change.modifiedStartLineNumber;
+                        modifiedEditor.revealLineInCenter(targetLine)
+                        
+                        // 如果原始文件中也有对应的行，也滚动到相应位置
+                        if (change.originalStartLineNumber > 0) {
+                            originalEditor.revealLineInCenter(change.originalStartLineNumber)
+                        }
                     }
                 }
             }, 100)

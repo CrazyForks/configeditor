@@ -47,6 +47,17 @@ const deletedOptions: monaco.editor.IModelDecorationOptions = {
 };
 // 根据不同的数据，能解析为不同的修改类型
 function getChangeType(change) {
+  // 使用新的changeType字段，如果没有则回退到原逻辑
+  if (change.changeType) {
+    switch (change.changeType) {
+      case 'insert': return ChangeType.Add;
+      case 'delete': return ChangeType.Delete;
+      case 'modify': return ChangeType.Modify;
+      default: return ChangeType.Modify;
+    }
+  }
+  
+  // 回退到原来的逻辑
   if (change.originalEndLineNumber === 0) {           // 新增行
     return ChangeType.Add;
   } else if (change.modifiedEndLineNumber === 0) {    // 删除行
@@ -55,14 +66,26 @@ function getChangeType(change) {
     return ChangeType.Modify;
   }
 }
+
 // 根据上面的 diffChanges 进行转换
 export const generateDecorations = (changes: any[]): monaco.editor.IModelDeltaDecoration[] => {
   console.log('zws[generateDecorations] Input changes:', changes)
   
   const decorations = changes.map((change) => {
     const changeType = getChangeType(change);
-    const startLineNumber = change.modifiedStartLineNumber;
-    const endLineNumber = change.modifiedEndLineNumber || startLineNumber;
+    
+    // 对于删除行，装饰器应该放在被删除行的前一行
+    let startLineNumber, endLineNumber;
+    
+    if (changeType === ChangeType.Delete) {
+      // 删除行：装饰器放在删除位置的前一行
+      startLineNumber = Math.max(1, change.modifiedStartLineNumber);
+      endLineNumber = startLineNumber;
+    } else {
+      // 新增和修改行：装饰器放在实际的行上
+      startLineNumber = change.modifiedStartLineNumber;
+      endLineNumber = change.modifiedEndLineNumber || startLineNumber;
+    }
     
     console.log('zws[generateDecorations] Processing change:', {
       changeType,
