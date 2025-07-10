@@ -88,26 +88,29 @@
     left: -8px;
 }
 
-/* peekview */
+/* peekview - VSCode风格 */
 .ubug-overlay {
     display: flex;
     flex-direction: column;
     position: absolute;
     z-index: 10;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid;
+    min-height: 200px;
 }
 
 /* 浅色主题 */
 .ubug-overlay[data-theme="light"] {
     background: #ffffff;
-    border: 1px solid #e1e1e1;
+    border-color: #cccccc;
 }
 
 .ubug-overlay[data-theme="light"] .ubug-overlay-title {
-    background: #f8f8f8;
+    background: #f3f3f3;
     color: #333333;
-    border-bottom: 1px solid #e1e1e1;
+    border-bottom: 1px solid #cccccc;
 }
 
 .ubug-overlay[data-theme="light"] .ubug-overlay-name {
@@ -120,19 +123,19 @@
 
 .ubug-overlay[data-theme="light"] .ubug-overlay-btn:hover {
     color: #333333;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 /* 深色主题 */
 .ubug-overlay[data-theme="dark"] {
-    background: #1e1e1e;
-    border: 1px solid #3c3c3c;
+    background: #252526;
+    border-color: #454545;
 }
 
 .ubug-overlay[data-theme="dark"] .ubug-overlay-title {
     background: #2d2d30;
     color: #cccccc;
-    border-bottom: 1px solid #3c3c3c;
+    border-bottom: 1px solid #454545;
 }
 
 .ubug-overlay[data-theme="dark"] .ubug-overlay-name {
@@ -149,89 +152,85 @@
 }
 
 .ubug-overlay-name {
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 13px;
 }
 
 .ubug-overlay-title {
     display: flex;
-    line-height: 22px;
-    height: 22px;
-    padding: 0 8px;
+    align-items: center;
+    height: 35px;
+    padding: 0 12px;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 13px;
+    flex-shrink: 0;
 }
 
-/* 不同变更类型的边框颜色 */
+/* 不同变更类型的边框颜色 - VSCode风格 */
 .ubug-overlay-type-0[data-theme="light"] {
-    border-top: 2px solid #007acc;
+    border-top: 3px solid #0078d4;
 }
 
 .ubug-overlay-type-0[data-theme="dark"] {
-    border-top: 2px solid #007acc;
+    border-top: 3px solid #0078d4;
 }
 
 .ubug-overlay-type-1[data-theme="light"] {
-    border-top: 2px solid #28a745;
+    border-top: 3px solid #107c10;
 }
 
 .ubug-overlay-type-1[data-theme="dark"] {
-    border-top: 2px solid #28a745;
+    border-top: 3px solid #107c10;
 }
 
 .ubug-overlay-type-2[data-theme="light"] {
-    border-top: 2px solid #dc3545;
+    border-top: 3px solid #d13438;
 }
 
 .ubug-overlay-type-2[data-theme="dark"] {
-    border-top: 2px solid #dc3545;
+    border-top: 3px solid #d13438;
 }
 
 .ubug-overlay-editor {
-    flex: auto;
-    min-height: 200px;
+    flex: 1;
+    min-height: 160px;
+    overflow: hidden;
 }
 
 .ubug-overlay-btns {
     display: flex;
-    gap: 2px;
+    gap: 4px;
 }
 
 .ubug-overlay-btn {
-    font-size: 14px;
-    line-height: 20px;
-    width: 22px;
-    height: 22px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    border-radius: 3px;
-    transition: all 0.1s ease;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 4px;
+    transition: all 0.1s ease;
+    font-size: 14px;
 }
 
-/* 按钮图标 */
+/* 按钮图标 - 使用Unicode字符 */
 .ubug-overlay-btn-prev::before {
-    content: "";
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 6px solid currentColor;
+    content: "⌃";
+    transform: rotate(180deg);
+    font-size: 14px;
+    line-height: 1;
 }
 
 .ubug-overlay-btn-next::before {
-    content: "";
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 6px solid currentColor;
+    content: "⌃";
+    font-size: 14px;
+    line-height: 1;
 }
 
 .ubug-overlay-btn-close::before {
-    content: "×";
-    font-size: 16px;
-    font-weight: bold;
+    content: "✕";
+    font-size: 14px;
+    line-height: 1;
 }

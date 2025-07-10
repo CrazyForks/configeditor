@@ -93,26 +93,34 @@ class DiffUpdater {
         const model = this.editor.getModel()
         const modifiedLines = model?.getLinesContent() || []
 
+        // 获取变更的确切范围
         const originalStart = Math.max(0, change.originalStartLineNumber - 1)
-        const originalEnd = change.originalEndLineNumber > 0 ? change.originalEndLineNumber : originalStart
+        const originalEnd = change.originalEndLineNumber > 0 ? change.originalEndLineNumber : originalStart + 1
         const modifiedStart = Math.max(0, change.modifiedStartLineNumber - 1)
-        const modifiedEnd = change.modifiedEndLineNumber > 0 ? change.modifiedEndLineNumber : modifiedStart
+        const modifiedEnd = change.modifiedEndLineNumber > 0 ? change.modifiedEndLineNumber : modifiedStart + 1
 
-        const contextLines = 3
-        const originalSlice = originalLines.slice(
-            Math.max(0, originalStart - contextLines),
-            Math.min(originalLines.length, originalEnd + contextLines)
-        )
-        const modifiedSlice = modifiedLines.slice(
-            Math.max(0, modifiedStart - contextLines),
-            Math.min(modifiedLines.length, modifiedEnd + contextLines)
-        )
+        // 增加上下文行数，提供更好的diff视图
+        const contextLines = 5
+        
+        // 计算原始文件的上下文范围
+        const originalContextStart = Math.max(0, originalStart - contextLines)
+        const originalContextEnd = Math.min(originalLines.length, originalEnd + contextLines)
+        
+        // 计算修改文件的上下文范围
+        const modifiedContextStart = Math.max(0, modifiedStart - contextLines)
+        const modifiedContextEnd = Math.min(modifiedLines.length, modifiedEnd + contextLines)
+
+        // 获取带上下文的内容
+        const originalSlice = originalLines.slice(originalContextStart, originalContextEnd)
+        const modifiedSlice = modifiedLines.slice(modifiedContextStart, modifiedContextEnd)
 
         return {
             originalLines: originalSlice,
             modifiedLines: modifiedSlice,
-            startLine: Math.max(1, change.modifiedStartLineNumber - contextLines),
-            endLine: Math.min(modifiedLines.length, (change.modifiedEndLineNumber || change.modifiedStartLineNumber) + contextLines)
+            startLine: modifiedContextStart + 1, // Monaco编辑器行号从1开始
+            endLine: modifiedContextEnd,
+            changeStartLine: change.modifiedStartLineNumber,
+            changeEndLine: change.modifiedEndLineNumber || change.modifiedStartLineNumber
         }
     }
 
@@ -194,8 +202,17 @@ export class PeekViewManager {
         if (!changeInfo) return
 
         const { endLineNum, linesNum, changesNum, index, changeType } = changeInfo
-        let lineHeight = linesNum * 2 + 3 * 2 // lineHeight为什么是lineNum * 2 + 3 * 2？因为每行大概占用2个字符的高度，加上上下各3个像素的padding
-        lineHeight = lineHeight > 14 ? 14 : (lineHeight < 8 ? 8 : lineHeight) // 限制最小和最大高度
+        
+        // 计算合适的高度 - VSCode风格的peekView高度
+        const editorLineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight)
+        const titleHeight = 35 // 标题栏高度（更新为新的高度）
+        const minContentHeight = 8 * editorLineHeight // 最小8行
+        const maxContentHeight = 16 * editorLineHeight // 最大16行  
+        let contentHeight = Math.max(minContentHeight, Math.min(maxContentHeight, linesNum * editorLineHeight * 2))
+        
+        // 总高度 = 标题高度 + 内容高度
+        const totalHeight = titleHeight + contentHeight
+        const totalLineHeight = Math.ceil(totalHeight / editorLineHeight)
 
         this.peekViewIndex = { path: filePath, ind, changesNum }
 
@@ -219,13 +236,18 @@ export class PeekViewManager {
             const viewZoneId = changeAccessor.addZone({
                 afterLineNumber: endLineNum, // 在变更结束行后添加
                 suppressMouseDown: true, // 禁止鼠标事件
-                heightInLines: lineHeight + 1, // 增加1行高度以适应按钮
+                heightInLines: totalLineHeight,
                 domNode: zoneNode,
                 onDomNodeTop: (top) => { // 设置 overlay DOM 的位置
                     overlayDom.style.top = top + "px"
                 },
                 onComputedHeight: (height) => { // 设置 overlay DOM 的高度
                     overlayDom.style.height = height + "px"
+                    // 设置编辑器容器的高度
+                    const editorContainer = overlayDom.querySelector('.ubug-overlay-editor') as HTMLElement
+                    if (editorContainer) {
+                        editorContainer.style.height = (height - titleHeight) + "px"
+                    }
                 }
             })
 
@@ -347,13 +369,13 @@ export class PeekViewManager {
         if (!editorContainer) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
 
         const changeContent = this.updater.getChangeContent(changeIndex)
-        const { originalLines, modifiedLines } = changeContent
+        const { originalLines, modifiedLines, startLine } = changeContent
 
         try {
             // 创建 diff 编辑器 - diff editor会自动继承当前的全局Monaco主题
             const diffEditor = monaco.editor.createDiffEditor(editorContainer, {
-                enableSplitViewResizing: false, // 禁用分割视图调整大小
-                renderSideBySide: false, // 以单列模式显示差异
+                enableSplitViewResizing: true, // 启用分割视图调整大小
+                renderSideBySide: true, // 并排显示差异 (VSCode风格)
                 readOnly: true, // 设置为只读模式
                 scrollBeyondLastLine: false, // 禁止滚动超出最后一行
                 minimap: { enabled: false },
@@ -364,18 +386,33 @@ export class PeekViewManager {
                 lineNumbersMinChars: 3, // 确保行号有足够空间
                 scrollbar: {
                     vertical: 'auto',
-                    horizontal: 'auto'
+                    horizontal: 'auto',
+                    verticalScrollbarSize: 14,
+                    horizontalScrollbarSize: 14
                 },
                 originalEditable: false, // 禁止编辑原始内容
                 automaticLayout: true, // 自动布局
                 renderOverviewRuler: false, // 隐藏概览标尺
                 hideCursorInOverviewRuler: true, // 隐藏光标在概览标尺中的显示
                 overviewRulerBorder: false, // 隐藏概览标尺边框
+                renderWhitespace: 'selection', // 只在选择时显示空白字符
+                diffCodeLens: false, // 禁用diff code lens
+                ignoreTrimWhitespace: true, // 忽略修剪空白的差异
+                originalAriaLabel: 'Original', // 原始内容的aria标签
+                modifiedAriaLabel: 'Modified', // 修改内容的aria标签
+                fontSize: editor.getOption(monaco.editor.EditorOption.fontSize), // 使用主编辑器的字体大小
+                fontFamily: editor.getOption(monaco.editor.EditorOption.fontFamily), // 使用主编辑器的字体
+                // 设置固定高度以支持滚动
+                scrollBeyondLastColumn: 0,
             })
 
             // 创建模型
             const originalModel = monaco.editor.createModel(originalLines.join('\n'), model.getLanguageId())
             const modifiedModel = monaco.editor.createModel(modifiedLines.join('\n'), model.getLanguageId())
+
+            // 设置起始行号
+            originalModel.setValue(originalLines.join('\n'))
+            modifiedModel.setValue(modifiedLines.join('\n'))
 
             diffEditor.setModel({
                 original: originalModel,
@@ -386,9 +423,14 @@ export class PeekViewManager {
             // diff editor会自动继承当前的全局Monaco主题
             // 我们不应该改变全局主题，因为这会影响主编辑器
             
-            // 自动调整高度和布局
+            // 自动调整高度和布局，延迟执行确保DOM已渲染
             setTimeout(() => {
                 diffEditor.layout()
+                // 滚动到变更区域
+                const modifiedEditor = diffEditor.getModifiedEditor()
+                if (modifiedEditor && startLine > 1) {
+                    modifiedEditor.revealLineInCenter(Math.max(1, startLine))
+                }
             }, 100)
 
             return { diffEditor, originalModel, modifiedModel }
