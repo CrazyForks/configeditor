@@ -13,7 +13,7 @@ import {
   textContentAtom 
 } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { Bot, Send, Trash2, X } from 'lucide-react'
+import { Bot, ChevronLeft, Send, Trash2, X } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { toast } from "sonner"
 
@@ -48,7 +48,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return
 
-    if (!appSettings.ai.enabled || !appSettings.ai.apiKey) {
+    if (!appSettings.ai?.enabled || !appSettings.ai?.apiKey) {
       toast.error('请先在设置中配置AI API')
       return
     }
@@ -87,15 +87,15 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       ]
 
       // 根据provider调用不同的API
-      let apiUrl = appSettings.ai.baseUrl
+      let apiUrl = appSettings.ai?.baseUrl || 'https://api.openai.com/v1'
       let headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${appSettings.ai.apiKey}`
+        'Authorization': `Bearer ${appSettings.ai?.apiKey || ''}`
       }
 
-      if (appSettings.ai.provider === 'deepseek') {
+      if (appSettings.ai?.provider === 'deepseek') {
         apiUrl = apiUrl || 'https://api.deepseek.com/v1'
-      } else if (appSettings.ai.provider === 'openai') {
+      } else if (appSettings.ai?.provider === 'openai') {
         apiUrl = apiUrl || 'https://api.openai.com/v1'
       }
 
@@ -103,7 +103,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          model: appSettings.ai.model,
+          model: appSettings.ai?.model || 'gpt-3.5-turbo',
           messages,
           temperature: 0.7,
           max_tokens: 2000
@@ -154,7 +154,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-divider">
         <div className="flex items-center space-x-2">
-          <Bot className="h-5 w-5 text-primary" />
+          <Button
+            onClick={onClose}
+            size="sm"
+            variant="ghost"
+            className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <h2 className="text-lg font-semibold">AI 助手</h2>
         </div>
         <div className="flex items-center space-x-2">
@@ -166,14 +173,6 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             disabled={chatMessages.length === 0}
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            onClick={onClose}
-            size="sm"
-            variant="ghost"
-            className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition"
-          >
-            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -249,24 +248,24 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={
-              !appSettings.ai.enabled 
+              !appSettings.ai?.enabled 
                 ? "请先在设置中配置AI..." 
                 : nowFilePath 
                   ? "询问关于当前文件的问题..."
                   : "有什么可以帮助您的吗？"
             }
-            disabled={!appSettings.ai.enabled || isLoading}
+            disabled={!appSettings.ai?.enabled || isLoading}
             className="flex-1 bg-content2 border-divider focus:border-primary heroui-transition"
           />
           <Button
             onClick={handleSend}
-            disabled={!inputValue.trim() || !appSettings.ai.enabled || isLoading}
+            disabled={!inputValue.trim() || !appSettings.ai?.enabled || isLoading}
             className="heroui-button heroui-button-primary"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        {!appSettings.ai.enabled && (
+        {!appSettings.ai?.enabled && (
           <div className="text-xs text-warning mt-2">
             ⚠️ AI功能未启用，请在设置中配置API后启用
           </div>

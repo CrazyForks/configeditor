@@ -59,7 +59,16 @@ export function saveAppSettings(appSettings: AppSettings) {
 
 export function readAppSettings(): AppSettings {
   try {
-    return JSON.parse(localStorage.getItem(STORE_APP_SETTINGS) || '');
+    const stored = JSON.parse(localStorage.getItem(STORE_APP_SETTINGS) || '');
+    // 合并默认设置，确保所有属性都存在
+    return {
+      ...defaultAppSettings,
+      ...stored,
+      ai: {
+        ...defaultAppSettings.ai,
+        ...(stored.ai || {})
+      }
+    };
   } catch (e) {
     return defaultAppSettings;
   }

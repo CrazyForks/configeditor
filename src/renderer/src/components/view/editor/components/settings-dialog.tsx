@@ -42,12 +42,12 @@ export default function SettingsDialog(props: {
     }
     setNewFontSize(appSettings.fontSize)
     
-    // 初始化AI设置
-    setNewAIProvider(appSettings.ai.provider)
-    setNewAIApiKey(appSettings.ai.apiKey)
-    setNewAIBaseUrl(appSettings.ai.baseUrl)
-    setNewAIModel(appSettings.ai.model)
-    setNewAIEnabled(appSettings.ai.enabled)
+    // 初始化AI设置，添加安全检查
+    setNewAIProvider(appSettings.ai?.provider || 'openai')
+    setNewAIApiKey(appSettings.ai?.apiKey || '')
+    setNewAIBaseUrl(appSettings.ai?.baseUrl || 'https://api.openai.com/v1')
+    setNewAIModel(appSettings.ai?.model || 'gpt-3.5-turbo')
+    setNewAIEnabled(appSettings.ai?.enabled || false)
   }, [isSettingDialogOpen, nowFileInfo, appSettings])
 
   const onSaveBtnClick = () => {
@@ -83,12 +83,12 @@ export default function SettingsDialog(props: {
     }
     setNewFontSize(appSettings.fontSize)
     
-    // 还原AI设置
-    setNewAIProvider(appSettings.ai.provider)
-    setNewAIApiKey(appSettings.ai.apiKey)
-    setNewAIBaseUrl(appSettings.ai.baseUrl)
-    setNewAIModel(appSettings.ai.model)
-    setNewAIEnabled(appSettings.ai.enabled)
+    // 还原AI设置，添加安全检查
+    setNewAIProvider(appSettings.ai?.provider || 'openai')
+    setNewAIApiKey(appSettings.ai?.apiKey || '')
+    setNewAIBaseUrl(appSettings.ai?.baseUrl || 'https://api.openai.com/v1')
+    setNewAIModel(appSettings.ai?.model || 'gpt-3.5-turbo')
+    setNewAIEnabled(appSettings.ai?.enabled || false)
   }
 
   return (
