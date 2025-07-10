@@ -13,32 +13,43 @@ import {
   textContentAtom 
 } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { Bot, ChevronLeft, Send, Trash2 } from 'lucide-react'
+import { Bot, ChevronLeft, Send, Trash2, Square } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { toast } from "sonner"
 
-// 简单的Markdown渲染函数
+// 优化的Markdown渲染函数 - 更好支持中文
 const renderMarkdown = (content: string) => {
   let html = content
-    // 代码块
-    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-content3 p-3 rounded-lg overflow-x-auto my-2"><code class="text-sm">$2</code></pre>')
-    // 行内代码
-    .replace(/`([^`]+)`/g, '<code class="bg-content3 px-1 py-0.5 rounded text-sm">$1</code>')
-    // 粗体
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // 斜体
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // 代码块 - 支持中文注释
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-content3 p-3 rounded-lg overflow-x-auto my-2 font-mono"><code class="text-sm whitespace-pre-wrap">$2</code></pre>')
+    // 行内代码 - 优化中文显示
+    .replace(/`([^`]+)`/g, '<code class="bg-content3 px-1 py-0.5 rounded text-sm font-mono">$1</code>')
+    // 粗体 - 支持中文
+    .replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    // 斜体 - 支持中文
+    .replace(/\*([\s\S]*?)\*/g, '<em class="italic">$1</em>')
     // 链接
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
-    // 标题
-    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
-    // 列表
-    .replace(/^\- (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
-    // 换行
+    // 标题 - 优化中文排版
+    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2 text-foreground">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2 text-foreground">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2 text-foreground">$1</h1>')
+    // 有序列表
+    .replace(/^\d+\.\s+(.*$)/gm, '<li class="ml-4 list-decimal mb-1">$1</li>')
+    // 无序列表
+    .replace(/^[-*]\s+(.*$)/gm, '<li class="ml-4 list-disc mb-1">$1</li>')
+    // 引用块
+    .replace(/^>\s*(.*$)/gm, '<blockquote class="border-l-4 border-primary pl-4 my-2 text-default-600 italic">$1</blockquote>')
+    // 分隔线
+    .replace(/^---$/gm, '<hr class="my-4 border-divider" />')
+    // 换行 - 保持段落结构
+    .replace(/\n\n/g, '</p><p class="mb-2">')
     .replace(/\n/g, '<br/>')
+
+  // 包装段落
+  if (html && !html.startsWith('<')) {
+    html = '<p class="mb-2">' + html + '</p>'
+  }
 
   return html
 }
@@ -64,11 +75,15 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     displayedContent: string
     isTyping: boolean
   } | null>(null)
-  const typingIntervalRef = useRef<number | null>(null)
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   
   // 智能滚动相关状态
   const [userHasScrolled, setUserHasScrolled] = useState(false)
   const lastScrollTop = useRef(0)
+  
+  // 中断控制
+  const [isInterrupted, setIsInterrupted] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // 智能滚动到底部
   const scrollToBottom = () => {
@@ -113,8 +128,46 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       if (typingIntervalRef.current) {
         clearInterval(typingIntervalRef.current)
       }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
     }
   }, [])
+
+  // 中断AI输出
+  const handleInterrupt = () => {
+    setIsInterrupted(true)
+    
+    // 中断网络请求
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    
+    // 停止打字机效果
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current)
+      typingIntervalRef.current = null
+    }
+    
+    // 如果有正在显示的消息，添加到聊天记录
+    if (typingMessage && typingMessage.displayedContent.trim()) {
+      addChatMessage({
+        role: 'assistant',
+        content: typingMessage.displayedContent + '\n\n[输出已中断]'
+      })
+    }
+    
+    // 清理状态
+    setTypingMessage(null)
+    setIsLoading(false)
+    
+    // 延迟重置中断状态，确保组件状态更新完成
+    setTimeout(() => {
+      setIsInterrupted(false)
+    }, 100)
+    
+    toast.info('AI输出已中断')
+  }
 
   // 打字机效果函数
   const startTyping = (messageId: string, fullContent: string) => {
@@ -132,6 +185,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
     let currentIndex = 0
     typingIntervalRef.current = setInterval(() => {
+      // 检查是否被中断
+      if (isInterrupted) {
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current)
+        }
+        return
+      }
+      
       if (currentIndex < fullContent.length) {
         setTypingMessage(prev => prev ? {
           ...prev,
@@ -178,10 +239,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     })
 
     setIsLoading(true)
+    setIsInterrupted(false)
+    
+    // 创建AbortController用于中断请求
+    abortControllerRef.current = new AbortController()
 
     try {
-      // 构建系统提示词
-      let systemPrompt = '你是一个配置文件助手，帮助用户分析和修改配置文件。'
+      // 构建系统提示词 - 优化中文处理
+      let systemPrompt = '你是一个专业的配置文件助手，专门帮助用户分析和修改各种配置文件。请用清晰、准确的中文回答，并在适当时提供具体的代码示例。'
       
       if (nowFilePath && textContent) {
         systemPrompt += `\n\n当前正在编辑的文件：${nowFilePath}\n\n文件内容：\n${textContent}`
@@ -189,6 +254,8 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         if (nowFileInfo?.description) {
           systemPrompt += `\n\n文件描述：${nowFileInfo.description}`
         }
+        
+        systemPrompt += '\n\n请基于这个配置文件的内容来回答用户的问题，提供准确的配置建议和解释。'
       }
 
       // 准备消息历史
@@ -204,7 +271,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       // 根据provider调用不同的API
       let apiUrl = appSettings.ai?.baseUrl || 'https://api.openai.com/v1'
       let headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'Authorization': `Bearer ${appSettings.ai?.apiKey || ''}`
       }
 
@@ -217,11 +284,16 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       const response = await fetch(`${apiUrl}/chat/completions`, {
         method: 'POST',
         headers,
+        signal: abortControllerRef.current?.signal,
         body: JSON.stringify({
           model: appSettings.ai?.model || 'gpt-3.5-turbo',
           messages,
           temperature: 0.7,
-          max_tokens: 2000
+          max_tokens: 3000,
+          // 优化中文处理
+          top_p: 0.9,
+          frequency_penalty: 0.1,
+          presence_penalty: 0.1
         })
       })
 
@@ -240,6 +312,12 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       }
 
     } catch (error) {
+      // 检查是否是用户主动中断
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('AI请求被用户中断')
+        return
+      }
+      
       console.error('AI API调用失败:', error)
       // 错误消息也使用打字机效果
       const errorMessage = `抱歉，AI服务暂时不可用：${error instanceof Error ? error.message : '未知错误'}`
@@ -248,23 +326,46 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       toast.error('AI请求失败，请检查API配置')
     } finally {
       setIsLoading(false)
+      abortControllerRef.current = null
     }
   }
 
-  const handleKeyPress = (e: any) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // 检查是否是Escape键，用于中断AI输出
+    if (e.key === 'Escape' && (isLoading || typingMessage)) {
+      e.preventDefault()
+      handleInterrupt()
+      return
+    }
+    
+    // 检查是否是回车键且没有按住shift
     if (e.key === 'Enter' && !e.shiftKey) {
+      // 检查输入法状态 - 如果正在使用输入法，不发送消息
+      if (e.nativeEvent.isComposing) {
+        return
+      }
+      
       e.preventDefault()
       handleSend()
     }
   }
 
+  // 处理输入法组合事件
+  const handleCompositionStart = () => {
+    // 输入法开始时，标记状态
+  }
+
+  const handleCompositionEnd = () => {
+    // 输入法结束时，清除标记
+  }
+
   const handleClearChat = () => {
-    // 清除打字机效果
-    if (typingIntervalRef.current) {
-      clearInterval(typingIntervalRef.current)
+    // 如果AI正在输出，先中断
+    if (isLoading || typingMessage) {
+      handleInterrupt()
     }
-    setTypingMessage(null)
     
+    // 清除聊天记录
     clearChatMessages()
     toast.success('聊天记录已清空')
   }
@@ -290,7 +391,8 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             size="sm"
             variant="ghost"
             className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition"
-            disabled={chatMessages.length === 0}
+            disabled={chatMessages.length === 0 && !isLoading && !typingMessage}
+            title={isLoading || typingMessage ? "中断AI输出并清空" : "清空聊天记录"}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -307,16 +409,29 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
+      {/* AI状态指示器 */}
+      {(isLoading || typingMessage) && (
+        <div className="px-4 py-2 bg-warning/10 border-b border-divider">
+          <div className="flex items-center space-x-2 text-xs text-warning-600">
+            <div className="animate-pulse w-2 h-2 bg-warning rounded-full"></div>
+            <span>
+              {isLoading && !typingMessage ? 'AI正在思考...' : 'AI正在回复...'}
+            </span>
+            <span className="text-default-400">按Esc键或点击中断按钮可中断</span>
+          </div>
+        </div>
+      )}
+
       {/* 聊天区域 */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScroll={handleScroll}>
         {chatMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <Bot className="h-12 w-12 text-default-300 mb-4" />
-            <h3 className="text-lg font-medium text-default-500 mb-2">开始对话</h3>
-            <p className="text-sm text-default-400 max-w-xs">
+            <h3 className="text-lg font-medium text-default-500 mb-2">AI 配置助手</h3>
+            <p className="text-sm text-default-400 max-w-sm leading-relaxed">
               {nowFilePath 
-                ? '询问关于当前配置文件的任何问题，我将帮助您分析和修改配置。'
-                : '请先打开一个配置文件，然后询问相关问题。'
+                ? '您好！我是您的配置文件助手。我可以帮助您：\n• 分析配置文件结构\n• 解释配置参数含义\n• 提供配置优化建议\n• 解决配置相关问题'
+                : '请先打开一个配置文件，我将基于文件内容为您提供专业的配置建议和解答。'
               }
             </p>
           </div>
@@ -334,11 +449,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
                       : 'bg-content2 text-foreground'
                   }`}
                 >
-                  <div className="text-sm whitespace-pre-wrap">
+                  <div className="text-sm whitespace-pre-wrap leading-relaxed">
                     {message.role === 'assistant' ? (
-                      <div dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }} />
+                      <div 
+                        className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-code:text-foreground"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }} 
+                      />
                     ) : (
-                      message.content
+                      <div className="break-words">{message.content}</div>
                     )}
                   </div>
                   <div className={`text-xs mt-2 opacity-70 ${
@@ -354,8 +472,11 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             {typingMessage && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] bg-content2 text-foreground rounded-lg p-3">
-                  <div className="text-sm whitespace-pre-wrap">
-                    <div dangerouslySetInnerHTML={{ __html: renderMarkdown(typingMessage.displayedContent) }} />
+                  <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                    <div 
+                      className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-code:text-foreground"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(typingMessage.displayedContent) }} 
+                    />
                     {typingMessage.isTyping && (
                       <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
                     )}
@@ -385,29 +506,41 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
       {/* 输入区域 */}
       <div className="p-4">
-        <div className="flex items-end space-x-2">
+        <div className="relative">
           <Textarea
             ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             placeholder={
               !appSettings.ai?.enabled 
-                ? "请先在设置中配置AI..." 
+                ? "请先在设置中配置AI服务..." 
                 : nowFilePath 
-                  ? "询问关于当前文件的问题... (Shift+Enter换行，Enter发送)"
-                  : "有什么可以帮助您的吗？ (Shift+Enter换行，Enter发送)"
+                  ? "请描述您遇到的配置问题或需要的帮助... (Shift+Enter换行，Enter发送)"
+                  : "您好！请告诉我您需要什么帮助... (Shift+Enter换行，Enter发送)"
             }
             disabled={!appSettings.ai?.enabled || isLoading}
-            className="flex-1 bg-content2 border-divider focus:border-primary heroui-transition min-h-[80px] max-h-[200px] resize-none"
+            className="w-full bg-content2 border-divider focus:border-primary heroui-transition min-h-[80px] max-h-[200px] resize-none pr-12 pb-12"
             rows={3}
           />
           <Button
-            onClick={handleSend}
-            disabled={!inputValue.trim() || !appSettings.ai?.enabled || isLoading}
-            className="heroui-button heroui-button-primary self-end h-12 px-4"
+            onClick={isLoading || typingMessage ? handleInterrupt : handleSend}
+            disabled={(!inputValue.trim() && !isLoading && !typingMessage) || !appSettings.ai?.enabled}
+            size="sm"
+            className={`absolute bottom-2 right-2 h-8 w-8 p-0 ${
+              isLoading || typingMessage 
+                ? 'heroui-button heroui-button-danger bg-danger hover:bg-danger/90' 
+                : 'heroui-button heroui-button-primary'
+            }`}
+            title={isLoading || typingMessage ? "中断AI输出" : "发送消息"}
           >
-            <Send className="h-4 w-4" />
+            {isLoading || typingMessage ? (
+              <Square className="h-3 w-3" />
+            ) : (
+              <Send className="h-3 w-3" />
+            )}
           </Button>
         </div>
         {!appSettings.ai?.enabled && (
