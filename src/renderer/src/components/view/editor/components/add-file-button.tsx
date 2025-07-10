@@ -198,7 +198,7 @@ export function AddFileButton() {
                     <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
                         <CollapsibleTrigger asChild>
                             <Button 
-                                variant="ghost" 
+                                variant="link" 
                                 className="flex items-center space-x-2 p-0 h-auto text-sm heroui-button-flat rounded-lg shadow-none"
                             >
                                 {isAdvancedOpen ? (
