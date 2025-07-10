@@ -93,32 +93,12 @@ class DiffUpdater {
         const model = this.editor.getModel()
         const modifiedLines = model?.getLinesContent() || []
 
-        // 获取变更的确切范围
-        const originalStart = Math.max(0, change.originalStartLineNumber - 1)
-        const originalEnd = change.originalEndLineNumber > 0 ? change.originalEndLineNumber : originalStart + 1
-        const modifiedStart = Math.max(0, change.modifiedStartLineNumber - 1)
-        const modifiedEnd = change.modifiedEndLineNumber > 0 ? change.modifiedEndLineNumber : modifiedStart + 1
-
-        // 增加上下文行数，提供更好的diff视图
-        const contextLines = 5
-        
-        // 计算原始文件的上下文范围
-        const originalContextStart = Math.max(0, originalStart - contextLines)
-        const originalContextEnd = Math.min(originalLines.length, originalEnd + contextLines)
-        
-        // 计算修改文件的上下文范围
-        const modifiedContextStart = Math.max(0, modifiedStart - contextLines)
-        const modifiedContextEnd = Math.min(modifiedLines.length, modifiedEnd + contextLines)
-
-        // 获取带上下文的内容
-        const originalSlice = originalLines.slice(originalContextStart, originalContextEnd)
-        const modifiedSlice = modifiedLines.slice(modifiedContextStart, modifiedContextEnd)
-
+        // 返回文件的全部内容进行比较，而不是只显示变更部分的上下文
         return {
-            originalLines: originalSlice,
-            modifiedLines: modifiedSlice,
-            startLine: modifiedContextStart + 1, // Monaco编辑器行号从1开始
-            endLine: modifiedContextEnd,
+            originalLines: originalLines,
+            modifiedLines: modifiedLines,
+            startLine: 1, // Monaco编辑器行号从1开始
+            endLine: modifiedLines.length,
             changeStartLine: change.modifiedStartLineNumber,
             changeEndLine: change.modifiedEndLineNumber || change.modifiedStartLineNumber
         }
@@ -136,6 +116,17 @@ class DiffUpdater {
             model.deltaDecorations(this.decorations, [])
         }
     }
+
+    getChange(index: number) {
+        if (index < 0 || index >= this.changes.length) return null
+        return this.changes[index]
+    }
+
+
+
+
+
+    
 }
 
 export class PeekViewManager {
@@ -201,14 +192,18 @@ export class PeekViewManager {
         const changeInfo = this.updater.getChangeInfo(ind)
         if (!changeInfo) return
 
-        const { endLineNum, linesNum, changesNum, index, changeType } = changeInfo
+        const { endLineNum, changesNum, index, changeType } = changeInfo
         
         // 计算合适的高度 - VSCode风格的peekView高度
         const editorLineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight)
         const titleHeight = 35 // 标题栏高度（更新为新的高度）
-        const minContentHeight = 8 * editorLineHeight // 最小8行
-        const maxContentHeight = 16 * editorLineHeight // 最大16行  
-        let contentHeight = Math.max(minContentHeight, Math.min(maxContentHeight, linesNum * editorLineHeight * 2))
+        const minContentHeight = 15 * editorLineHeight // 最小15行
+        const maxContentHeight = Math.min(window.innerHeight * 0.6, 50 * editorLineHeight) // 最大50行或屏幕高度的60%
+        
+        // 获取文件总行数来计算更合适的高度
+        const totalLines = model.getLineCount()
+        const idealContentHeight = Math.min(totalLines * editorLineHeight * 0.8, maxContentHeight)
+        let contentHeight = Math.max(minContentHeight, idealContentHeight)
         
         // 总高度 = 标题高度 + 内容高度
         const totalHeight = titleHeight + contentHeight
@@ -369,7 +364,7 @@ export class PeekViewManager {
         if (!editorContainer) return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
 
         const changeContent = this.updater.getChangeContent(changeIndex)
-        const { originalLines, modifiedLines, startLine } = changeContent
+        const { originalLines, modifiedLines } = changeContent
 
         try {
             // 创建 diff 编辑器 - diff editor会自动继承当前的全局Monaco主题
@@ -428,8 +423,19 @@ export class PeekViewManager {
                 diffEditor.layout()
                 // 滚动到变更区域
                 const modifiedEditor = diffEditor.getModifiedEditor()
-                if (modifiedEditor && startLine > 1) {
-                    modifiedEditor.revealLineInCenter(Math.max(1, startLine))
+                const originalEditor = diffEditor.getOriginalEditor()
+                
+                // 获取当前变更的行号
+                const change = this.updater?.getChange(changeIndex)
+                if (change && modifiedEditor && originalEditor) {
+                    const changeLineNumber = change.modifiedStartLineNumber
+                    // 在两个编辑器中都滚动到变更位置
+                    modifiedEditor.revealLineInCenter(changeLineNumber)
+                    
+                    // 如果原始文件中也有对应的行，也滚动到相应位置
+                    if (change.originalStartLineNumber > 0) {
+                        originalEditor.revealLineInCenter(change.originalStartLineNumber)
+                    }
                 }
             }, 100)
 

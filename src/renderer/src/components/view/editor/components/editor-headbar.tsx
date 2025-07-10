@@ -401,6 +401,7 @@ export function EditorHeadBar() {
             )}
             {isSaving ? '保存中...' : '保存'}
           </Button>
+          
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
