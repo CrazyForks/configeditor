@@ -40,68 +40,17 @@ export function MonacoEditor() {
     // 当编辑器挂载时注册 diff 功能
     const onEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor
-        
-        // 添加调试功能到全局对象
-        ;(window as any).debugEditor = {
-            getFileChanges: () => {
-                if (nowFilePath) {
-                    return peekViewManager.getFileChanges(nowFilePath)
-                }
-                return []
-            },
-            getCurrentDecorations: () => {
-                const model = editor.getModel()
-                if (model) {
-                    return model.getAllDecorations().filter(d => 
-                        d.options.linesDecorationsClassName?.includes('dirty-diff')
-                    )
-                }
-                return []
-            },
-            triggerUpdate: () => {
-                if (nowFilePath) {
-                    peekViewManager.updateDiff(nowFilePath)
-                }
-            },
-            createTestDiff: () => {
-                // 在编辑器中添加一行来创建测试差异
-                const model = editor.getModel()
-                if (model) {
-                    const currentContent = model.getValue()
-                    const lines = currentContent.split('\n')
-                    lines.splice(1, 0, '// This is a test line added for dirty diff testing')
-                    const newContent = lines.join('\n')
-                    model.setValue(newContent)
-                    console.log('zws Test line added, triggering diff update')
-                    
-                    // 手动触发更新
-                    setTimeout(() => {
-                        if (nowFilePath) {
-                            peekViewManager.updateDiff(nowFilePath)
-                        }
-                    }, 100)
-                }
-            },
-            getEditorInfo: () => {
-                const model = editor.getModel()
-                return {
-                    hasModel: !!model,
-                    modelUri: model?.uri.toString(),
-                    contentLength: model?.getValue().length,
-                    glyphMarginEnabled: editor.getOption(monaco.editor.EditorOption.glyphMargin),
-                    currentFilePath: nowFilePath
-                }
-            }
+        if (editorRef.current && nowFilePath) {
+            // 使用textContent作为原始内容进行注册
+            console.log('zws [onEditorMount]nowFilePath:', nowFilePath, 'content length:', textContent.length)
+            peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
         }
-        
-        console.log('zws Editor mounted, debug functions available on window.debugEditor')
     }
 
     // 当内容变化时更新 diff
     const onEditorChange = (content: string | undefined) => {
         const newContent = content ?? ''
         setNewTextContent(newContent)
-        
         // 更新 diff 显示
         if (nowFilePath && editorRef.current) {
             peekViewManager.updateDiff(nowFilePath)

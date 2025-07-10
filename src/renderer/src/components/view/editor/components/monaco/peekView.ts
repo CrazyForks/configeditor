@@ -176,12 +176,7 @@ export class PeekViewManager {
                 element: e.target.element
             })
             
-            // 检查多种可能的点击目标类型
-            const isValidTarget = (
-                e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS ||
-                e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
-                e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_NUMBERS
-            )
+            const isValidTarget = (e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS);
             
             const isDirtyDiffElement = /dirty-diff/.test(e.target.element?.className || '')
             
@@ -506,31 +501,12 @@ export function usePeekView({
     editorRef: React.RefObject<monaco.editor.IStandaloneCodeEditor | null>
 }) {
     useEffect(() => {
-        if (editorRef.current && nowFilePath && textContent) {
-            console.log('zws Registering editor for peekview:', nowFilePath)
-            console.log('zws Original content length:', textContent.length)
-            console.log('zws Editor model URI:', editorRef.current.getModel()?.uri.toString())
-            
+        if (editorRef.current && nowFilePath) {
+            console.log('zws [useEffect]nowFilePath:', nowFilePath, 'content length:', textContent.length)
             // 使用textContent作为原始内容进行注册
             peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
-            
-            // 立即检查编辑器当前内容与原始内容的差异
-            const model = editorRef.current.getModel()
-            if (model) {
-                const currentContent = model.getValue()
-                console.log('zws Current editor content length:', currentContent.length)
-                console.log('zws Content differs:', currentContent !== textContent)
-                
-                if (currentContent !== textContent) {
-                    // 如果内容已经不同，立即触发更新
-                    setTimeout(() => {
-                        console.log('zws Triggering diff update due to content difference')
-                        peekViewManager.updateDiff(nowFilePath)
-                    }, 100)
-                }
-            }
         }
-    }, [nowFilePath, editorRef.current, textContent])
+    }, [nowFilePath, textContent])
 
     // 组件卸载时清理所有资源
     useEffect(() => {
