@@ -46,24 +46,17 @@ class DiffUpdater {
 
         const originalLines = this.originalContent.split('\n')
         this.changes = computeDirtyDiff(originalLines, model)
-        console.log('zws Diff changes:', this.changes.length, this.changes)
+        console.log('zws[update] Diff changes:', this.changes)
         
         if (this.changes.length > 0) {
             const decorations = generateDecorations(this.changes)
-            console.log('zws Generated decorations:', decorations)
+            console.log('zws[update] Generated decorations:', decorations)
             this.decorations = model.deltaDecorations(this.decorations, decorations)
-            console.log('zws Decorations applied:', this.decorations.length, this.decorations)
-            
-            // 验证装饰器是否真的被应用了
-            const currentDecorations = model.getAllDecorations()
-            const dirtyDiffDecorations = currentDecorations.filter(d => 
-                d.options.linesDecorationsClassName?.includes('dirty-diff')
-            )
-            console.log('zws Current dirty diff decorations in model:', dirtyDiffDecorations.length, dirtyDiffDecorations)
+            console.log('zws[update] Decorations applied:', this.decorations.length, this.decorations)
         } else {
             // 如果没有变更，清除所有装饰器
             this.decorations = model.deltaDecorations(this.decorations, [])
-            console.log('zws No changes, cleared decorations')
+            console.log('zws[update]如果没有变更，清除所有装饰器')
         }
     }
 
@@ -167,7 +160,7 @@ export class PeekViewManager {
 
         // 添加鼠标点击监听
         this.mouseListeners[filePath] = editor.onMouseDown((e) => {
-            console.log('zws Mouse down event:', {
+            console.log('zws[Mousedown]event:', {
                 targetType: e.target.type,
                 targetTypeName: monaco.editor.MouseTargetType[e.target.type],
                 className: e.target.element?.className,
@@ -179,7 +172,7 @@ export class PeekViewManager {
             const isValidTarget = (e.target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS);
             
             const isDirtyDiffElement = /dirty-diff/.test(e.target.element?.className || '')
-            
+            console.log('zws [isValidTarget]:', isValidTarget, 'isDirtyDiffElement:', isDirtyDiffElement, 'element:', e.target.element)
             if (isValidTarget && isDirtyDiffElement) {
                 const lineNumber = e.target.position?.lineNumber
                 if (lineNumber && this.updaters[filePath]) {
