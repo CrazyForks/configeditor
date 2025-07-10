@@ -2,7 +2,7 @@ import { appSettingsAtom, downloadProgressAtom, downloadSpeedAtom, downloadStatu
 import Editor, { loader } from '@monaco-editor/react'
 import { useAtom } from 'jotai'
 import * as monaco from "monaco-editor"
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { WelcomeFragment } from '../welcome-fragment'
 import { getLanguageFromFilePath, registerApacheLanguage, registerNginxLanguage } from './languages'
 import { MonacoLoading } from './loading'
@@ -52,12 +52,22 @@ export function MonacoEditor() {
         return 'vs'; // 默认浅色主题
     }, [currentTheme]);
 
+    // 监听主题变化并同步全局 Monaco 主题
+    useEffect(() => {
+        // 设置全局 Monaco 主题，确保所有编辑器（包括 diff editor）使用相同主题
+        monaco.editor.setTheme(monacoTheme)
+    }, [monacoTheme])
+
     // 根据文件路径和扩展名获取语言类型
     const editorLanguage = nowFilePath ? getLanguageFromFilePath(nowFilePath, nowFileExt) : 'plaintext'
 
     // 当编辑器挂载时注册 diff 功能
     const onEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor
+        
+        // 设置全局 Monaco 主题，确保所有编辑器（包括 diff editor）使用相同主题
+        monaco.editor.setTheme(monacoTheme)
+        
         if (editorRef.current && nowFilePath) {
             // 使用textContent作为原始内容进行注册
             console.log('zws [onEditorMount]nowFilePath:', nowFilePath, 'content length:', textContent.length)

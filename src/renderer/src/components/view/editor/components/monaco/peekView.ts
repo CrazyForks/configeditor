@@ -136,6 +136,12 @@ export class PeekViewManager {
     private overlays: OverlayInfo[] = []
     private peekViewIndex: PeekViewInfo | null = null
     private mouseListener: monaco.IDisposable | null = null
+    private currentTheme: 'light' | 'dark' | 'system' = 'system'
+
+    // 设置主题
+    setTheme(theme: 'light' | 'dark' | 'system') {
+        this.currentTheme = theme
+    }
 
     // 注册编辑器的 diff 更新器
     registerEditor(editor: monaco.editor.IStandaloneCodeEditor, originalContent: string, filePath: string) {
@@ -292,7 +298,18 @@ export class PeekViewManager {
 
     // 获取当前主题
     private getCurrentTheme(): 'light' | 'dark' {
-        // 检查document.documentElement的data-theme属性
+        // 首先使用设置的主题
+        if (this.currentTheme === 'light') {
+            return 'light'
+        } else if (this.currentTheme === 'dark') {
+            return 'dark'
+        } else if (this.currentTheme === 'system') {
+            // 检查系统主题偏好
+            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+            return isDarkMode ? 'dark' : 'light'
+        }
+
+        // 回退检查：检查document.documentElement的data-theme属性
         const documentTheme = document.documentElement.getAttribute('data-theme')
         if (documentTheme === 'dark' || documentTheme === 'light') {
             return documentTheme
@@ -333,11 +350,7 @@ export class PeekViewManager {
         const { originalLines, modifiedLines } = changeContent
 
         try {
-            // 获取当前主题
-            const currentTheme = this.getCurrentTheme()
-            const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'vs'
-
-            // 创建 diff 编辑器
+            // 创建 diff 编辑器 - diff editor会自动继承当前的全局Monaco主题
             const diffEditor = monaco.editor.createDiffEditor(editorContainer, {
                 enableSplitViewResizing: false, // 禁用分割视图调整大小
                 renderSideBySide: false, // 以单列模式显示差异
@@ -355,7 +368,6 @@ export class PeekViewManager {
                 },
                 originalEditable: false, // 禁止编辑原始内容
                 automaticLayout: true, // 自动布局
-                theme: monacoTheme, // 应用主题
                 renderOverviewRuler: false, // 隐藏概览标尺
                 hideCursorInOverviewRuler: true, // 隐藏光标在概览标尺中的显示
                 overviewRulerBorder: false, // 隐藏概览标尺边框
@@ -370,6 +382,10 @@ export class PeekViewManager {
                 modified: modifiedModel
             })
 
+            // 确保diff editor使用正确的主题
+            // diff editor会自动继承当前的全局Monaco主题
+            // 我们不应该改变全局主题，因为这会影响主编辑器
+            
             // 自动调整高度和布局
             setTimeout(() => {
                 diffEditor.layout()
@@ -446,16 +462,7 @@ export class PeekViewManager {
 
     // 更新主题
     updateTheme() {
-        this.overlays.forEach(({ diffEditor }) => {
-            if (diffEditor) {
-                const currentTheme = this.getCurrentTheme()
-                const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'vs'
-                // 更新diff编辑器主题
-                monaco.editor.setTheme(monacoTheme)
-            }
-        })
-        
-        // 更新overlay的主题属性
+        // 只更新overlay的主题属性，不要改变Monaco Editor的全局主题
         this.overlays.forEach(({ overlayWidget }) => {
             const overlayDom = overlayWidget.getDomNode()
             if (overlayDom) {
@@ -463,6 +470,9 @@ export class PeekViewManager {
                 overlayDom.setAttribute('data-theme', currentTheme)
             }
         })
+        
+        // 注意：我们不更新diff editor的主题，因为这会影响全局Monaco主题
+        // diff editor的主题将在下次打开peekview时使用正确的主题创建
     }
 
 }
@@ -484,6 +494,10 @@ export function usePeekView({
     useEffect(() => {
         if (editorRef.current && nowFilePath) {
             console.log('zws [useEffect]nowFilePath:', nowFilePath, 'content length:', textContent.length)
+            // 设置主题
+            if (currentTheme) {
+                peekViewManager.setTheme(currentTheme)
+            }
             // 使用textContent作为原始内容进行注册
             peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
         }
@@ -492,6 +506,7 @@ export function usePeekView({
     // 监听主题变化并更新peekview主题
     useEffect(() => {
         if (currentTheme) {
+            peekViewManager.setTheme(currentTheme)
             peekViewManager.updateTheme()
         }
     }, [currentTheme])
