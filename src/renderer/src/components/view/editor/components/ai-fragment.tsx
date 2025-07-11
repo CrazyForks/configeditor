@@ -82,7 +82,8 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const lastScrollTop = useRef(0)
 
   // 中断控制
-  const [isInterrupted, setIsInterrupted] = useState(false)
+  const [, setIsInterrupted] = useState(false)
+  const isInterruptedRef = useRef(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // 智能滚动到底部
@@ -142,6 +143,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   // 中断AI输出
   const handleInterrupt = () => {
     setIsInterrupted(true)
+    isInterruptedRef.current = true
 
     // 中断网络请求
     if (abortControllerRef.current) {
@@ -169,12 +171,11 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     // 延迟重置中断状态，确保组件状态更新完成
     setTimeout(() => {
       setIsInterrupted(false)
-    }, 100)
+      isInterruptedRef.current = false
+    }, 500)
 
     toast.info('AI输出已中断')
   }
-
-  // 流式输出已经在 handleSend 中直接处理，不再需要 startTyping 函数
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return
@@ -198,6 +199,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     scrollToBottom()
     setIsLoading(true)
     setIsInterrupted(false)
+    isInterruptedRef.current = false
 
     // 创建AbortController用于中断请求
     abortControllerRef.current = new AbortController()
@@ -328,7 +330,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
           }
 
           // 检查是否被中断
-          if (isInterrupted) {
+          if (isInterruptedRef.current) {
             reader.cancel()
             break
           }
@@ -372,7 +374,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         }
 
         // 流式输出完成
-        if (messageContent.trim() && !isInterrupted) {
+        if (messageContent.trim() && !isInterruptedRef.current) {
           setTypingMessage(prev => prev ? {
             ...prev,
             isTyping: false
