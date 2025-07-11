@@ -14,7 +14,7 @@ import {
 } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Bot, ChevronLeft, Send, Trash2, Square } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { toast } from "sonner"
 
 // 优化的Markdown渲染函数 - 更好支持中文
@@ -66,6 +66,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
   const [inputValue, setInputValue] = useState('')
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const scrollViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // 打字机效果相关状态
@@ -88,20 +89,17 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
   // 智能滚动到底部
   const scrollToBottom = (force = false) => {
-    if (scrollAreaRef.current && (!userHasScrolled || force)) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+    const viewport = scrollViewportRef.current
+    if (viewport && (!userHasScrolled || force)) {
+      viewport.scrollTop = viewport.scrollHeight
     }
   }
 
   // 检测用户是否手动滚动
-  const handleScroll = () => {
-    // 如果AI正在输出，暂时不检测用户滚动，确保AI输出时持续滚动
-    if (isLoading || typingMessage?.isTyping) {
-      return
-    }
-
-    if (scrollAreaRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current
+  const handleScroll = useCallback(() => {
+    const viewport = scrollViewportRef.current
+    if (viewport) {
+      const { scrollTop, scrollHeight, clientHeight } = viewport
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50 // 50px容差
 
       // 如果用户滚动到底部附近，重置为自动滚动模式
@@ -114,12 +112,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
       lastScrollTop.current = scrollTop
     }
-  }
-
-  // 自动滚动到底部
-  useEffect(() => {
-    scrollToBottom()
-  }, [chatMessages, typingMessage])
+  }, [])
 
   // 聚焦输入框
   useEffect(() => {
@@ -127,6 +120,27 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       inputRef.current.focus()
     }
   }, [])
+
+  // 获取 ScrollArea 的 viewport 元素并设置滚动监听
+  useEffect(() => {
+    if (!scrollAreaRef.current) return
+
+    // 查找 ScrollArea 内部的 viewport 元素
+    const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLDivElement
+    if (!viewport) return
+
+    if (scrollViewportRef.current !== viewport) {
+      ;(scrollViewportRef as React.MutableRefObject<HTMLDivElement | null>).current = viewport
+    }
+    
+    // 添加滚动监听器
+    viewport.addEventListener('scroll', handleScroll)
+    
+    // 清理函数
+    return () => {
+      viewport.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
 
   // 清理打字机定时器
   useEffect(() => {
@@ -515,7 +529,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       )}
 
       {/* 聊天区域 */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef} onScroll={handleScroll}>
+      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         {chatMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <Bot className="h-12 w-12 text-default-300 mb-4" />
