@@ -8,6 +8,7 @@ import {
   chatMessagesAtom,
   clearChatMessagesAtom,
   isAIResponseLoadingAtom,
+  newTextContentAtom,
   nowFileInfoAtom,
   nowFilePathAtom,
   textContentAtom
@@ -62,7 +63,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const [isLoading, setIsLoading] = useAtom(isAIResponseLoadingAtom)
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
-  const [textContent] = useAtom(textContentAtom)
+  const [newTextContent] = useAtom(newTextContentAtom)
 
   const [inputValue, setInputValue] = useState('')
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -253,7 +254,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       role: 'user',
       content: userMessage
     })
-
+    scrollToBottom()
     setIsLoading(true)
     setIsInterrupted(false)
 
@@ -264,8 +265,49 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       // 构建系统提示词 - 优化中文处理
       let systemPrompt = '你是一个专业的配置文件助手，专门帮助用户分析和修改各种配置文件。请用清晰、准确的中文回答，并在适当时提供具体的代码示例。'
 
-      if (nowFilePath && textContent) {
-        systemPrompt += `\n\n当前正在编辑的文件：${nowFilePath}\n\n文件内容：\n${textContent}`
+      if (nowFilePath && newTextContent) {
+        // 限制文件内容大小为150,000字符
+        const MAX_CONTENT_LENGTH = 150000;
+        
+        // 递归函数，确保内容不超过指定长度
+        const truncateContent = (content: string, maxLength: number): string => {
+          if (content.length <= maxLength) {
+            return content;
+          }
+          
+          // 按换行符分割文本
+          const lines = content.split('\n');
+          
+          // 如果只有少量行，直接从中间截取
+          if (lines.length <= 10) {
+            return content.substring(0, maxLength / 2) + 
+             '\n\n...[内容过长，中间部分已省略]...\n\n' +
+             content.substring(content.length - maxLength / 2);
+          }
+          
+          // 保留头部和尾部的一些内容
+          const headLines = lines.slice(0, Math.floor(lines.length * 0.4));
+          const tailLines = lines.slice(Math.floor(lines.length * 0.6));
+          
+          // 组合新内容
+          const newContent = [
+            ...headLines,
+            '\n...[内容过长，中间部分已省略]...\n',
+            ...tailLines
+          ].join('\n');
+          
+          // 如果还是太长，递归处理
+          if (newContent.length > maxLength) {
+            return truncateContent(newContent, maxLength);
+          }
+          
+          return newContent;
+        };
+        
+        // 应用递归截断
+        const contentToSend = truncateContent(newTextContent, MAX_CONTENT_LENGTH);
+        
+        systemPrompt += `\n\n当前正在编辑的文件：${nowFilePath}\n\n文件内容：\n${contentToSend}`
 
         if (nowFileInfo?.description) {
           systemPrompt += `\n\n文件描述：${nowFileInfo.description}`
