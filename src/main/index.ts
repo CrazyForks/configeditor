@@ -622,6 +622,22 @@ function createWindow(): void {
       })
     })
   })
+
+  // 打开/关闭开发者工具
+  ipcMain.handle('toggle-dev-tools', async () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow()
+    if (focusedWindow) {
+      if (focusedWindow.webContents.isDevToolsOpened()) {
+        focusedWindow.webContents.closeDevTools()
+        return { code: 3, msg: '开发者工具已关闭' }
+      } else {
+        focusedWindow.webContents.openDevTools()
+        return { code: 3, msg: '开发者工具已打开' }
+      }
+    } else {
+      return { code: 2, msg: '未找到活动窗口' }
+    }
+  })
 }
 
 // This method will be called when Electron has finished

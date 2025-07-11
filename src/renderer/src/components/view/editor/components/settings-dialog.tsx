@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AppSettings, appSettingsAtom, fileInfosAtom, nowFileInfoAtom, nowFilePathAtom, themeAtom, setThemeAtom, AIProvider } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
-import { HardDrive, Info, Moon, RefreshCw, Sun, Monitor, Bot } from 'lucide-react'
+import { HardDrive, Info, Moon, RefreshCw, Sun, Monitor, Bot, Code } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import _ from 'lodash'
 import { saveAppSettings, saveFileInfos } from "../utils"
@@ -89,6 +89,19 @@ export default function SettingsDialog(props: {
     setNewAIBaseUrl(appSettings.ai?.baseUrl || 'https://api.openai.com/v1')
     setNewAIModel(appSettings.ai?.model || 'gpt-3.5-turbo')
     setNewAIEnabled(appSettings.ai?.enabled || false)
+  }
+
+  const onToggleDevTools = async () => {
+    try {
+      const result = await window.electron.ipcRenderer.invoke('toggle-dev-tools')
+      if (result.code === 3) {
+        alert(result.msg)
+      } else {
+        alert('操作失败: ' + result.msg)
+      }
+    } catch (error) {
+      alert('操作失败: ' + error)
+    }
   }
 
   return (
@@ -199,6 +212,17 @@ export default function SettingsDialog(props: {
                   className="w-full justify-start heroui-button-secondary border-divider hover:border-primary shadow-none"
                 >
                   <Info className="mr-2 h-4 w-4" /> 关于我们
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground">开发者工具</Label>
+                <Button 
+                  onClick={onToggleDevTools}
+                  variant="outline" 
+                  className="w-full justify-start heroui-button-secondary border-divider hover:border-primary shadow-none"
+                >
+                  <Code className="mr-2 h-4 w-4" /> 打开/关闭开发者工具
                 </Button>
               </div>
             </div>
