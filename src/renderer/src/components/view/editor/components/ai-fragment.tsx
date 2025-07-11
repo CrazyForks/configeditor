@@ -2,15 +2,15 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import { 
-  addChatMessageAtom, 
-  appSettingsAtom, 
-  chatMessagesAtom, 
-  clearChatMessagesAtom, 
-  isAIResponseLoadingAtom, 
-  nowFileInfoAtom, 
-  nowFilePathAtom, 
-  textContentAtom 
+import {
+  addChatMessageAtom,
+  appSettingsAtom,
+  chatMessagesAtom,
+  clearChatMessagesAtom,
+  isAIResponseLoadingAtom,
+  nowFileInfoAtom,
+  nowFilePathAtom,
+  textContentAtom
 } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Bot, ChevronLeft, Send, Trash2, Square } from 'lucide-react'
@@ -63,11 +63,11 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const [nowFilePath] = useAtom(nowFilePathAtom)
   const [nowFileInfo] = useAtom(nowFileInfoAtom)
   const [textContent] = useAtom(textContentAtom)
-  
+
   const [inputValue, setInputValue] = useState('')
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  
+
   // 打字机效果相关状态
   const [typingMessage, setTypingMessage] = useState<{
     id: string
@@ -76,28 +76,33 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     isTyping: boolean
   } | null>(null)
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  
+
   // 智能滚动相关状态
   const [userHasScrolled, setUserHasScrolled] = useState(false)
   const lastScrollTop = useRef(0)
-  
+
   // 中断控制
   const [isInterrupted, setIsInterrupted] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // 智能滚动到底部
-  const scrollToBottom = () => {
-    if (scrollAreaRef.current && !userHasScrolled) {
+  const scrollToBottom = (force = false) => {
+    if (scrollAreaRef.current && (!userHasScrolled || force)) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
   }
 
   // 检测用户是否手动滚动
   const handleScroll = () => {
+    // 如果AI正在输出，暂时不检测用户滚动，确保AI输出时持续滚动
+    if (isLoading || typingMessage?.isTyping) {
+      return
+    }
+
     if (scrollAreaRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50 // 50px容差
-      
+
       // 如果用户滚动到底部附近，重置为自动滚动模式
       if (isAtBottom) {
         setUserHasScrolled(false)
@@ -105,7 +110,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         // 用户向上滚动
         setUserHasScrolled(true)
       }
-      
+
       lastScrollTop.current = scrollTop
     }
   }
@@ -137,18 +142,18 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   // 中断AI输出
   const handleInterrupt = () => {
     setIsInterrupted(true)
-    
+
     // 中断网络请求
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
-    
+
     // 停止打字机效果
     if (typingIntervalRef.current) {
       clearInterval(typingIntervalRef.current)
       typingIntervalRef.current = null
     }
-    
+
     // 如果有正在显示的消息，添加到聊天记录
     if (typingMessage && typingMessage.displayedContent.trim()) {
       addChatMessage({
@@ -156,16 +161,16 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         content: typingMessage.displayedContent + '\n\n[输出已中断]'
       })
     }
-    
+
     // 清理状态
     setTypingMessage(null)
     setIsLoading(false)
-    
+
     // 延迟重置中断状态，确保组件状态更新完成
     setTimeout(() => {
       setIsInterrupted(false)
     }, 100)
-    
+
     toast.info('AI输出已中断')
   }
 
@@ -175,6 +180,9 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     if (typingIntervalRef.current) {
       clearInterval(typingIntervalRef.current)
     }
+
+    // 重置用户滚动状态，确保AI输出时可以自动滚动到底部
+    setUserHasScrolled(false)
 
     setTypingMessage({
       id: messageId,
@@ -192,13 +200,18 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         }
         return
       }
-      
+
       if (currentIndex < fullContent.length) {
         setTypingMessage(prev => prev ? {
           ...prev,
           displayedContent: fullContent.slice(0, currentIndex + 1)
         } : null)
         currentIndex++
+
+        // 每输出一个字符就滚动到底部
+        setTimeout(() => {
+          scrollToBottom(true) // 强制滚动，忽略用户滚动状态
+        }, 0)
       } else {
         // 打字完成
         if (typingIntervalRef.current) {
@@ -208,7 +221,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
           ...prev,
           isTyping: false
         } : null)
-        
+
         // 延迟后将消息添加到正式聊天记录并清除打字状态
         setTimeout(() => {
           addChatMessage({
@@ -232,6 +245,9 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     const userMessage = inputValue.trim()
     setInputValue('')
 
+    // 重置用户滚动状态，确保AI输出时可以自动滚动
+    setUserHasScrolled(false)
+
     // 添加用户消息
     addChatMessage({
       role: 'user',
@@ -240,21 +256,21 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
     setIsLoading(true)
     setIsInterrupted(false)
-    
+
     // 创建AbortController用于中断请求
     abortControllerRef.current = new AbortController()
 
     try {
       // 构建系统提示词 - 优化中文处理
       let systemPrompt = '你是一个专业的配置文件助手，专门帮助用户分析和修改各种配置文件。请用清晰、准确的中文回答，并在适当时提供具体的代码示例。'
-      
+
       if (nowFilePath && textContent) {
         systemPrompt += `\n\n当前正在编辑的文件：${nowFilePath}\n\n文件内容：\n${textContent}`
-        
+
         if (nowFileInfo?.description) {
           systemPrompt += `\n\n文件描述：${nowFileInfo.description}`
         }
-        
+
         systemPrompt += '\n\n请基于这个配置文件的内容来回答用户的问题，提供准确的配置建议和解释。'
       }
 
@@ -302,7 +318,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       }
 
       const data = await response.json()
-      
+
       if (data.choices && data.choices[0] && data.choices[0].message) {
         // 使用打字机效果显示AI回复
         const messageId = Date.now().toString()
@@ -317,7 +333,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         console.log('AI请求被用户中断')
         return
       }
-      
+
       console.error('AI API调用失败:', error)
       // 错误消息也使用打字机效果
       const errorMessage = `抱歉，AI服务暂时不可用：${error instanceof Error ? error.message : '未知错误'}`
@@ -337,14 +353,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       handleInterrupt()
       return
     }
-    
+
     // 检查是否是回车键且没有按住shift
     if (e.key === 'Enter' && !e.shiftKey) {
       // 检查输入法状态 - 如果正在使用输入法，不发送消息
       if (e.nativeEvent.isComposing) {
         return
       }
-      
+
       e.preventDefault()
       handleSend()
     }
@@ -364,7 +380,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     if (isLoading || typingMessage) {
       handleInterrupt()
     }
-    
+
     // 清除聊天记录
     clearChatMessages()
     toast.success('聊天记录已清空')
@@ -429,7 +445,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             <Bot className="h-12 w-12 text-default-300 mb-4" />
             <h3 className="text-lg font-medium text-default-500 mb-2">AI 配置助手</h3>
             <p className="text-sm text-default-400 max-w-sm leading-relaxed">
-              {nowFilePath 
+              {nowFilePath
                 ? '您好！我是您的配置文件助手。我可以帮助您：\n• 分析配置文件结构\n• 解释配置参数含义\n• 提供配置优化建议\n• 解决配置相关问题'
                 : '请先打开一个配置文件，我将基于文件内容为您提供专业的配置建议和解答。'
               }
@@ -443,39 +459,37 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.role === 'user'
+                  className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-content2 text-foreground'
-                  }`}
+                    }`}
                 >
                   <div className="text-sm whitespace-pre-wrap leading-relaxed">
                     {message.role === 'assistant' ? (
-                      <div 
+                      <div
                         className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-code:text-foreground"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }} 
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
                       />
                     ) : (
                       <div className="break-words">{message.content}</div>
                     )}
                   </div>
-                  <div className={`text-xs mt-2 opacity-70 ${
-                    message.role === 'user' ? 'text-primary-foreground' : 'text-default-500'
-                  }`}>
+                  <div className={`text-xs mt-2 opacity-70 ${message.role === 'user' ? 'text-primary-foreground' : 'text-default-500'
+                    }`}>
                     {message.timestamp}
                   </div>
                 </div>
               </div>
             ))}
-            
+
             {/* 打字机效果消息 */}
             {typingMessage && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] bg-content2 text-foreground rounded-lg p-3">
                   <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                    <div 
+                    <div
                       className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-code:text-foreground"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdown(typingMessage.displayedContent) }} 
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(typingMessage.displayedContent) }}
                     />
                     {typingMessage.isTyping && (
                       <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
@@ -487,7 +501,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
             )}
-            
+
             {isLoading && !typingMessage && (
               <div className="flex justify-start">
                 <div className="bg-content2 text-foreground rounded-lg p-3">
@@ -515,9 +529,9 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
             placeholder={
-              !appSettings.ai?.enabled 
-                ? "请先在设置中配置AI服务..." 
-                : nowFilePath 
+              !appSettings.ai?.enabled
+                ? "请先在设置中配置AI服务..."
+                : nowFilePath
                   ? "请描述您遇到的配置问题或需要的帮助... (Shift+Enter换行，Enter发送)"
                   : "您好！请告诉我您需要什么帮助... (Shift+Enter换行，Enter发送)"
             }
@@ -529,11 +543,10 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
             onClick={isLoading || typingMessage ? handleInterrupt : handleSend}
             disabled={(!inputValue.trim() && !isLoading && !typingMessage) || !appSettings.ai?.enabled}
             size="sm"
-            className={`absolute bottom-2 right-2 h-8 w-8 p-0 ${
-              isLoading || typingMessage 
-                ? 'heroui-button heroui-button-danger bg-danger hover:bg-danger/90' 
+            className={`absolute bottom-2 right-2 h-8 w-8 p-0 ${isLoading || typingMessage
+                ? 'heroui-button heroui-button-danger bg-danger hover:bg-danger/90'
                 : 'heroui-button heroui-button-primary'
-            }`}
+              }`}
             title={isLoading || typingMessage ? "中断AI输出" : "发送消息"}
           >
             {isLoading || typingMessage ? (
