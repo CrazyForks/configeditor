@@ -10,8 +10,7 @@ import {
   isAIResponseLoadingAtom,
   newTextContentAtom,
   nowFileInfoAtom,
-  nowFilePathAtom,
-  textContentAtom
+  nowFilePathAtom
 } from '@/components/view/editor/store'
 import { useAtom } from 'jotai'
 import { Bot, ChevronLeft, Send, Trash2, Square } from 'lucide-react'
@@ -175,65 +174,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     toast.info('AI输出已中断')
   }
 
-  // 打字机效果函数
-  const startTyping = (messageId: string, fullContent: string) => {
-    // 清除之前的定时器
-    if (typingIntervalRef.current) {
-      clearInterval(typingIntervalRef.current)
-    }
-
-    // 重置用户滚动状态，确保AI输出时可以自动滚动到底部
-    setUserHasScrolled(false)
-
-    setTypingMessage({
-      id: messageId,
-      content: fullContent,
-      displayedContent: '',
-      isTyping: true
-    })
-
-    let currentIndex = 0
-    typingIntervalRef.current = setInterval(() => {
-      // 检查是否被中断
-      if (isInterrupted) {
-        if (typingIntervalRef.current) {
-          clearInterval(typingIntervalRef.current)
-        }
-        return
-      }
-
-      if (currentIndex < fullContent.length) {
-        setTypingMessage(prev => prev ? {
-          ...prev,
-          displayedContent: fullContent.slice(0, currentIndex + 1)
-        } : null)
-        currentIndex++
-
-        // 每输出一个字符就滚动到底部
-        setTimeout(() => {
-          scrollToBottom(true) // 强制滚动，忽略用户滚动状态
-        }, 0)
-      } else {
-        // 打字完成
-        if (typingIntervalRef.current) {
-          clearInterval(typingIntervalRef.current)
-        }
-        setTypingMessage(prev => prev ? {
-          ...prev,
-          isTyping: false
-        } : null)
-
-        // 延迟后将消息添加到正式聊天记录并清除打字状态
-        setTimeout(() => {
-          addChatMessage({
-            role: 'assistant',
-            content: fullContent
-          })
-          setTypingMessage(null)
-        }, 500)
-      }
-    }, 30) // 30ms间隔，调整这个值可以改变打字速度
-  }
+  // 流式输出已经在 handleSend 中直接处理，不再需要 startTyping 函数
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return
@@ -348,6 +289,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
           messages,
           temperature: 0.7,
           max_tokens: 3000,
+          stream: true, // 启用流式输出
           // 优化中文处理
           top_p: 0.9,
           frequency_penalty: 0.1,
@@ -359,14 +301,98 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
         throw new Error(`API请求失败: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json()
+      // 处理流式响应
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('无法获取响应流')
+      }
 
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        // 使用打字机效果显示AI回复
-        const messageId = Date.now().toString()
-        startTyping(messageId, data.choices[0].message.content)
-      } else {
-        throw new Error('API响应格式异常')
+      const decoder = new TextDecoder()
+      let messageContent = ''
+      let messageId = Date.now().toString()
+
+      // 初始化流式打字效果
+      setTypingMessage({
+        id: messageId,
+        content: '',
+        displayedContent: '',
+        isTyping: true
+      })
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          
+          if (done) {
+            break
+          }
+
+          // 检查是否被中断
+          if (isInterrupted) {
+            reader.cancel()
+            break
+          }
+
+          const chunk = decoder.decode(value, { stream: true })
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.trim() === '') continue
+            if (line.trim() === 'data: [DONE]') continue
+
+            if (line.startsWith('data: ')) {
+              try {
+                const jsonStr = line.slice(6) // 移除 "data: " 前缀
+                const data = JSON.parse(jsonStr)
+
+                if (data.choices && data.choices[0] && data.choices[0].delta) {
+                  const delta = data.choices[0].delta
+                  if (delta.content) {
+                    messageContent += delta.content
+                    
+                    // 实时更新显示内容
+                    setTypingMessage(prev => prev ? {
+                      ...prev,
+                      content: messageContent,
+                      displayedContent: messageContent
+                    } : null)
+
+                    // 实时滚动到底部
+                    setTimeout(() => {
+                      scrollToBottom(true)
+                    }, 0)
+                  }
+                }
+              } catch (parseError) {
+                console.warn('解析流式数据失败:', parseError, '原始数据:', line)
+                // 继续处理下一行，不中断整个流程
+              }
+            }
+          }
+        }
+
+        // 流式输出完成
+        if (messageContent.trim() && !isInterrupted) {
+          setTypingMessage(prev => prev ? {
+            ...prev,
+            isTyping: false
+          } : null)
+
+          // 延迟后将消息添加到正式聊天记录
+          setTimeout(() => {
+            addChatMessage({
+              role: 'assistant',
+              content: messageContent
+            })
+            setTypingMessage(null)
+          }, 300)
+        }
+
+      } catch (streamError) {
+        console.error('流式读取错误:', streamError)
+        throw streamError
+      } finally {
+        reader.releaseLock()
       }
 
     } catch (error) {
@@ -377,10 +403,16 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       }
 
       console.error('AI API调用失败:', error)
-      // 错误消息也使用打字机效果
+      
+      // 错误消息直接显示，不使用流式效果
       const errorMessage = `抱歉，AI服务暂时不可用：${error instanceof Error ? error.message : '未知错误'}`
-      const messageId = Date.now().toString()
-      startTyping(messageId, errorMessage)
+      
+      // 直接添加错误消息到聊天记录
+      addChatMessage({
+        role: 'assistant',
+        content: errorMessage
+      })
+      
       toast.error('AI请求失败，请检查API配置')
     } finally {
       setIsLoading(false)
