@@ -79,7 +79,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // 智能滚动相关状态
-  const [userHasScrolled, setUserHasScrolled] = useState(false)
+  const userHasScrolledRef = useRef(false)
   const lastScrollTop = useRef(0)
 
   // 中断控制
@@ -88,9 +88,9 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // 智能滚动到底部
-  const scrollToBottom = (force = false) => {
+  const scrollToBottom = () => {
     const viewport = scrollViewportRef.current
-    if (viewport && (!userHasScrolled || force)) {
+    if (viewport && (!userHasScrolledRef.current)) {
       viewport.scrollTop = viewport.scrollHeight
     }
   }
@@ -100,14 +100,14 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     const viewport = scrollViewportRef.current
     if (viewport) {
       const { scrollTop, scrollHeight, clientHeight } = viewport
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50 // 50px容差
+      const isAtBottom = (scrollTop + clientHeight >= scrollHeight - 5) // 5px容差
 
       // 如果用户滚动到底部附近，重置为自动滚动模式
       if (isAtBottom) {
-        setUserHasScrolled(false)
+        userHasScrolledRef.current = false;
       } else if (scrollTop < lastScrollTop.current) {
         // 用户向上滚动
-        setUserHasScrolled(true)
+        userHasScrolledRef.current = true;
       }
 
       lastScrollTop.current = scrollTop
@@ -203,7 +203,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
     setInputValue('')
 
     // 重置用户滚动状态，确保AI输出时可以自动滚动
-    setUserHasScrolled(false)
+    userHasScrolledRef.current = false;
 
     // 添加用户消息
     addChatMessage({
@@ -375,7 +375,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
                     // 实时滚动到底部
                     setTimeout(() => {
-                      scrollToBottom(true)
+                      scrollToBottom()
                     }, 0)
                   }
                 }
