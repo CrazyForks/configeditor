@@ -25,7 +25,6 @@ export default function SettingsDialog(props: {
   const [currentTheme] = useAtom(themeAtom)
   const [, setTheme] = useAtom(setThemeAtom)
   
-  const [newPermission, setNewPermission] = useState('read')
   const [newRefreshCmd, setNewRefreshCmd] = useState('')
   const [newFontSize, setNewFontSize] = useState(14)
   
@@ -151,18 +150,6 @@ export default function SettingsDialog(props: {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="permissions" className="text-sm font-medium text-foreground">文件权限</Label>
-                <Select disabled value={newPermission} onValueChange={setNewPermission}>
-                  <SelectTrigger className="bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none">
-                    <SelectValue placeholder="选择文件权限" />
-                  </SelectTrigger>
-                  <SelectContent className="border border-divider rounded-lg bg-content1 shadow-none">
-                    <SelectItem value="read" className="heroui-transition hover:bg-content2">Read</SelectItem>
-                    <SelectItem value="write" className="heroui-transition hover:bg-content2">Write</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="command" className="text-sm font-medium text-foreground">刷新按钮命令</Label>
                 <Input 
                   id="command" 
@@ -210,6 +197,7 @@ export default function SettingsDialog(props: {
                 <Button 
                   variant="outline" 
                   className="w-full justify-start heroui-button-secondary border-divider hover:border-primary shadow-none"
+                  onClick={() => window.open('https://github.com/heroisuseless/configeditor', '_blank')}
                 >
                   <Info className="mr-2 h-4 w-4" /> 关于我们
                 </Button>
