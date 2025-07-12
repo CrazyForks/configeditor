@@ -463,7 +463,6 @@ export class PeekViewManager {
 
             return { diffEditor, originalModel, modifiedModel }
         } catch (error) {
-            console.error('zws Error creating diff editor:', error)
             return { diffEditor: undefined, originalModel: undefined, modifiedModel: undefined }
         }
     }
@@ -563,7 +562,6 @@ export function usePeekView({
 }) {
     useEffect(() => {
         if (editorRef.current && nowFilePath) {
-            console.log('zws [useEffect]nowFilePath:', nowFilePath, 'content length:', textContent.length)
             // 设置主题
             if (currentTheme) {
                 peekViewManager.setTheme(currentTheme)

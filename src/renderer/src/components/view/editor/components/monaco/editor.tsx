@@ -70,7 +70,6 @@ export function MonacoEditor() {
         
         if (editorRef.current && nowFilePath) {
             // 使用textContent作为原始内容进行注册
-            console.log('zws [onEditorMount]nowFilePath:', nowFilePath, 'content length:', textContent.length)
             peekViewManager.registerEditor(editorRef.current, textContent, nowFilePath)
         }
     }

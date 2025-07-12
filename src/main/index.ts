@@ -6,6 +6,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { exec, execSync, spawn } from 'child_process'
 import { Client } from 'ssh2'
+import { autoUpdater } from 'electron-updater'
 
 function createWindow(): void {
   // Create the browser window.
@@ -638,6 +639,48 @@ function createWindow(): void {
       return { code: 2, msg: '未找到活动窗口' }
     }
   })
+
+  // 检查本地是否有已下载的更新，并通知渲染层
+  function checkDownloadedUpdate(mainWindow: BrowserWindow) {
+    try {
+      const updateInfoPath = join(app.getPath('userData'), 'update-downloaded.json')
+      if (fs.existsSync(updateInfoPath)) {
+        const info = JSON.parse(fs.readFileSync(updateInfoPath, 'utf8'))
+        if (info.updateDownloaded && info.version) {
+          // 通知渲染层弹窗
+          mainWindow.webContents.once('did-finish-load', () => {
+            mainWindow.webContents.send('update-downloaded', info)
+          })
+        }
+      }
+    } catch (e) {
+      // 忽略
+    }
+  }
+
+  function setupAutoUpdate(mainWindow: BrowserWindow) {
+    autoUpdater.autoDownload = true
+    autoUpdater.autoInstallOnAppQuit = false
+    autoUpdater.checkForUpdates()
+
+    autoUpdater.on('update-downloaded', (info) => {
+      // 记录已下载状态
+      const updateInfoPath = join(app.getPath('userData'), 'update-downloaded.json')
+      fs.writeFileSync(updateInfoPath, JSON.stringify({ updateDownloaded: true, version: info.version }))
+      // 通知渲染层弹窗
+      mainWindow.webContents.send('update-downloaded', { updateDownloaded: true, version: info.version })
+    })
+  }
+
+  // 渲染层请求重启升级
+  ipcMain.handle('quit-and-install', () => {
+    autoUpdater.quitAndInstall()
+  })
+
+  // 检查本地已下载更新
+  checkDownloadedUpdate(mainWindow)
+  // 启动自动更新
+  setupAutoUpdate(mainWindow)
 }
 
 // This method will be called when Electron has finished
