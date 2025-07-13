@@ -1,6 +1,6 @@
 {
   "name": "config-editor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "config editor",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -20,7 +20,7 @@
     "build:win": "electron-vite build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "build:all": "electron-vite build && electron-builder -wml"
+    "build:all": "electron-vite build && electron-builder -wml --publish always"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
