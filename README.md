@@ -70,6 +70,8 @@ yarn build:linux
 - 欢迎提交 Issue 或 PR
 - GitHub: https://github.com/heroisuseless/configeditor
 
+![weichat](./resources/Wechat.jpg)
+
 ## License
 
 MIT License
