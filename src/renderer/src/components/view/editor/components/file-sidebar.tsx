@@ -9,7 +9,8 @@ import {
     Trash2,
     Globe,
     ChevronLeft,
-    GripVertical
+    GripVertical,
+    FolderOpen
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
@@ -39,13 +40,20 @@ interface ContextMenuProps {
     x: number;
     y: number;
     filePath: string;
+    isRemoteFile: boolean;
     onClose: () => void;
     onDelete: (filePath: string) => void;
+    onShowInFinder: (filePath: string) => void;
 }
 
-function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
+function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowInFinder }: ContextMenuProps) {
     const handleDelete = () => {
         onDelete(filePath);
+        onClose();
+    };
+
+    const handleShowInFinder = () => {
+        onShowInFinder(filePath);
         onClose();
     };
 
@@ -55,6 +63,15 @@ function ContextMenu({ x, y, filePath, onClose, onDelete }: ContextMenuProps) {
             style={{ left: x, top: y }}
             onMouseLeave={onClose}
         >
+            {!isRemoteFile && (
+                <button
+                    className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-content2 flex items-center heroui-transition rounded-md mx-1"
+                    onClick={handleShowInFinder}
+                >
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    在Finder中打开
+                </button>
+            )}
             <button
                 className="w-full px-3 py-2 text-left text-sm text-danger hover:bg-danger/10 flex items-center heroui-transition rounded-md mx-1"
                 onClick={handleDelete}
@@ -77,7 +94,7 @@ interface SortableFileItemProps {
     onContextMenu: (e: React.MouseEvent, filePath: string) => void;
 }
 
-function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDragEnabled, onSelect, onDelete, onContextMenu }: SortableFileItemProps) {
+function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDragEnabled, onSelect, onDelete: _onDelete, onContextMenu }: SortableFileItemProps) {
     const {
         attributes,
         listeners,
@@ -183,7 +200,7 @@ export function FileSidebar() {
     const [, setIsLeftPanelOpen] = useAtom(isLeftPanelOpenAtom)
     const [isDebugPanelOpen, setIsDebugPanelOpen] = useAtom(isDebugPanelOpenAtom)
     const [searchName, setSearchName] = useState<string>('')
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; filePath: string } | null>(null)
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; filePath: string; isRemoteFile: boolean } | null>(null)
     const showFilePaths = useShowFilePaths(searchName)
 
     const sensors = useSensors(
@@ -208,15 +225,32 @@ export function FileSidebar() {
 
     const onContextMenu = (e: React.MouseEvent, filePath: string) => {
         e.preventDefault()
+        const fileInfo = fileInfos.find(f => f.filePath === filePath)
+        const isRemoteFile = !!fileInfo?.remoteInfo
         setContextMenu({
             x: e.clientX,
             y: e.clientY,
-            filePath
+            filePath,
+            isRemoteFile
         })
     }
 
     const onCloseContextMenu = () => {
         setContextMenu(null)
+    }
+
+    const onShowInFinder = async (filePath: string) => {
+        try {
+            const result = await window.electron.ipcRenderer.invoke('show-file-in-finder', { filePath })
+            if (result.code === 3) {
+                // 成功打开
+                console.log('文件已在Finder中打开')
+            } else {
+                console.error('打开文件失败:', result.msg)
+            }
+        } catch (error) {
+            console.error('打开文件失败:', error)
+        }
     }
 
     const onAppTitleClick = () => {
@@ -319,8 +353,10 @@ export function FileSidebar() {
                     x={contextMenu.x}
                     y={contextMenu.y}
                     filePath={contextMenu.filePath}
+                    isRemoteFile={contextMenu.isRemoteFile}
                     onClose={onCloseContextMenu}
                     onDelete={onDelete}
+                    onShowInFinder={onShowInFinder}
                 />
             )}
         </div>

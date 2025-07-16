@@ -2,7 +2,7 @@
 
 一个基于 Electron + React + TypeScript 的现代化配置文件管理器，支持本地与远程配置文件的统一管理、编辑、刷新和权限操作，界面美观，体验流畅。
 
-![screenshot](./resources/screenshot.png)
+![screenshot](./doc/screenshot.png)
 
 ## 主要特性
 
@@ -70,7 +70,7 @@ yarn build:linux
 - 欢迎提交 Issue 或 PR
 - GitHub: https://github.com/heroisuseless/configeditor
 
-![weichat](./resources/Wechat.jpg)
+![weichat](./doc/Wechat.jpg)
 
 ## License
 

@@ -729,6 +729,31 @@ function createWindow(): void {
     }
   })
 
+  // 在Finder中打开文件
+  ipcMain.handle('show-file-in-finder', async (_, arg) => {
+    const { filePath } = arg ?? {}
+    
+    try {
+      if (!filePath) {
+        return { code: 2, msg: '文件路径不能为空' }
+      }
+      
+      const absoluteFilePath = getAbsoluteFilePath(filePath)
+      
+      // 检查文件是否存在
+      if (!fs.existsSync(absoluteFilePath)) {
+        return { code: 2, msg: '文件不存在' }
+      }
+      
+      // 使用 shell.showItemInFolder 在 Finder 中显示文件
+      shell.showItemInFolder(absoluteFilePath)
+      
+      return { code: 3, msg: '已在Finder中打开文件' }
+    } catch (error: any) {
+      return { code: 2, msg: '打开文件失败: ' + (error?.message || 'Unknown error') }
+    }
+  })
+
   // 获取配置文件描述的辅助函数
   function getConfigFileDescription(fileName: string): string {
     const descriptions: Record<string, string> = {
