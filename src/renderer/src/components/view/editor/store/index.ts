@@ -198,3 +198,14 @@ export const clearChatMessagesAtom = atom(
     set(chatMessagesAtom, []);
   }
 )
+
+// 推荐配置文件相关类型
+export type RecommendedConfigFile = {
+  filePath: string
+  description: string
+  refreshCmd: string
+}
+
+// 推荐配置文件相关状态
+export const recommendedConfigFilesAtom = atom<RecommendedConfigFile[]>([])
+export const isLoadingRecommendedFilesAtom = atom(false)

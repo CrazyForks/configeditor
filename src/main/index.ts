@@ -681,6 +681,95 @@ function createWindow(): void {
   checkDownloadedUpdate(mainWindow)
   // 启动自动更新
   setupAutoUpdate(mainWindow)
+
+  // 扫描用户根目录的配置文件
+  ipcMain.handle('scan-config-files', async () => {
+    try {
+      const homeDir = os.homedir()
+      const configFiles: Array<{filePath: string, description: string, refreshCmd: string}> = []
+      
+      // 常见的配置文件列表
+      const commonConfigFiles = [
+        '.zshrc',
+        '.bashrc', 
+        '.bash_profile',
+        '.vimrc',
+        '.gitconfig',
+        '.ssh/config',
+        '.npmrc',
+        '.yarnrc',
+      ]
+      
+      // 检查这些文件是否存在
+      for (const configFile of commonConfigFiles) {
+        const fullPath = join(homeDir, configFile)
+        try {
+          if (fs.existsSync(fullPath)) {
+            const stats = fs.statSync(fullPath)
+            if (stats.isFile()) {
+              // 生成文件描述
+              let description = getConfigFileDescription(configFile)
+              
+              configFiles.push({
+                filePath: fullPath,
+                description,
+                refreshCmd: getDefaultRefreshCmd(fullPath)
+              })
+            }
+          }
+        } catch (err) {
+          // 忽略无权限访问的文件
+          continue
+        }
+      }
+      
+      return { success: true, configFiles }
+    } catch (error: any) {
+      return { success: false, error: error?.message || 'Unknown error' }
+    }
+  })
+
+  // 获取配置文件描述的辅助函数
+  function getConfigFileDescription(fileName: string): string {
+    const descriptions: Record<string, string> = {
+      '.zshrc': 'Zsh Shell 配置文件',
+      '.bashrc': 'Bash Shell 配置文件',
+      '.bash_profile': 'Bash Profile 配置文件',
+      '.vimrc': 'Vim 编辑器配置文件',
+      '.gitconfig': 'Git 全局配置文件',
+      '.ssh/config': 'SSH 客户端配置文件',
+      '.npmrc': 'NPM 包管理器配置',
+      '.yarnrc': 'Yarn 包管理器配置',
+    }
+    
+    return descriptions[fileName] || `${fileName} 配置文件`
+  }
+
+  // 获取默认刷新命令的辅助函数
+  function getDefaultRefreshCmd(filePath: string): string {
+    const fileName = filePath.split('/').pop() || ''
+    
+    if (fileName.includes('nginx')) {
+      return 'nginx -s reload'
+    } else if (fileName.includes('.zshrc')) {
+      return `source ${filePath}`
+    } else if (fileName.includes('.bashrc')) {
+      return `source ${filePath}`
+    } else if (fileName.includes('vimrc')) {
+      return `source ${filePath}`
+    } else if (fileName.includes('tmux.conf')) {
+      return `tmux source-file ${filePath}`
+    } else if (fileName.includes('gitconfig')) {
+      return 'git config --global -e'
+    }
+    
+    return `cat ${filePath}`
+  }
+
+  // 渲染层请求重启升级
+  ipcMain.handle('quit-and-install', () => {
+    autoUpdater.quitAndInstall()
+  })
 }
 
 // This method will be called when Electron has finished
