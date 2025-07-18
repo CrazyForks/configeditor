@@ -2,6 +2,7 @@ import { appSettingsAtom, fileInfosAtom, filePathsAtom, initThemeAtom } from '@/
 import { useAtom } from "jotai"
 import { useEffect, useMemo } from "react"
 import { isSubstr, readAppSettings, readFileInfos } from "../utils"
+import { historyStorage } from "../utils/history-storage"
 
 export function useInitConfigEditor() {
     const [, setAppSettings] = useAtom(appSettingsAtom)
@@ -15,6 +16,8 @@ export function useInitConfigEditor() {
         setAppSettings(localAppSettings)
         // 初始化主题
         initTheme()
+        // 初始化历史存储
+        historyStorage.init().catch(console.error)
     }, [setFileInfos, setAppSettings, initTheme])
 }
 

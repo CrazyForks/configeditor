@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom, isDebugPanelOpenAtom } from '@/components/view/editor/store'
+import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom, isDebugPanelOpenAtom, textContentAtom, newTextContentAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAtom } from 'jotai'
@@ -10,12 +10,15 @@ import {
     Globe,
     ChevronLeft,
     GripVertical,
-    FolderOpen
+    FolderOpen,
+    Clock,
+    ChevronRight
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShowFilePaths } from '../hooks'
 import { saveFileInfos } from '../utils'
 import { AddFileButton } from './add-file-button'
+import { HistoryMenu } from './history-menu'
 import {
     DndContext,
     closestCenter,
@@ -47,6 +50,10 @@ interface ContextMenuProps {
 }
 
 function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowInFinder }: ContextMenuProps) {
+    const [isHistoryMenuOpen, setIsHistoryMenuOpen] = useState(false);
+    const [, setTextContent] = useAtom(textContentAtom);
+    const [, setNewTextContent] = useAtom(newTextContentAtom);
+
     const handleDelete = () => {
         onDelete(filePath);
         onClose();
@@ -54,6 +61,13 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
 
     const handleShowInFinder = () => {
         onShowInFinder(filePath);
+        onClose();
+    };
+
+    const handleHistorySelect = (record: any) => {
+        // 恢复历史版本内容
+        setTextContent(record.content);
+        setNewTextContent(record.content);
         onClose();
     };
 
@@ -72,6 +86,31 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
                     在Finder中打开
                 </button>
             )}
+            
+            {/* 历史版本菜单项 */}
+            <div className="relative">
+                <div
+                    className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-content2 flex items-center justify-between heroui-transition rounded-md mx-1"
+                    onMouseEnter={() => setIsHistoryMenuOpen(true)}
+                    onMouseLeave={() => setIsHistoryMenuOpen(false)}
+                >
+                    <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2" />
+                        历史版本
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-default-400" />
+                </div>
+                
+                {isHistoryMenuOpen && (
+                    <HistoryMenu
+                        filePath={filePath}
+                        onSelectHistory={handleHistorySelect}
+                        onMouseEnter={() => setIsHistoryMenuOpen(true)}
+                        onMouseLeave={() => setIsHistoryMenuOpen(false)}
+                    />
+                )}
+            </div>
+            
             <button
                 className="w-full px-3 py-2 text-left text-sm text-danger hover:bg-danger/10 flex items-center heroui-transition rounded-md mx-1"
                 onClick={handleDelete}

@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { toast } from "sonner"
 import SettingsDialog from './settings-dialog'
 import { SudoDialog } from './sudo-dialog'
+import { historyStorage } from '../utils/history-storage'
 const { ipcRenderer } = window.require('electron')
 
 export function EditorHeadBar() {
@@ -25,7 +26,7 @@ export function EditorHeadBar() {
   const [isPathCopied, setIsPathCopied] = useState(false)
   const [isSettingDialogOpen, setIsSettingDialogOpen] = useState(false)
   const [isReloadingFile, setIsReloadingFile] = useState(false)
-  const [, setTextContent] = useAtom(textContentAtom)
+  const [textContent, setTextContent] = useAtom(textContentAtom)
   const [newTextContent, setNewTextContent] = useAtom(newTextContentAtom)
   const [, setIsSudoDialogOpen] = useAtom(isSudoDialogOpenAtom)
   const [, setSudoScenario] = useAtom(sudoScenarioAtom)
@@ -39,6 +40,22 @@ export function EditorHeadBar() {
   const onShowLeftPanel = () => {
     setIsLeftPanelOpen(true)
   }
+
+  // 保存历史版本
+  const saveToHistory = async (filePath: string, content: string) => {
+    try {
+      const fileName = filePath.split('/').pop() || filePath;
+      await historyStorage.saveHistory(
+        filePath,
+        fileName,
+        content
+      );
+      addDebugLog(`历史版本保存成功: ${filePath}`, 'info');
+    } catch (error: any) {
+      console.error('保存历史版本失败:', error);
+      addDebugLog(`历史版本保存失败: ${error?.message || '未知错误'}`, 'warning');
+    }
+  };
 
   // 根据错误信息判断需要哪种sudo权限
   const openSudoDialog = (errorMsg: string, isForCommand = false) => {
@@ -84,7 +101,11 @@ export function EditorHeadBar() {
           }).then((arg) => {
             const { code, msg } = arg ?? {}
             if (code === 3) {
-              // 保存成功
+              // 保存成功，先保存历史版本再更新当前内容
+              const originalContent = textContent; // 保存原内容作为历史版本
+              if (originalContent && originalContent !== newTextContent) {
+                saveToHistory(nowFilePath, originalContent);
+              }
               setTextContent(newTextContent)
               toast("远程文件保存成功")
               addDebugLog(`远程文件保存成功: ${nowFilePath}`, 'success')
@@ -118,7 +139,11 @@ export function EditorHeadBar() {
             if (code === 3) {
               // 可写
               ipcRenderer.invoke('write-file', { filePath: nowFilePath, content: newTextContent }).then(() => {
-                // 写入文件成功，处理当前数据
+                // 写入文件成功，先保存历史版本再更新当前数据
+                const originalContent = textContent; // 保存原内容作为历史版本
+                if (originalContent && originalContent !== newTextContent) {
+                  saveToHistory(nowFilePath, originalContent);
+                }
                 setTextContent(newTextContent)
                 toast("文件存储成功")
                 addDebugLog(`本地文件保存成功: ${nowFilePath}`, 'success')
