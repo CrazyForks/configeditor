@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom, isDebugPanelOpenAtom, textContentAtom, newTextContentAtom } from '@/components/view/editor/store'
+import { fileInfosAtom, nowFilePathAtom, isLeftPanelOpenAtom, isDebugPanelOpenAtom, textContentAtom, newTextContentAtom, addDebugLogAtom } from '@/components/view/editor/store'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAtom } from 'jotai'
@@ -19,6 +19,7 @@ import { useShowFilePaths } from '../hooks'
 import { saveFileInfos } from '../utils'
 import { AddFileButton } from './add-file-button'
 import { HistoryMenu } from './history-menu'
+import { FileHistoryRecord } from '../utils/history-storage'
 import {
     DndContext,
     closestCenter,
@@ -51,8 +52,9 @@ interface ContextMenuProps {
 
 function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowInFinder }: ContextMenuProps) {
     const [isHistoryMenuOpen, setIsHistoryMenuOpen] = useState(false);
-    const [, setTextContent] = useAtom(textContentAtom);
+    const [nowFilePath, setNowFilePath] = useAtom(nowFilePathAtom)
     const [, setNewTextContent] = useAtom(newTextContentAtom);
+    const [, addDebugLog] = useAtom(addDebugLogAtom);
 
     const handleDelete = () => {
         onDelete(filePath);
@@ -64,10 +66,11 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
         onClose();
     };
 
-    const handleHistorySelect = (record: any) => {
+    const handleHistorySelect = (record: FileHistoryRecord) => {
         // 恢复历史版本内容
-        setTextContent(record.content);
-        setNewTextContent(record.content);
+        setNowFilePath(filePath);
+        setTimeout(() => setNewTextContent(record.content), 0);
+        addDebugLog(`已恢复到历史版本 (${new Date(record.timestamp).toLocaleString('zh-CN')})`, 'success');
         onClose();
     };
 
