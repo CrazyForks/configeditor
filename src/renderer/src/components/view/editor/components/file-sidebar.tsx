@@ -76,13 +76,13 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
 
     return (
         <div
-            className="fixed z-50 bg-content1 border border-divider rounded-lg py-1 min-w-32"
+            className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-1 min-w-32 shadow-lg"
             style={{ left: x, top: y }}
             onMouseLeave={onClose}
         >
             {!isRemoteFile && (
                 <button
-                    className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-content2 flex items-center heroui-transition rounded-md mx-1"
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center heroui-transition rounded-md mx-1"
                     onClick={handleShowInFinder}
                 >
                     <FolderOpen className="h-4 w-4 mr-2" />
@@ -93,7 +93,7 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
             {/* 历史版本菜单项 */}
             <div className="relative">
                 <div
-                    className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-content2 flex items-center justify-between heroui-transition rounded-md mx-1"
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between heroui-transition rounded-md mx-1"
                     onMouseEnter={() => setIsHistoryMenuOpen(true)}
                     onMouseLeave={() => setIsHistoryMenuOpen(false)}
                 >
@@ -101,7 +101,7 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
                         <Clock className="h-4 w-4 mr-2" />
                         历史版本
                     </div>
-                    <ChevronRight className="h-4 w-4 text-default-400" />
+                    <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
                 
                 {isHistoryMenuOpen && (
@@ -115,7 +115,7 @@ function ContextMenu({ x, y, filePath, isRemoteFile, onClose, onDelete, onShowIn
             </div>
             
             <button
-                className="w-full px-3 py-2 text-left text-sm text-danger hover:bg-danger/10 flex items-center heroui-transition rounded-md mx-1"
+                className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center heroui-transition rounded-md mx-1"
                 onClick={handleDelete}
             >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -168,11 +168,11 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 py-3 
                 px-2
                 text-sm 
-                text-foreground
+                text-gray-700 dark:text-gray-300
                 heroui-transition 
                 ${isSelected ?
                     'bg-primary/10 hover:bg-primary/15' :
-                    'hover:bg-content2'
+                    'hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
                 ${isDragging ? 'z-50' : ''}
             `}
@@ -183,10 +183,10 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                 <div
                     {...attributes}
                     {...listeners}
-                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-default heroui-transition"
+                    className="mr-2 cursor-grab active:cursor-grabbing hover:text-gray-600 dark:hover:text-gray-400 heroui-transition"
                     title="拖动排序"
                 >
-                    <GripVertical className="h-4 w-4 text-default" />
+                    <GripVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
             )}
             
@@ -200,7 +200,7 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                         >
                             <div className="flex items-center w-full py-1">
                                 <div className="flex-1 text-left min-w-0">
-                                    <div className="font-medium text-foreground truncate flex items-center">
+                                    <div className="font-medium text-gray-800 dark:text-gray-200 truncate flex items-center">
                                         {isRemoteFile && (
                                             <div title="远程文件" className="flex-shrink-0">
                                                 <Globe className="mr-1 h-3 w-3 text-primary" />
@@ -210,22 +210,22 @@ function SortableFileItem({ filePath, fileInfo, isRemoteFile, isSelected, isDrag
                                             {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
                                         </span>
                                     </div>
-                                    <div className="text-xs text-gray-500 truncate">
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                         {filePath}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent side="right" align="start" className="max-w-md p-3 bg-white border border-gray-200 shadow-lg">
+                    <TooltipContent side="right" align="start" className="max-w-md p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
                         <div className="space-y-1">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-gray-300">
                                 标题: {fileInfo?.description || (filePath.split('/')?.pop() ?? '')}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-gray-300">
                                 路径: {filePath}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-600 dark:text-gray-300">
                                 类型: {isRemoteFile ? '远程' : '本地'}文件
                             </div>
                         </div>
@@ -325,10 +325,10 @@ export function FileSidebar() {
     const isDragEnabled = searchName.trim() === '';
 
     return (
-        <div className="w-full h-full bg-content1 flex flex-col border-r border-divider" onClick={onCloseContextMenu}>
-            <div className="p-4 border-b border-divider">
+        <div className="w-full h-full bg-gray-50 dark:bg-gray-800 flex flex-col" onClick={onCloseContextMenu}>
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-100/50 dark:bg-gray-900/50">
                 <div className='flex justify-between items-center mb-3'>
-                    <h2 className="text-lg font-semibold flex items-center text-foreground">
+                    <h2 className="text-lg font-semibold flex items-center text-gray-700 dark:text-gray-300">
                         <Atom className="mr-2 h-5 w-5 heroui-transition hover:text-primary cursor-pointer" onClick={onShowDebugPanel} />
                         <span onClick={onAppTitleClick} className="hidden sm:inline cursor-pointer hover:text-primary heroui-transition select-none">配置文件管理器</span>
                     </h2>
@@ -336,7 +336,7 @@ export function FileSidebar() {
                         onClick={onHideLeftPanel}
                         size="sm"
                         variant="ghost"
-                        className="text-default-500 hover:text-foreground hover:bg-content2 heroui-transition rounded-lg shadow-none"
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 heroui-transition rounded-lg shadow-none"
                         title="隐藏侧边栏"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -347,18 +347,18 @@ export function FileSidebar() {
                         placeholder="搜索文件"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="mr-1 h-8 text-sm bg-content2 border-divider focus:border-primary heroui-transition rounded-lg shadow-none"
+                        className="mr-1 h-8 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:border-primary dark:text-white heroui-transition rounded-lg shadow-none"
                     />
                     <AddFileButton />
                 </div>
             </div>
-            <ScrollArea className="flex-grow">
+            <ScrollArea className="flex-grow bg-gray-50 dark:bg-gray-800">
                 {!showFilePaths.length ? (
-                    <div className="flex items-center justify-center h-full text-default-500">
+                    <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                         <div className="text-center">
                             <div className="text-4xl mb-2">📁</div>
                             <p>空空如也</p>
-                            <p className="text-sm text-default-400">点击上方 + 按钮添加文件</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500">点击上方 + 按钮添加文件</p>
                         </div>
                     </div>
                 ) : (

@@ -477,7 +477,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-content1 border-l border-divider">
+    <div className="flex flex-col h-full bg-content1">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-divider">
         <div className="flex items-center space-x-2">
