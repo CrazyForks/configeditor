@@ -51,26 +51,28 @@ export default function ConfigEditor() {
     >
       <ResizablePanel
         ref={resizablePanelRef}
-        defaultSize={30}
+        defaultSize={25}
         collapsedSize={0}
         collapsible={true}
         minSize={10}
       >
         <FileSidebar />
       </ResizablePanel>
-      <ResizableHandle className="w-px bg-border hover:bg-default heroui-transition" />
+      <ResizableHandle className="w-px bg-gray-100 dark:bg-gray-800 hover:bg-default heroui-transition" />
       <ResizablePanel 
-        defaultSize={isAIPanelOpen ? 45 : 70}
+        defaultSize={isAIPanelOpen ? 45 : 75}
         minSize={20}
       >
-        <div className='w-full h-full bg-content1 dark:bg-content2 flex flex-col'>
-          <EditorHeadBar />
-          <MonacoEditor />
+        <div className='w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center'>
+            <div style={{width: 'calc(100% - 8px)', height: 'calc(100% - 8px)'}} className='bg-content1 dark:bg-content2 flex flex-col overflow-hidden rounded-md border border-border'>
+              <EditorHeadBar />
+              <MonacoEditor />
+            </div>
         </div>
       </ResizablePanel>
       {isAIPanelOpen && (
         <>
-          <ResizableHandle className="w-px bg-border hover:bg-default heroui-transition" />
+          <ResizableHandle className="w-px bg-gray-50 dark:bg-gray-800 hover:bg-default heroui-transition" />
           <ResizablePanel
             ref={aiPanelRef}
             defaultSize={25}
@@ -79,7 +81,11 @@ export default function ConfigEditor() {
             minSize={20}
             maxSize={50}
           >
-            <AIFragment onClose={() => setIsAIPanelOpen(false)} />
+            <div className='w-full h-full bg-gray-50 dark:bg-gray-800 flex items-center'>
+              <div style={{width: 'calc(100% - 4px)', height: 'calc(100% - 8px)'}} className='bg-content1 dark:bg-content2 flex flex-col overflow-hidden rounded-md border border-border'>
+                <AIFragment onClose={() => setIsAIPanelOpen(false)} />
+              </div>
+            </div>
           </ResizablePanel>
         </>
       )}

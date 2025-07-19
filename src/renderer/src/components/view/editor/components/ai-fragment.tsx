@@ -479,7 +479,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-col h-full bg-content1">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-divider">
+      <div className="flex items-center justify-between p-1 border-b border-divider">
         <div className="flex items-center space-x-2">
           <Button
             onClick={onClose}
@@ -489,7 +489,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-lg font-semibold">AI 助手</h2>
+          <h2 className="text-sm font-semibold">AI 助手</h2>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -507,7 +507,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
 
       {/* 当前文件信息 */}
       {nowFilePath && (
-        <div className="p-3 bg-content2 border-b border-divider">
+        <div className="p-2 bg-content2 border-b border-divider">
           <div className="text-xs text-default-500 mb-1">当前文件</div>
           <div className="text-sm font-medium truncate" title={nowFilePath}>
             {nowFilePath}
@@ -609,7 +609,7 @@ export function AIFragment({ onClose }: { onClose: () => void }) {
       <Separator />
 
       {/* 输入区域 */}
-      <div className="p-4">
+      <div className="p-1">
         <div className="relative">
           <Textarea
             ref={inputRef}

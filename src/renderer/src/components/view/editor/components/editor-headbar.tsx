@@ -366,7 +366,7 @@ export function EditorHeadBar() {
 
   return <>
     {/* Top Management Bar */}
-    <div className="w-full max-w-full bg-content1 p-4 pr-2 flex justify-between items-center border-b border-divider">
+    <div className="w-full max-w-full bg-content1 p-1 px-2 pl-3 flex justify-between items-center border-b border-divider">
       <div className="flex items-center" style={{ width: 'calc(100% - 192px)' }}>
         {!isLeftPanelOpen && (
           <Button
@@ -380,7 +380,7 @@ export function EditorHeadBar() {
           </Button>
         )}
         <h1
-          className={`text-lg font-semibold truncate ${isEditing ? 'text-danger' : 'text-foreground'} ${nowFilePath ? 'cursor-pointer hover:text-primary heroui-transition' : ''}`}
+          className={`text-sm font-semibold truncate ${isEditing ? 'text-danger' : 'text-foreground'} ${nowFilePath ? 'cursor-pointer hover:text-primary heroui-transition' : ''}`}
           onClick={nowFilePath ? () => onCopyBtnClick(nowFilePath) : undefined}
           title={nowFilePath ? '点击复制文件路径' : undefined}
         >

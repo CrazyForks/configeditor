@@ -62,7 +62,7 @@ export function WelcomeFragment() {
         }
     };
 
-    return <div className="w-full h-[100%] p-8 bg-content1 flex flex-col items-center heroui-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
+    return <div className="w-full h-[100%] p-8 pb-0 bg-content1 flex flex-col items-center heroui-transition" style={{ maxHeight: '100%', overflow: 'auto' }}>
         <div className="flex flex-col max-w-4xl w-full">
             <h2 className="text-3xl font-bold mb-8 text-foreground text-center">欢迎使用配置文件管理器</h2>
 

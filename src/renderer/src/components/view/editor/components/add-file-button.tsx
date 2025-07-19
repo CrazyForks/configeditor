@@ -82,7 +82,7 @@ export function AddFileButton() {
                     setFileInfos(newFileInfos)
                     saveFileInfos(newFileInfos)
                     setNowFilePath(filePath)
-                    resetForm()
+                    // resetForm()
                     setOpen(false)
                 } else {
                     alert(`远程连接失败: ${msg || '连接验证失败'}`)
@@ -104,7 +104,7 @@ export function AddFileButton() {
                     setFileInfos(newFileInfos)
                     saveFileInfos(newFileInfos)
                     setNowFilePath(filePath)
-                    resetForm()
+                    // resetForm()
                     setOpen(false)
                 } else {
                     alert('读取文件失败！可能文件不存在或文件权限不足')
