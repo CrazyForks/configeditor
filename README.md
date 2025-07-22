@@ -1,43 +1,45 @@
-# 配置文件管理器（Config Editor）
+# Config Editor
 
-一个基于 Electron + React + TypeScript 的现代化配置文件管理器，支持本地与远程配置文件的统一管理、编辑、刷新和权限操作，界面美观，体验流畅。
+[中文版](./READMEZH.md)
+
+A modern configuration file manager built with Electron + React + TypeScript, supporting unified management, editing, refreshing, and permission operations for both local and remote configuration files, with a beautiful interface and smooth experience.
 
 ![screenshot](./doc/screenshot.png)
 
-## 主要特性
+## Key Features
 
-- 🌈 简洁直观的用户界面，支持浅色/深色主题
-- 🗂️ 快速管理和刷新多个本地/远程配置文件
-- 🔒 支持 sudo 权限保存和命令执行
-- 🖥️ 文件路径一键复制，实时状态监控
-- ⏰ 配置文件历史版本管理，方便一键回退
-- 🌍 自动扫描根目录下配置文件，智能推荐
-- 🤖 内置 AI 助手，智能分析和辅助编辑
-- 🛠️ 支持自定义刷新命令，适配多种场景
-- 🧩 支持拖拽排序、搜索、批量管理
+- 🌈 Clean and intuitive user interface with light/dark theme support
+- 🗂️ Fast management and refreshing of multiple local/remote configuration files
+- 🔒 Support for sudo privilege saving and command execution
+- 🖥️ One-click file path copying and real-time status monitoring
+- ⏰ Configuration file version history management with easy rollback
+- 🌍 Automatic scanning of root directory configuration files with smart recommendations
+- 🤖 Built-in AI assistant for intelligent analysis and editing assistance
+- 🛠️ Support for custom refresh commands, adaptable to various scenarios
+- 🧩 Support for drag-and-drop sorting, searching, and batch management
 
-## 快速开始
+## Quick Start
 
-### 环境要求
+### Requirements
 - Node.js 16+
-- 推荐使用 [VSCode](https://code.visualstudio.com/)
+- Recommended to use [VSCode](https://code.visualstudio.com/)
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
-# 推荐使用 cnpm 或 yarn
+# Recommended to use cnpm or yarn
 cnpm install
-# 或
+# or
 yarn install
 ```
 
-### 启动开发环境
+### Start Development Environment
 
 ```bash
 yarn dev
 ```
 
-### 打包构建
+### Build
 
 ```bash
 # Windows
@@ -48,28 +50,28 @@ yarn build:mac
 yarn build:linux
 ```
 
-## 使用说明
+## Usage Guide
 
-1. 在左侧面板点击 <kbd>+</kbd> 按钮，添加本地或远程配置文件
-2. 支持填写远程主机信息，自动测试连接
-3. 选择文件后可直接编辑，顶部工具栏可保存/刷新
-4. 支持自定义刷新命令，适配 nginx、apache 等多种配置
-5. 需要权限时自动弹出 sudo 密码输入框
-6. 支持 AI 辅助、调试日志、主题切换等高级功能
+1. Click the <kbd>+</kbd> button in the left panel to add local or remote configuration files
+2. Support for filling in remote host information with automatic connection testing
+3. Edit files directly after selection, use the top toolbar to save/refresh
+4. Support for custom refresh commands, compatible with nginx, apache, and other configurations
+5. Automatic sudo password prompt when permissions are required
+6. Support for AI assistance, debug logging, theme switching, and other advanced features
 
-## 远程文件支持
-- 支持 SSH 协议，需填写主机、端口、用户名、密码
-- 支持远程读取、保存、命令执行
-- 远程操作安全可靠，失败有详细提示
+## Remote File Support
+- Support for SSH protocol, requiring host, port, username, and password
+- Support for remote reading, saving, and command execution
+- Secure and reliable remote operations with detailed failure notifications
 
-## AI 助手
-- 支持 OpenAI、Azure 等多种大模型
-- 可自定义 API Key、模型、BaseUrl
-- 智能分析配置内容，辅助生成/优化配置
+## AI Assistant
+- Support for multiple large models including OpenAI, Azure, etc.
+- Customizable API Key, model, and BaseUrl
+- Intelligent analysis of configuration content, assistance in generating/optimizing configurations
 
-## 贡献与反馈
+## Contributing & Feedback
 
-- 欢迎提交 Issue 或 PR
+- Welcome to submit Issues or PRs
 - GitHub: https://github.com/heroisuseless/configeditor
 
 ![weichat](./doc/Wechat.jpg)
